@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Вступительный экзамен по математике для ИТ-Колледжа E|C — Приём 2026" />
+  <title>E|C Engineering College — Вступительный экзамен по математике</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *,
+    *::before,
+    *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      -webkit-font-smoothing: antialiased
+    }
+
+    button,
+    input,
+    select {
+      font-family: inherit
+    }
+
+    @media print {
+      .no-print {
+        display: none !important
+      }
+    }
+  </style>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState, useEffect, useRef, useCallback, useMemo, createContext, useContext } = React;
+
+    /* ═══════════════════════════════════════════════════════════
+       DATA LAYER — Single source of truth (data.md)
+       ═══════════════════════════════════════════════════════════ */
+
+    const COLORS = {
+      navy: "#0b1f3a", navy2: "#122848", blue: "#1565c0", blueLight: "#1976d2",
+      accent: "#e8a020", white: "#ffffff", off: "#f4f6fa", border: "#dde3ed",
+      text: "#1a2535", muted: "#6b7a95", success: "#1b8c5e", danger: "#c0392b", bg: "#f0f3f9",
+    };
+
+    const EXAM_CONFIG = { totalQuestions: 20, timeLimitSec: 3600, warningThresholdSec: 300, attempts: 1 };
+
+    const GRADE_SCALE = [
+      { min: 80, labelKey: "grade.excellent", color: COLORS.success },
+      { min: 65, labelKey: "grade.good", color: "#1976d2" },
+      { min: 50, labelKey: "grade.satisfactory", color: COLORS.accent },
+      { min: 0, labelKey: "grade.needsImprovement", color: COLORS.danger },
+    ];
+
+    const TOPIC_NAMES = ["ALGEBRA", "GEOMETRY", "CALCULUS", "STATISTICS", "NUMBER THEORY"];
+
+    const BASE_QUESTIONS = [
+      {
+        topic: "ALGEBRA", topicKey: "topic.algebra",
+        text: "Find the derivative of f(x) = 3x² + 5x − 7",
+        textRu: "Найдите производную f(x) = 3x² + 5x − 7",
+        opts: ["6x + 5", "3x + 5", "6x² + 5", "6x − 7"], correct: 0
+      },
+      {
+        topic: "GEOMETRY", topicKey: "topic.geometry",
+        text: "What is the area of a circle with radius r = 4?",
+        textRu: "Чему равна площадь круга с радиусом r = 4?",
+        opts: ["8π", "16π", "4π", "12π"], correct: 1
+      },
+      {
+        topic: "ALGEBRA", topicKey: "topic.algebra",
+        text: "Solve for x: 2x + 8 = 0",
+        textRu: "Найдите x: 2x + 8 = 0",
+        opts: ["x = 4", "x = −4", "x = 2", "x = −2"], correct: 1
+      },
+      {
+        topic: "CALCULUS", topicKey: "topic.calculus",
+        text: "What is ∫2x dx?",
+        textRu: "Чему равно ∫2x dx?",
+        opts: ["x² + C", "2x² + C", "x + C", "2 + C"], correct: 0
+      },
+      {
+        topic: "STATISTICS", topicKey: "topic.statistics",
+        text: "The mean of {4, 8, 12, 16, 20} is:",
+        textRu: "Среднее значение {4, 8, 12, 16, 20} равно:",
+        opts: ["10", "12", "14", "16"], correct: 1
+      },
+      {
+        topic: "ALGEBRA", topicKey: "topic.algebra",
+        text: "Factor: x² − 9",
+        textRu: "Разложите на множители: x² − 9",
+        opts: ["(x−3)(x+3)", "(x−9)(x+1)", "(x−3)²", "(x+3)²"], correct: 0
+      },
+      {
+        topic: "GEOMETRY", topicKey: "topic.geometry",
+        text: "In a right triangle, if legs are 3 and 4, the hypotenuse is:",
+        textRu: "В прямоугольном треугольнике с катетами 3 и 4 гипотенуза равна:",
+        opts: ["5", "6", "7", "√7"], correct: 0
+      },
+      {
+        topic: "CALCULUS", topicKey: "topic.calculus",
+        text: "What is the limit of (sin x)/x as x → 0?",
+        textRu: "Чему равен предел (sin x)/x при x → 0?",
+        opts: ["0", "∞", "1", "undefined"],
+        optsRu: ["0", "∞", "1", "не определено"], correct: 2
+      },
+      {
+        topic: "NUMBER THEORY", topicKey: "topic.numberTheory",
+        text: "Which of the following is a prime number?",
+        textRu: "Какое из следующих чисел является простым?",
+        opts: ["51", "57", "61", "63"], correct: 2
+      },
+      {
+        topic: "ALGEBRA", topicKey: "topic.algebra",
+        text: "If f(x) = x² − 4x + 4, what is f(2)?",
+        textRu: "Если f(x) = x² − 4x + 4, чему равно f(2)?",
+        opts: ["0", "4", "−4", "8"], correct: 0
+      },
+      {
+        topic: "GEOMETRY", topicKey: "topic.geometry",
+        text: "The sum of interior angles of a hexagon is:",
+        textRu: "Сумма внутренних углов шестиугольника равна:",
+        opts: ["360°", "540°", "720°", "900°"], correct: 2
+      },
+      {
+        topic: "CALCULUS", topicKey: "topic.calculus",
+        text: "What is the derivative of sin(x)?",
+        textRu: "Чему равна производная sin(x)?",
+        opts: ["−cos(x)", "cos(x)", "tan(x)", "−sin(x)"], correct: 1
+      },
+      {
+        topic: "ALGEBRA", topicKey: "topic.algebra",
+        text: "What is the value of log₂(8)?",
+        textRu: "Чему равно значение log₂(8)?",
+        opts: ["2", "3", "4", "6"], correct: 1
+      },
+      {
+        topic: "STATISTICS", topicKey: "topic.statistics",
+        text: "The median of {3, 7, 2, 9, 5} is:",
+        textRu: "Медиана множества {3, 7, 2, 9, 5} равна:",
+        opts: ["5", "7", "3", "6"], correct: 0
+      },
+      {
+        topic: "NUMBER THEORY", topicKey: "topic.numberTheory",
+        text: "What is the GCD of 36 and 48?",
+        textRu: "Чему равен НОД чисел 36 и 48?",
+        opts: ["6", "8", "12", "18"], correct: 2
+      },
+    ];
+
+    const REGISTRATION_FIELDS = [
+      { key: "firstName", labelKey: "field.firstName", required: true, placeholderKey: "field.firstName.ph", type: "text" },
+      { key: "lastName", labelKey: "field.lastName", required: true, placeholderKey: "field.lastName.ph", type: "text" },
+      { key: "phone", labelKey: "field.phone", required: true, type: "phone", initialValue: "+996" },
+      { key: "grade", labelKey: "field.grade", required: true, type: "select", options: ["9", "10", "11"] },
+    ];
+
+    const EXAM_RULES = [
+      { icon: "⏱", color: "#e8f0fb", titleKey: "rule.timer.title", descKey: "rule.timer.desc" },
+      { icon: "🚫", color: "#fdecea", titleKey: "rule.attempt.title", descKey: "rule.attempt.desc" },
+      { icon: "↔️", color: "#fef4e0", titleKey: "rule.navigate.title", descKey: "rule.navigate.desc" },
+      { icon: "📶", color: "#e7f5ee", titleKey: "rule.connection.title", descKey: "rule.connection.desc" },
+    ];
+
+    const LETTERS = ["A", "B", "C", "D"];
+
+    const PAGES = {
+      landing: { labelKey: "page.landing", step: -1 },
+      register: { labelKey: "page.register", step: 0 },
+      intro: { labelKey: "page.intro", step: 1 },
+      exam: { labelKey: "page.exam", step: 2 },
+      report: { labelKey: "page.report", step: 3 },
+    };
+
+    const STEP_KEYS = ["step.register", "step.intro", "step.exam", "step.report"];
+
+    /* ═══════════════════════════════════════════════════════════
+       TRANSLATIONS — i18n strings (en + ru)
+       ═══════════════════════════════════════════════════════════ */
+
+    const TRANSLATIONS = {
+      en: {
+        // Pages / header badge
+        "page.landing": "college.edu.kg",
+        "page.register": "Step 1 — Registration",
+        "page.intro": "Step 2 — Instructions",
+        "page.exam": "Step 3 — Exam",
+        "page.report": "Results",
+
+        // Step bar
+        "step.register": "Register",
+        "step.intro": "Instructions",
+        "step.exam": "Exam",
+        "step.report": "Report",
+
+        // Landing
+        "landing.admissions": "Admissions 2026 — Now Open",
+        "landing.title1": "Mathematics",
+        "landing.title2": "Entrance Exam",
+        "landing.desc": "Demonstrate your mathematical aptitude for admission to E|C Engineering College. 20 multiple-choice questions, 60 minutes.",
+        "landing.stat.questions": "Questions",
+        "landing.stat.minutes": "Minutes",
+        "landing.stat.attempt": "Attempt",
+        "landing.cta": "Take the Exam",
+        "landing.card.title": "Math Entrance Exam",
+        "landing.card.subject": "Subject",
+        "landing.card.subject.val": "Mathematics",
+        "landing.card.format": "Format",
+        "landing.card.format.val": "Multiple Choice",
+        "landing.card.questions": "Questions",
+        "landing.card.questions.val": "20 questions",
+        "landing.card.time": "Time Limit",
+        "landing.card.time.val": "60 minutes",
+        "landing.card.attempts": "Attempts",
+        "landing.card.attempts.val": "ONE ATTEMPT",
+        "landing.card.results": "Results",
+        "landing.card.results.val": "Instant Report",
+
+        // Register
+        "register.breadcrumb.exam": "Math Exam",
+        "register.breadcrumb.step": "Registration",
+        "register.header": "Exam Registration",
+        "register.subheader": "Fill in your details to proceed to the exam",
+        "register.info": "Your information is securely linked to your exam attempt.",
+        "register.back": "← Back",
+        "register.continue": "Continue to Instructions →",
+        "register.secure": "🔒 Your data is securely recorded.",
+        "register.validation": "Please fill in all required fields.",
+        "register.validation.phone": "Phone number must be in format +996XXXXXXXXX (13 characters total).",
+
+        // Fields
+        "field.firstName": "First Name",
+        "field.firstName.ph": "Aibek",
+        "field.lastName": "Last Name (Surname)",
+        "field.lastName.ph": "Umarov",
+        "field.phone": "Phone Number",
+        "field.grade": "Grade",
+        "field.select": "Select",
+
+        // Instructions
+        "intro.breadcrumb.step": "Instructions",
+        "intro.ready": "// Ready to begin",
+        "intro.welcome": "Welcome,",
+        "intro.desc": "You are registered for the Mathematics Entrance Exam at Engineering College. Please read the rules below carefully before starting.",
+        "intro.stat.questions": "Questions",
+        "intro.stat.timelimit": "Time Limit",
+        "intro.stat.format": "Format",
+        "intro.stat.attempts": "Attempts",
+        "intro.stat.results": "Results",
+        "intro.checkbox": "I have read the rules and I am ready to begin",
+        "intro.start": "Start Exam →",
+
+        // Exam rules
+        "rule.timer.title": "Timer Runs Continuously",
+        "rule.timer.desc": "The 60-minute timer starts when you click Start and cannot be paused.",
+        "rule.attempt.title": "One Attempt Only",
+        "rule.attempt.desc": "You cannot retake the exam. Once submitted, your answers are final.",
+        "rule.navigate.title": "Navigate Freely",
+        "rule.navigate.desc": "You can go back and change answers at any time before submitting.",
+        "rule.connection.title": "Stable Connection",
+        "rule.connection.desc": "Ensure a stable internet connection. Answers are saved as you progress.",
+
+        // Exam
+        "exam.question": "Question",
+        "exam.of": "of",
+        "exam.prev": "← Previous",
+        "exam.next": "Next →",
+        "exam.submit": "Submit Exam",
+        "exam.confirm": "You have {n} unanswered question(s). Submit anyway?",
+        "exam.navigator": "📍 Navigator",
+        "exam.legend.answered": "Answered",
+        "exam.legend.current": "Current",
+        "exam.legend.unanswered": "Not answered",
+        "exam.answered": "answered",
+
+        // Report
+        "report.breadcrumb.step": "Results",
+        "report.completed": "Exam Completed!",
+        "report.desc": "Here is your performance report,",
+        "report.score": "Score",
+        "report.correct": "Correct",
+        "report.incorrect": "Incorrect",
+        "report.total": "Total",
+        "report.timeused": "Time Used",
+        "report.topics": "Performance by Topic",
+        "report.estimated": "Estimated breakdown",
+        "report.visit": "🏛 Visit College Website",
+        "report.home": "← Back to Home",
+        "report.print": "🖨 Print Report",
+
+        // Grades
+        "grade.excellent": "Excellent",
+        "grade.good": "Good",
+        "grade.satisfactory": "Satisfactory",
+        "grade.needsImprovement": "Needs Improvement",
+
+        // Topics
+        "topic.algebra": "Algebra",
+        "topic.geometry": "Geometry",
+        "topic.calculus": "Calculus",
+        "topic.statistics": "Statistics",
+        "topic.numberTheory": "Number Theory",
+      },
+
+      ru: {
+        // Pages / header badge
+        "page.landing": "college.edu.kg",
+        "page.register": "Шаг 1 — Регистрация",
+        "page.intro": "Шаг 2 — Инструкции",
+        "page.exam": "Шаг 3 — Экзамен",
+        "page.report": "Результаты",
+
+        // Step bar
+        "step.register": "Регистрация",
+        "step.intro": "Инструкции",
+        "step.exam": "Экзамен",
+        "step.report": "Результат",
+
+        // Landing
+        "landing.admissions": "Приём 2026 — Открыт",
+        "landing.title1": "Математика",
+        "landing.title2": "Вступительный Экзамен",
+        "landing.desc": "Продемонстрируйте свои математические способности для поступления в ИТ-Колледж E|C. 20 вопросов с выбором ответа, 60 минут.",
+        "landing.stat.questions": "Вопросов",
+        "landing.stat.minutes": "Минут",
+        "landing.stat.attempt": "Попытка",
+        "landing.cta": "Пройти Экзамен",
+        "landing.card.title": "Вступительный Экзамен по Математике",
+        "landing.card.subject": "Предмет",
+        "landing.card.subject.val": "Математика",
+        "landing.card.format": "Формат",
+        "landing.card.format.val": "Выбор из вариантов",
+        "landing.card.questions": "Вопросов",
+        "landing.card.questions.val": "20 вопросов",
+        "landing.card.time": "Лимит времени",
+        "landing.card.time.val": "60 минут",
+        "landing.card.attempts": "Попытки",
+        "landing.card.attempts.val": "ОДНА ПОПЫТКА",
+        "landing.card.results": "Результаты",
+        "landing.card.results.val": "Мгновенный отчёт",
+
+        // Register
+        "register.breadcrumb.exam": "Мат. Экзамен",
+        "register.breadcrumb.step": "Регистрация",
+        "register.header": "Регистрация на Экзамен",
+        "register.subheader": "Введите свои данные для прохождения экзамена",
+        "register.info": "Ваши данные надёжно связаны с вашей попыткой сдачи экзамена.",
+        "register.back": "← Назад",
+        "register.continue": "Перейти к Инструкциям →",
+        "register.secure": "🔒 Ваши данные надёжно сохранены.",
+        "register.validation": "Пожалуйста, заполните все обязательные поля.",
+        "register.validation.phone": "Номер телефона должен быть в формате +996XXXXXXXXX (13 символов).",
+
+        // Fields
+        "field.firstName": "Имя",
+        "field.firstName.ph": "Айбек",
+        "field.lastName": "Фамилия",
+        "field.lastName.ph": "Умаров",
+        "field.phone": "Номер телефона",
+        "field.grade": "Класс",
+        "field.select": "Выбрать",
+
+        // Instructions
+        "intro.breadcrumb.step": "Инструкции",
+        "intro.ready": "// Готовы начать",
+        "intro.welcome": "Добро пожаловать,",
+        "intro.desc": "Вы зарегистрированы на Вступительный Экзамен по Математике в «Инженерный колледж». Пожалуйста, внимательно ознакомьтесь с правилами перед началом.",
+        "intro.stat.questions": "Вопросов",
+        "intro.stat.timelimit": "Лимит времени",
+        "intro.stat.format": "Формат",
+        "intro.stat.attempts": "Попытки",
+        "intro.stat.results": "Результаты",
+        "intro.checkbox": "Я ознакомился с правилами и готов начать",
+        "intro.start": "Начать Экзамен →",
+
+        // Exam rules
+        "rule.timer.title": "Таймер идёт непрерывно",
+        "rule.timer.desc": "60-минутный таймер начинается при нажатии «Начать» и не может быть приостановлен.",
+        "rule.attempt.title": "Только одна попытка",
+        "rule.attempt.desc": "Вы не можете пересдать экзамен. После отправки ответы окончательны.",
+        "rule.navigate.title": "Свободная навигация",
+        "rule.navigate.desc": "Вы можете вернуться и изменить ответы в любое время до отправки.",
+        "rule.connection.title": "Стабильное соединение",
+        "rule.connection.desc": "Обеспечьте стабильное интернет-соединение. Ответы сохраняются по мере прохождения.",
+
+        // Exam
+        "exam.question": "Вопрос",
+        "exam.of": "из",
+        "exam.prev": "← Назад",
+        "exam.next": "Далее →",
+        "exam.submit": "Завершить Экзамен",
+        "exam.confirm": "У вас есть {n} неотвеченных вопроса(ов). Всё равно отправить?",
+        "exam.navigator": "📍 Навигатор",
+        "exam.legend.answered": "Отвечено",
+        "exam.legend.current": "Текущий",
+        "exam.legend.unanswered": "Не отвечено",
+        "exam.answered": "отвечено",
+
+        // Report
+        "report.breadcrumb.step": "Результаты",
+        "report.completed": "Экзамен завершён!",
+        "report.desc": "Вот ваш отчёт об успеваемости,",
+        "report.score": "Балл",
+        "report.correct": "Верно",
+        "report.incorrect": "Неверно",
+        "report.total": "Всего",
+        "report.timeused": "Затрачено времени",
+        "report.topics": "Результаты по темам",
+        "report.estimated": "Приблизительная разбивка",
+        "report.visit": "🏛 Сайт Колледжа",
+        "report.home": "← На главную",
+        "report.print": "🖨 Распечатать отчёт",
+
+        // Grades
+        "grade.excellent": "Отлично",
+        "grade.good": "Хорошо",
+        "grade.satisfactory": "Удовлетворительно",
+        "grade.needsImprovement": "Требует улучшения",
+
+        // Topics
+        "topic.algebra": "Алгебра",
+        "topic.geometry": "Геометрия",
+        "topic.calculus": "Мат. Анализ",
+        "topic.statistics": "Статистика",
+        "topic.numberTheory": "Теория чисел",
+      },
+    };
+
+    /* ═══════════════════════════════════════════════════════════
+       SERVICES — Pure functions, no side effects (SRP)
+       ═══════════════════════════════════════════════════════════ */
+
+    const QuestionService = {
+      build(base, total) {
+        const qs = [...base];
+        while (qs.length < total) {
+          const idx = qs.length;
+          const topicKeys = ["topic.algebra", "topic.geometry", "topic.calculus", "topic.statistics", "topic.numberTheory"];
+          qs.push({
+            topic: TOPIC_NAMES[idx % 5],
+            topicKey: topicKeys[idx % 5],
+            text: `Question ${idx + 1}: Solve the given mathematical expression.`,
+            textRu: `Вопрос ${idx + 1}: Решите данное математическое выражение.`,
+            opts: ["Option A", "Option B", "Option C", "Option D"],
+            optsRu: ["Вариант A", "Вариант B", "Вариант C", "Вариант D"],
+            correct: idx % 4,
+          });
+        }
+        return qs;
+      },
+    };
+
+    const GradingService = {
+      score(answers, questions) {
+        let correct = 0;
+        questions.forEach((q, i) => { if (answers[i] === q.correct) correct++; });
+        return correct;
+      },
+      percentage(correct, total) { return Math.round((correct / total) * 100); },
+      grade(pct) { return GRADE_SCALE.find(g => pct >= g.min) || GRADE_SCALE[GRADE_SCALE.length - 1]; },
+      topicBreakdown(pct) {
+        return [
+          { nameKey: "topic.algebra", pct: Math.min(100, pct + 10) },
+          { nameKey: "topic.geometry", pct: Math.max(0, pct - 8) },
+          { nameKey: "topic.calculus", pct: Math.min(100, pct + 18) },
+          { nameKey: "topic.statistics", pct: Math.max(0, pct - 20) },
+          { nameKey: "topic.numberTheory", pct: Math.min(100, pct + 5) },
+        ];
+      },
+    };
+
+    const TimeService = {
+      format(seconds) {
+        return { mm: String(Math.floor(seconds / 60)).padStart(2, "0"), ss: String(seconds % 60).padStart(2, "0") };
+      },
+      isWarning(seconds) { return seconds < EXAM_CONFIG.warningThresholdSec; },
+    };
+
+    const ValidationService = {
+      registration(form) {
+        const missing = REGISTRATION_FIELDS.filter(f => f.required && !form[f.key]);
+        if (missing.length > 0) return { valid: false, missing, reason: "missing" };
+        if (!/^\+996\d{9}$/.test(form.phone)) return { valid: false, missing: ["phone"], reason: "phone" };
+        return { valid: true, missing: [] };
+      },
+    };
+
+    /* ═══════════════════════════════════════════════════════════
+       STYLES — Design tokens → style objects (OCP)
+       ═══════════════════════════════════════════════════════════ */
+
+    const Styles = {
+      page: { minHeight: "100vh", background: COLORS.bg, fontFamily: "'Inter',system-ui,-apple-system,sans-serif", color: COLORS.text },
+      header: { background: COLORS.navy, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 28px", height: 60, position: "sticky", top: 0, zIndex: 100, boxShadow: "0 2px 16px rgba(0,0,0,.35)" },
+      logoMark: { fontWeight: 800, fontSize: 14, color: COLORS.white, background: COLORS.blue, padding: "4px 8px", borderRadius: 3, letterSpacing: -0.5, marginRight: 10 },
+      logoText: { fontWeight: 600, fontSize: 13, color: "#b0bcd0", letterSpacing: 0.5 },
+      badge: { fontFamily: "monospace", fontSize: 11, background: "rgba(255,255,255,.08)", color: "#8fa3c0", padding: "4px 10px", borderRadius: 2, border: "1px solid rgba(255,255,255,.1)" },
+      langBtn: { fontSize: 11, fontWeight: 700, padding: "4px 9px", borderRadius: 2, border: "1px solid rgba(255,255,255,.15)", cursor: "pointer", fontFamily: "monospace", letterSpacing: 0.5, transition: "all .15s" },
+      input: { width: "100%", height: 44, border: `1.5px solid ${COLORS.border}`, borderRadius: 4, background: COLORS.white, fontFamily: "inherit", fontSize: 14, color: COLORS.text, padding: "0 14px", outline: "none" },
+      label: { display: "block", fontSize: 12, fontWeight: 700, color: COLORS.text, marginBottom: 6 },
+      breadcrumb: { fontFamily: "monospace", fontSize: 11, color: COLORS.muted, marginBottom: 28 },
+      card: { background: COLORS.white, border: `1px solid ${COLORS.border}`, borderRadius: 8, boxShadow: "0 4px 24px rgba(0,0,0,.06)" },
+      cardHeader: { background: `linear-gradient(135deg,${COLORS.navy} 0%,${COLORS.navy2} 100%)`, padding: "24px 28px", display: "flex", alignItems: "center", gap: 14 },
+      btnPrimary: (bg = COLORS.blue) => ({ background: bg, color: COLORS.white, fontWeight: 700, fontSize: 14, padding: "12px 30px", borderRadius: 4, border: "none", cursor: "pointer", boxShadow: `0 4px 16px ${bg}44` }),
+      btnOutline: { padding: "9px 20px", borderRadius: 4, border: `1.5px solid ${COLORS.border}`, background: COLORS.white, fontSize: 13, fontWeight: 600, cursor: "pointer" },
+      btnGhost: { background: "none", border: "none", color: COLORS.muted, fontSize: 14, cursor: "pointer", display: "flex", alignItems: "center", gap: 6 },
+    };
+
+    /* ═══════════════════════════════════════════════════════════
+       CUSTOM HOOKS — Encapsulated logic (SRP + ISP)
+       ═══════════════════════════════════════════════════════════ */
+
+    function useTimer(duration, onExpire) {
+      const [timeLeft, setTimeLeft] = useState(duration);
+      const onExpireRef = useRef(onExpire);
+      onExpireRef.current = onExpire;
+      useEffect(() => {
+        const id = setInterval(() => setTimeLeft(t => {
+          if (t <= 1) { clearInterval(id); onExpireRef.current(); return 0; }
+          return t - 1;
+        }), 1000);
+        return () => clearInterval(id);
+      }, []);
+      return { timeLeft, ...TimeService.format(timeLeft), isWarning: TimeService.isWarning(timeLeft) };
+    }
+
+    function useExamState(questions) {
+      const [current, setCurrent] = useState(0);
+      const [answers, setAnswers] = useState({});
+      const startRef = useRef(Date.now());
+      const select = useCallback((i) => setAnswers(a => ({ ...a, [current]: i })), [current]);
+      const next = useCallback(() => setCurrent(c => Math.min(questions.length - 1, c + 1)), [questions.length]);
+      const prev = useCallback(() => setCurrent(c => Math.max(0, c - 1)), []);
+      const goTo = useCallback((i) => setCurrent(i), []);
+      const elapsed = useCallback(() => Math.floor((Date.now() - startRef.current) / 1000), []);
+      const answeredCount = Object.keys(answers).length;
+      const isFirst = current === 0;
+      const isLast = current === questions.length - 1;
+      return { current, answers, select, next, prev, goTo, elapsed, answeredCount, isFirst, isLast, question: questions[current] };
+    }
+
+    function useFormState(fields) {
+      const initial = {};
+      fields.forEach(f => initial[f.key] = f.initialValue || "");
+      const [form, setForm] = useState(initial);
+      const set = useCallback((key) => (e) => setForm(f => ({ ...f, [key]: e.target.value })), []);
+      return { form, set };
+    }
+
+    function usePageNav() {
+      const [page, setPage] = useState("landing");
+      const [student, setStudent] = useState({});
+      const [result, setResult] = useState(null);
+      const go = useCallback((p) => setPage(p), []);
+      return { page, go, student, setStudent, result, setResult };
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       LANG CONTEXT — i18n provider and hook
+       ═══════════════════════════════════════════════════════════ */
+
+    const LangContext = createContext(null);
+
+    function LangProvider({ children }) {
+      const [lang, setLang] = useState("ru");
+
+      useEffect(() => {
+        document.documentElement.lang = lang;
+      }, [lang]);
+
+      const t = useCallback((key, vars = {}) => {
+        const val = (TRANSLATIONS[lang] && TRANSLATIONS[lang][key]) ||
+          (TRANSLATIONS.en && TRANSLATIONS.en[key]) || key;
+        if (vars && Object.keys(vars).length > 0) {
+          return val.replace(/\{(\w+)\}/g, (_, k) => vars[k] !== undefined ? vars[k] : `{${k}}`);
+        }
+        return val;
+      }, [lang]);
+
+      return (
+        <LangContext.Provider value={{ lang, setLang, t }}>
+          {children}
+        </LangContext.Provider>
+      );
+    }
+
+    function useLang() { return useContext(LangContext); }
+
+    /* ═══════════════════════════════════════════════════════════
+       UI PRIMITIVES — Small, reusable, single-purpose (SRP+ISP)
+       ═══════════════════════════════════════════════════════════ */
+
+    function Breadcrumb({ items }) {
+      return (
+        <div style={Styles.breadcrumb}>
+          {items.map((item, i) => (
+            <span key={i}>{i > 0 && " → "}{item.highlight ? <span style={{ color: item.color || COLORS.blue }}>{item.text}</span> : item.text}</span>
+          ))}
+        </div>
+      );
+    }
+
+    function StepBar({ current }) {
+      const { t } = useLang();
+      const active = PAGES[current]?.step ?? -1;
+      return (
+        <div style={{ display: "flex", alignItems: "center", marginBottom: 32 }}>
+          {STEP_KEYS.map((key, i) => (
+            <div key={key} style={{ display: "flex", alignItems: "center", flex: i < STEP_KEYS.length - 1 ? 1 : "none" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                <div style={{
+                  width: 28, height: 28, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontFamily: "monospace", fontWeight: 600, flexShrink: 0,
+                  background: i < active ? COLORS.success : i === active ? "#e8f0fb" : COLORS.white,
+                  color: i < active ? COLORS.white : i === active ? COLORS.blue : COLORS.muted,
+                  border: `2px solid ${i < active ? COLORS.success : i === active ? COLORS.blue : COLORS.border}`
+                }}>
+                  {i < active ? "✓" : i + 1}
+                </div>
+                <span style={{ fontSize: 12, fontWeight: 600, whiteSpace: "nowrap", color: i === active ? COLORS.blue : i < active ? COLORS.success : COLORS.muted }}>{t(key)}</span>
+              </div>
+              {i < STEP_KEYS.length - 1 && <div style={{ flex: 1, height: 2, margin: "0 8px", background: i < active ? COLORS.success : COLORS.border }} />}
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    function StatBox({ value, label, color }) {
+      return (
+        <div style={{ ...Styles.card, padding: 18, textAlign: "center", boxShadow: "none" }}>
+          <div style={{ fontWeight: 800, fontSize: 24, color }}>{value}</div>
+          <div style={{ fontSize: 11, color: COLORS.muted, marginTop: 4 }}>{label}</div>
+        </div>
+      );
+    }
+
+    function ScoreRing({ pct, color }) {
+      const { t } = useLang();
+      const c = 2 * Math.PI * 54;
+      const offset = c - (pct / 100) * c;
+      return (
+        <div style={{ position: "relative", width: 140, height: 140 }}>
+          <svg width="140" height="140" style={{ transform: "rotate(-90deg)" }}>
+            <circle cx="70" cy="70" r="54" fill="none" stroke="rgba(255,255,255,.1)" strokeWidth="8" />
+            <circle cx="70" cy="70" r="54" fill="none" stroke={color} strokeWidth="8" strokeLinecap="round" strokeDasharray={c} strokeDashoffset={offset} style={{ transition: "stroke-dashoffset 1.5s ease" }} />
+          </svg>
+          <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+            <div style={{ fontWeight: 800, fontSize: 28, color: COLORS.white }}>{pct}%</div>
+            <div style={{ fontSize: 11, color: "#8fa3c0" }}>{t("report.score")}</div>
+          </div>
+        </div>
+      );
+    }
+
+    function TopicBar({ nameKey, pct }) {
+      const { t } = useLang();
+      const c = pct >= 70 ? COLORS.success : pct >= 50 ? COLORS.accent : COLORS.danger;
+      return (
+        <div style={{ display: "flex", alignItems: "center", gap: 16, padding: "13px 22px", borderBottom: `1px solid ${COLORS.border}` }}>
+          <div style={{ flex: 1, fontSize: 13, fontWeight: 500 }}>{t(nameKey)}</div>
+          <div style={{ flex: 2, height: 8, background: COLORS.border, borderRadius: 4, overflow: "hidden" }}>
+            <div style={{ height: "100%", background: c, borderRadius: 4, width: `${pct}%` }} />
+          </div>
+          <div style={{ fontFamily: "monospace", fontSize: 11, color: COLORS.muted, minWidth: 36, textAlign: "right" }}>{pct}%</div>
+        </div>
+      );
+    }
+
+    function OptionCard({ letter, text, selected, onClick }) {
+      return (
+        <div onClick={onClick} style={{
+          display: "flex", alignItems: "center", gap: 14, padding: "13px 16px", borderRadius: 6,
+          border: `1.5px solid ${selected ? COLORS.blue : COLORS.border}`, background: selected ? "#e8f0fb" : COLORS.white,
+          cursor: "pointer", fontSize: 14, transition: "all .12s"
+        }}>
+          <span style={{
+            width: 28, height: 28, borderRadius: 4, display: "flex", alignItems: "center", justifyContent: "center",
+            fontFamily: "monospace", fontSize: 12, fontWeight: 500, flexShrink: 0,
+            background: selected ? COLORS.blue : COLORS.off, color: selected ? COLORS.white : COLORS.muted, transition: "all .12s"
+          }}>{letter}</span>
+          {text}
+        </div>
+      );
+    }
+
+    function NavDot({ index, isCurrent, isAnswered, onClick }) {
+      return (
+        <div onClick={onClick} style={{
+          width: 30, height: 30, borderRadius: 4, display: "flex", alignItems: "center", justifyContent: "center",
+          fontFamily: "monospace", fontSize: 11, cursor: "pointer", fontWeight: isCurrent ? 700 : 400,
+          background: isCurrent ? COLORS.blue : isAnswered ? COLORS.navy : COLORS.off,
+          color: isCurrent || isAnswered ? COLORS.white : COLORS.muted,
+          border: `1.5px solid ${isCurrent ? COLORS.blue : isAnswered ? COLORS.navy : COLORS.border}`
+        }}>{index + 1}</div>
+      );
+    }
+
+    function RuleCard({ icon, color, titleKey, descKey }) {
+      const { t } = useLang();
+      return (
+        <div style={{ ...Styles.card, padding: 18, display: "flex", gap: 12, boxShadow: "none" }}>
+          <div style={{ width: 38, height: 38, borderRadius: 6, background: color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0 }}>{icon}</div>
+          <div>
+            <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 4 }}>{t(titleKey)}</div>
+            <div style={{ fontSize: 12, color: COLORS.muted, lineHeight: 1.5 }}>{t(descKey)}</div>
+          </div>
+        </div>
+      );
+    }
+
+    function FormField({ field, value, onChange }) {
+      const { t } = useLang();
+      const label = t(field.labelKey);
+      if (field.type === "select") {
+        return (
+          <div>
+            <label style={Styles.label}>{label}{field.required && <span style={{ color: COLORS.danger }}> *</span>}</label>
+            <select style={Styles.input} value={value} onChange={onChange}>
+              <option value="">{t("field.select")} {label.toLowerCase()}</option>
+              {field.options.map(o => <option key={o}>{o}</option>)}
+            </select>
+          </div>
+        );
+      }
+      if (field.type === "phone") {
+        const handlePhoneChange = (e) => {
+          let val = e.target.value;
+          if (!val.startsWith("+996")) val = "+996";
+          if (val.length > 13) val = val.slice(0, 13);
+          onChange({ target: { value: val } });
+        };
+        return (
+          <div>
+            <label style={Styles.label}>{label}{field.required && <span style={{ color: COLORS.danger }}> *</span>}</label>
+            <input style={Styles.input} type="tel" value={value} onChange={handlePhoneChange} maxLength={13} />
+          </div>
+        );
+      }
+      return (
+        <div>
+          <label style={Styles.label}>{label}{field.required && <span style={{ color: COLORS.danger }}> *</span>}</label>
+          <input style={Styles.input} type={field.type} placeholder={field.placeholderKey ? t(field.placeholderKey) : ""} value={value} onChange={onChange} />
+        </div>
+      );
+    }
+
+    function InfoBanner({ icon, text, bg, borderColor, color }) {
+      return (
+        <div style={{ background: bg, border: `1px solid ${borderColor}`, borderRadius: 4, padding: "10px 14px", marginBottom: 22, fontSize: 12, color, display: "flex", gap: 8, alignItems: "center" }}>
+          <span>{icon}</span> {text}
+        </div>
+      );
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       PAGE COMPONENTS — Compose primitives (OCP + DIP)
+       ═══════════════════════════════════════════════════════════ */
+
+    function Header({ page, onLogoClick }) {
+      const { lang, setLang, t } = useLang();
+      return (
+        <div style={Styles.header}>
+          <div style={{ display: "flex", alignItems: "flex-start", cursor: "pointer" }} onClick={onLogoClick}>
+            <img src="assets/app_logo.png" alt="E|C" style={{ height: 52, width: "auto", marginRight: 10, alignSelf: "flex-start" }} />
+            <span style={{ ...Styles.logoText, alignSelf: "center" }}>Engineering College</span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            {page === "landing"
+              ? <a href="https://college.edu.kg/" target="_blank" rel="noreferrer" style={{ ...Styles.badge, textDecoration: "none", cursor: "pointer" }}>{t(PAGES[page]?.labelKey)}</a>
+              : <span style={Styles.badge}>{t(PAGES[page]?.labelKey)}</span>}
+            <div style={{ display: "flex", gap: 3 }}>
+              <button
+                onClick={() => setLang("ru")}
+                style={{
+                  ...Styles.langBtn,
+                  background: lang === "ru" ? COLORS.blue : "rgba(255,255,255,.08)",
+                  color: lang === "ru" ? COLORS.white : "#8fa3c0"
+                }}>
+                RU
+              </button>
+              <button
+                onClick={() => setLang("en")}
+                style={{
+                  ...Styles.langBtn,
+                  background: lang === "en" ? COLORS.blue : "rgba(255,255,255,.08)",
+                  color: lang === "en" ? COLORS.white : "#8fa3c0"
+                }}>
+                EN
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function Landing({ onStart }) {
+      const { t } = useLang();
+      const cardRows = [
+        ["landing.card.subject", "landing.card.subject.val"],
+        ["landing.card.format", "landing.card.format.val"],
+        ["landing.card.questions", "landing.card.questions.val"],
+        ["landing.card.time", "landing.card.time.val"],
+        ["landing.card.attempts", "landing.card.attempts.val"],
+        ["landing.card.results", "landing.card.results.val"],
+      ];
+      return (
+        <div style={{ background: COLORS.navy, minHeight: "calc(100vh - 60px)", position: "relative", overflow: "hidden" }}>
+          <div style={{ position: "absolute", inset: 0, opacity: 0.04, backgroundImage: "linear-gradient(#fff 1px,transparent 1px),linear-gradient(90deg,#fff 1px,transparent 1px)", backgroundSize: "40px 40px", pointerEvents: "none" }} />
+          <div style={{ position: "absolute", top: -200, right: -200, width: 700, height: 700, borderRadius: "50%", background: "radial-gradient(circle,rgba(21,101,192,.25) 0%,transparent 70%)", pointerEvents: "none" }} />
+          <div style={{ position: "relative", zIndex: 1, maxWidth: 1000, margin: "0 auto", padding: "80px 32px 60px", display: "grid", gridTemplateColumns: "1fr 360px", gap: 60, alignItems: "center" }}>
+            <div>
+              <div style={{ display: "inline-flex", alignItems: "center", gap: 8, fontFamily: "monospace", fontSize: 11, color: COLORS.accent, letterSpacing: 2, textTransform: "uppercase", background: "rgba(232,160,32,.1)", border: "1px solid rgba(232,160,32,.3)", padding: "5px 14px", borderRadius: 2, marginBottom: 24 }}>
+                <span style={{ width: 6, height: 6, borderRadius: "50%", background: COLORS.accent, display: "inline-block" }} />{t("landing.admissions")}
+              </div>
+              <h1 style={{ fontWeight: 800, fontSize: 48, lineHeight: 1.05, color: COLORS.white, marginBottom: 18 }}>{t("landing.title1")}<br /><span style={{ color: COLORS.accent }}>{t("landing.title2")}</span></h1>
+              <p style={{ fontSize: 16, color: "#8fa3c0", lineHeight: 1.7, maxWidth: 420, marginBottom: 40 }}>{t("landing.desc")}</p>
+              <div style={{ display: "flex", gap: 32, marginBottom: 48 }}>
+                {[["20", "landing.stat.questions"], ["60", "landing.stat.minutes"], ["1×", "landing.stat.attempt"]].map(([n, lk]) => (
+                  <div key={lk} style={{ borderLeft: `3px solid ${COLORS.blue}`, paddingLeft: 14 }}>
+                    <div style={{ fontWeight: 800, fontSize: 26, color: COLORS.white }}>{n}</div>
+                    <div style={{ fontSize: 12, color: "#6a85a8", marginTop: 2 }}>{t(lk)}</div>
+                  </div>))}
+              </div>
+              <button onClick={onStart} style={{ display: "inline-flex", alignItems: "center", gap: 12, background: COLORS.accent, color: COLORS.navy, fontWeight: 800, fontSize: 15, padding: "15px 36px", borderRadius: 3, border: "none", cursor: "pointer", boxShadow: "0 8px 32px rgba(232,160,32,.35)", letterSpacing: 0.3 }}>{t("landing.cta")} <span style={{ fontSize: 18 }}>→</span></button>
+            </div>
+            <div style={{ background: "rgba(255,255,255,.05)", border: "1px solid rgba(255,255,255,.1)", borderRadius: 8, padding: 28, backdropFilter: "blur(10px)" }}>
+              <div style={{ fontWeight: 700, fontSize: 15, color: COLORS.white, marginBottom: 18, display: "flex", alignItems: "center", gap: 8 }}><span style={{ color: COLORS.accent, fontSize: 18 }}>∑</span> {t("landing.card.title")}</div>
+              {cardRows.map(([kk, vk]) => (
+                <div key={kk} style={{ display: "flex", justifyContent: "space-between", padding: "11px 0", borderBottom: "1px solid rgba(255,255,255,.07)", fontSize: 13 }}>
+                  <span style={{ color: "#8fa3c0" }}>{t(kk)}</span>
+                  <span style={{ color: COLORS.white, fontWeight: 600 }}>
+                    {kk === "landing.card.attempts"
+                      ? <span style={{ background: "rgba(21,101,192,.3)", color: "#7fb3ff", fontFamily: "monospace", fontSize: 11, padding: "2px 8px", borderRadius: 2 }}>{t(vk)}</span>
+                      : t(vk)}
+                  </span>
+                </div>))}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function Register({ onSubmit, onBack }) {
+      const { t } = useLang();
+      const { form, set } = useFormState(REGISTRATION_FIELDS);
+      const handleSubmit = () => {
+        const { valid, reason } = ValidationService.registration(form);
+        if (!valid) { alert(t(reason === "phone" ? "register.validation.phone" : "register.validation")); return; }
+        onSubmit(form);
+      };
+      const rows = [[0, 1], [2, 3]];
+      return (
+        <div style={{ maxWidth: 660, margin: "0 auto", padding: "48px 20px" }}>
+          <Breadcrumb items={[{ text: "college.edu.kg" }, { text: t("register.breadcrumb.exam"), highlight: true }, { text: t("register.breadcrumb.step") }]} />
+          <StepBar current="register" />
+          <div style={{ ...Styles.card, overflow: "hidden" }}>
+            <div style={Styles.cardHeader}>
+              <div style={{ width: 44, height: 44, borderRadius: 6, background: "rgba(255,255,255,.1)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, flexShrink: 0 }}>📋</div>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: 17, color: COLORS.white }}>{t("register.header")}</div>
+                <div style={{ color: "#8fa3c0", fontSize: 13, marginTop: 3 }}>{t("register.subheader")}</div>
+              </div>
+            </div>
+            <div style={{ padding: 28 }}>
+              <InfoBanner icon="ℹ" text={t("register.info")} bg="#f0f6ff" borderColor="#c5d9f5" color={COLORS.blue} />
+              {rows.map((pair, ri) => (
+                <div key={ri} style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
+                  {pair.map(fi => <FormField key={REGISTRATION_FIELDS[fi].key} field={REGISTRATION_FIELDS[fi]} value={form[REGISTRATION_FIELDS[fi].key]} onChange={set(REGISTRATION_FIELDS[fi].key)} />)}
+                </div>
+              ))}
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 24 }}>
+                <button onClick={onBack} style={Styles.btnGhost}>{t("register.back")}</button>
+                <button onClick={handleSubmit} style={Styles.btnPrimary()}>{t("register.continue")}</button>
+              </div>
+              <div style={{ fontSize: 11, color: COLORS.muted, marginTop: 16, paddingTop: 14, borderTop: `1px solid ${COLORS.border}`, display: "flex", gap: 6, alignItems: "center" }}>{t("register.secure")}</div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function Instructions({ student, onStart }) {
+      const { t } = useLang();
+      const [agreed, setAgreed] = useState(false);
+      return (
+        <div style={{ maxWidth: 740, margin: "0 auto", padding: "48px 20px" }}>
+          <Breadcrumb items={[{ text: "college.edu.kg" }, { text: t("register.breadcrumb.exam"), highlight: true }, { text: t("intro.breadcrumb.step") }]} />
+          <StepBar current="intro" />
+          <div style={{ background: `linear-gradient(135deg,${COLORS.navy} 0%,#0e2d54 100%)`, borderRadius: 10, padding: "40px 40px 36px", marginBottom: 24, position: "relative", overflow: "hidden" }}>
+            <div style={{ position: "absolute", right: -20, top: -30, fontSize: 180, fontWeight: 800, color: "rgba(255,255,255,.04)", lineHeight: 1, pointerEvents: "none" }}>∫</div>
+            <div style={{ fontFamily: "monospace", fontSize: 11, color: COLORS.accent, letterSpacing: 2, marginBottom: 10, textTransform: "uppercase" }}>{t("intro.ready")}</div>
+            <h2 style={{ fontWeight: 800, fontSize: 26, color: COLORS.white, marginBottom: 8 }}>{t("intro.welcome")} <span style={{ color: COLORS.accent }}>{student.firstName} {student.lastName}</span></h2>
+            <p style={{ color: "#8fa3c0", fontSize: 14, lineHeight: 1.7 }}>{t("intro.desc")}</p>
+          </div>
+          <div style={{ ...Styles.card, display: "flex", alignItems: "center", justifyContent: "space-around", padding: "18px 24px", marginBottom: 22, flexWrap: "wrap", gap: 16, boxShadow: "none" }}>
+            {[["20", "intro.stat.questions"], ["60:00", "intro.stat.timelimit"], ["1×", "intro.stat.attempts"]].map(([v, lk]) => (
+              <div key={lk} style={{ textAlign: "center" }}><div style={{ fontWeight: 800, fontSize: 22, color: COLORS.navy }}>{v}</div><div style={{ fontSize: 11, color: COLORS.muted, marginTop: 2 }}>{t(lk)}</div></div>))}
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 24 }}>
+            {EXAM_RULES.map(r => <RuleCard key={r.titleKey} {...r} />)}
+          </div>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <label style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 13, color: COLORS.muted, cursor: "pointer" }}>
+              <input type="checkbox" checked={agreed} onChange={e => setAgreed(e.target.checked)} style={{ width: 16, height: 16, accentColor: COLORS.blue }} />{t("intro.checkbox")}
+            </label>
+            <button onClick={onStart} disabled={!agreed} style={{ ...Styles.btnPrimary(agreed ? COLORS.success : "#ccc"), cursor: agreed ? "pointer" : "not-allowed", boxShadow: agreed ? "0 6px 20px rgba(27,140,94,.3)" : "none", transition: "all .2s" }}>{t("intro.start")}</button>
+          </div>
+        </div>
+      );
+    }
+
+    function Exam({ questions, onFinish }) {
+      const { lang, t } = useLang();
+      const exam = useExamState(questions);
+      const timer = useTimer(EXAM_CONFIG.timeLimitSec, () => submitExam(true));
+      const q = exam.question;
+      const qText = (lang === "ru" && q.textRu) ? q.textRu : q.text;
+      const qOpts = (lang === "ru" && q.optsRu) ? q.optsRu : q.opts;
+      const topicLabel = t(q.topicKey || "topic.algebra");
+
+      const submitExam = useCallback((auto = false) => {
+        if (!auto && exam.answeredCount < questions.length) {
+          const msg = t("exam.confirm", { n: questions.length - exam.answeredCount });
+          if (!window.confirm(msg)) return;
+        }
+        const correct = GradingService.score(exam.answers, questions);
+        onFinish({ correct, total: questions.length, elapsed: exam.elapsed() });
+      }, [exam.answers, exam.answeredCount, exam.elapsed, questions, onFinish, t]);
+
+      return (
+        <div style={{ maxWidth: 1060, margin: "0 auto", padding: "28px 20px", display: "grid", gridTemplateColumns: "1fr 280px", gap: 20, alignItems: "start" }}>
+          <div>
+            {/* Timer bar */}
+            <div style={{ background: COLORS.navy, borderRadius: 8, padding: "14px 22px", marginBottom: 20, boxShadow: "0 4px 20px rgba(0,0,0,.15)" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+                <div style={{ fontFamily: "monospace", fontSize: 12, color: "#8fa3c0" }}>{t("exam.question")} <strong style={{ color: COLORS.white }}>{exam.current + 1}</strong> {t("exam.of")} <strong style={{ color: COLORS.white }}>{questions.length}</strong></div>
+                <div style={{ display: "flex", alignItems: "center", gap: 7, fontFamily: "monospace", fontSize: 16, fontWeight: 500, color: timer.isWarning ? "#ff7043" : COLORS.white }}>
+                  <span style={{ width: 7, height: 7, borderRadius: "50%", background: timer.isWarning ? "#ff7043" : COLORS.accent, display: "inline-block" }} />{timer.mm}:{timer.ss}
+                </div>
+              </div>
+              <div style={{ height: 4, background: "rgba(255,255,255,.1)", borderRadius: 2, overflow: "hidden" }}>
+                <div style={{ height: "100%", background: COLORS.accent, borderRadius: 2, width: `${(exam.answeredCount / questions.length) * 100}%`, transition: "width .3s" }} />
+              </div>
+            </div>
+            {/* Question card */}
+            <div style={{ ...Styles.card, padding: 28, boxShadow: "0 2px 12px rgba(0,0,0,.04)" }}>
+              <div style={{ fontFamily: "monospace", fontSize: 11, color: COLORS.muted, letterSpacing: 1, textTransform: "uppercase", marginBottom: 14 }}>{t("exam.question")} {exam.current + 1} — {topicLabel}</div>
+              <div style={{ fontWeight: 700, fontSize: 17, color: COLORS.navy, lineHeight: 1.5, marginBottom: 24 }}>{qText}</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                {qOpts.map((opt, i) => <OptionCard key={i} letter={LETTERS[i]} text={opt} selected={exam.answers[exam.current] === i} onClick={() => exam.select(i)} />)}
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", marginTop: 22 }}>
+                <button onClick={exam.prev} disabled={exam.isFirst} style={{ ...Styles.btnOutline, color: exam.isFirst ? COLORS.border : COLORS.text, cursor: exam.isFirst ? "not-allowed" : "pointer" }}>{t("exam.prev")}</button>
+                {!exam.isLast
+                  ? <button onClick={exam.next} style={Styles.btnPrimary()}>{t("exam.next")}</button>
+                  : <button onClick={() => submitExam()} style={Styles.btnPrimary(COLORS.danger)}>{t("exam.submit")}</button>}
+              </div>
+            </div>
+          </div>
+          {/* Sidebar */}
+          <div>
+            <div style={{ ...Styles.card, padding: 18, marginBottom: 14, boxShadow: "none" }}>
+              <div style={{ fontWeight: 700, fontSize: 13, color: COLORS.navy, marginBottom: 12 }}>{t("exam.navigator")}</div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                {questions.map((_, i) => <NavDot key={i} index={i} isCurrent={i === exam.current} isAnswered={exam.answers[i] !== undefined} onClick={() => exam.goTo(i)} />)}
+              </div>
+              <div style={{ marginTop: 14, display: "flex", flexDirection: "column", gap: 6 }}>
+                {[["exam.legend.answered", COLORS.navy], ["exam.legend.current", COLORS.blue], ["exam.legend.unanswered", COLORS.border]].map(([lk, c]) => (
+                  <div key={lk} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 11, color: COLORS.muted }}><div style={{ width: 12, height: 12, borderRadius: 2, background: c, flexShrink: 0 }} />{t(lk)}</div>))}
+              </div>
+            </div>
+            <div style={{ ...Styles.card, padding: "12px 16px", marginBottom: 14, fontSize: 12, color: COLORS.muted, textAlign: "center", boxShadow: "none" }}>
+              <span style={{ fontWeight: 700, color: COLORS.navy, fontSize: 15 }}>{exam.answeredCount}</span> / {questions.length} {t("exam.answered")}
+            </div>
+            <button onClick={() => submitExam()} style={{ width: "100%", ...Styles.btnPrimary(COLORS.danger), padding: 13 }}>{t("exam.submit")}</button>
+          </div>
+        </div>
+      );
+    }
+
+    function Report({ student, result, onHome }) {
+      const { t } = useLang();
+      const pct = GradingService.percentage(result.correct, result.total);
+      const { mm, ss } = TimeService.format(result.elapsed);
+      const { labelKey, color: gradeColor } = GradingService.grade(pct);
+      const topics = GradingService.topicBreakdown(pct);
+
+      return (
+        <div style={{ maxWidth: 820, margin: "0 auto", padding: "48px 20px" }}>
+          <Breadcrumb items={[{ text: "college.edu.kg" }, { text: t("register.breadcrumb.exam") }, { text: t("report.breadcrumb.step"), highlight: true, color: COLORS.success }]} />
+          {/* Hero */}
+          <div style={{ background: `linear-gradient(135deg,${COLORS.navy} 0%,#0a2240 100%)`, borderRadius: 10, padding: "44px 40px", marginBottom: 24, textAlign: "center", position: "relative", overflow: "hidden" }}>
+            <div style={{ position: "absolute", top: -100, left: "50%", transform: "translateX(-50%)", width: 500, height: 500, borderRadius: "50%", background: "radial-gradient(circle,rgba(27,140,94,.12) 0%,transparent 70%)", pointerEvents: "none" }} />
+            <div style={{ fontSize: 36, marginBottom: 12 }}>🎓</div>
+            <h2 style={{ fontWeight: 800, fontSize: 26, color: COLORS.white, marginBottom: 6 }}>{t("report.completed")}</h2>
+            <p style={{ color: "#8fa3c0", fontSize: 14 }}>{t("report.desc")} <span style={{ color: COLORS.accent, fontWeight: 600 }}>{student.firstName} {student.lastName}</span></p>
+            <div style={{ display: "flex", justifyContent: "center", margin: "28px 0 16px" }}><ScoreRing pct={pct} color={gradeColor} /></div>
+            <div style={{ display: "inline-block", background: `${gradeColor}22`, color: gradeColor, border: `1px solid ${gradeColor}44`, borderRadius: 3, padding: "4px 14px", fontSize: 12, fontWeight: 700, letterSpacing: 1 }}>{t(labelKey)}</div>
+          </div>
+          {/* Stats */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 14, marginBottom: 24 }}>
+            <StatBox value={result.correct} label={t("report.correct")} color={COLORS.success} />
+            <StatBox value={result.total - result.correct} label={t("report.incorrect")} color={COLORS.danger} />
+            <StatBox value={result.total} label={t("report.total")} color={COLORS.navy} />
+            <StatBox value={`${mm}:${ss}`} label={t("report.timeused")} color={COLORS.blue} />
+          </div>
+          {/* Topics */}
+          <div style={{ ...Styles.card, marginBottom: 24, overflow: "hidden", boxShadow: "none" }}>
+            <div style={{ padding: "14px 22px", background: "#f7f9fc", borderBottom: `1px solid ${COLORS.border}`, fontWeight: 700, fontSize: 13, color: COLORS.navy, display: "flex", justifyContent: "space-between" }}>
+              <span>{t("report.topics")}</span><span style={{ fontSize: 11, fontWeight: 400, color: COLORS.muted }}>{t("report.estimated")}</span>
+            </div>
+            {topics.map(tp => <TopicBar key={tp.nameKey} nameKey={tp.nameKey} pct={tp.pct} />)}
+          </div>
+          {/* Actions */}
+          <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+            <a href="https://college.edu.kg/" target="_blank" rel="noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "12px 24px", borderRadius: 4, background: COLORS.navy, color: COLORS.white, fontWeight: 700, fontSize: 13, textDecoration: "none" }}>{t("report.visit")}</a>
+            <button onClick={onHome} style={{ ...Styles.btnOutline, display: "inline-flex", alignItems: "center", gap: 8, color: COLORS.text, fontWeight: 600 }}>{t("report.home")}</button>
+            <button onClick={() => window.print()} style={{ ...Styles.btnOutline, display: "inline-flex", alignItems: "center", gap: 8, color: COLORS.text, fontWeight: 600 }}>{t("report.print")}</button>
+          </div>
+        </div>
+      );
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       APP — Orchestrator (DIP — depends on abstractions)
+       ═══════════════════════════════════════════════════════════ */
+
+    const QUESTIONS = QuestionService.build(BASE_QUESTIONS, EXAM_CONFIG.totalQuestions);
+
+    function App() {
+      const nav = usePageNav();
+      const handleRegister = (form) => { nav.setStudent(form); nav.go("intro"); };
+      const handleFinish = (res) => { nav.setResult(res); nav.go("report"); };
+
+      return (
+        <LangProvider>
+          <div style={Styles.page}>
+            <Header page={nav.page} onLogoClick={() => nav.go("landing")} />
+            {nav.page === "landing" && <Landing onStart={() => nav.go("register")} />}
+            {nav.page === "register" && <Register onSubmit={handleRegister} onBack={() => nav.go("landing")} />}
+            {nav.page === "intro" && <Instructions student={nav.student} onStart={() => nav.go("exam")} />}
+            {nav.page === "exam" && <Exam questions={QUESTIONS} onFinish={handleFinish} />}
+            {nav.page === "report" && <Report student={nav.student} result={nav.result} onHome={() => nav.go("landing")} />}
+          </div>
+        </LangProvider>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+
+</html>
