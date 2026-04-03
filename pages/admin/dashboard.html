@@ -26,6 +26,16 @@
     .sidebar-footer { padding: 16px 12px; border-top: 1px solid rgba(255,255,255,.06); }
     .logout-btn { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 6px; font-size: 13px; font-weight: 500; color: #8fa3c0; cursor: pointer; background: none; border: none; font-family: inherit; width: 100%; transition: background .15s, color .15s; }
     .logout-btn:hover { background: rgba(192,57,43,.15); color: #e88; }
+    /* Toggle switch */
+    .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 10px; border-radius: 6px; margin-bottom: 4px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.07); }
+    .toggle-label { font-size: 12px; font-weight: 600; color: #8fa3c0; display: flex; align-items: center; gap: 8px; }
+    .toggle-label svg { flex-shrink: 0; }
+    .toggle-switch { position: relative; width: 36px; height: 20px; flex-shrink: 0; }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .toggle-track { position: absolute; inset: 0; border-radius: 20px; background: #2a3f55; cursor: pointer; transition: background .2s; }
+    .toggle-track::before { content: ""; position: absolute; width: 14px; height: 14px; left: 3px; top: 3px; border-radius: 50%; background: #fff; transition: transform .2s; }
+    .toggle-switch input:checked + .toggle-track { background: #1b8c5e; }
+    .toggle-switch input:checked + .toggle-track::before { transform: translateX(16px); }
 
     /* ── Main ── */
     .main { margin-left: 220px; flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
@@ -174,6 +184,17 @@
       <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
       <span>Applicants</span>
     </a>
+    <div class="nav-section-label">Settings</div>
+    <div class="toggle-row">
+      <div class="toggle-label">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="#8fa3c0"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/></svg>
+        <span>Placement Test</span>
+      </div>
+      <label class="toggle-switch">
+        <input type="checkbox" id="placement-toggle" onchange="togglePlacement(this.checked)" />
+        <span class="toggle-track"></span>
+      </label>
+    </div>
   </nav>
   <div class="sidebar-footer">
     <button class="logout-btn" onclick="logout()">
@@ -665,6 +686,40 @@
     window.open("../../print_report.html", "_blank");
   }
 
+  // ── Placement toggle ────────────────────────────────────────────────────────
+  let _sb = null; // reuse the client
+
+  async function getSB() {
+    if (_sb) return _sb;
+    const { createClient } = await import("https://esm.sh/@supabase/supabase-js@2");
+    _sb = createClient("https://jeipvqyetmcqsxvliwpp.supabase.co", "sb_publishable_xLw_44i9tOTEfWTGcDQ41Q_DLWbaC1o");
+    return _sb;
+  }
+
+  async function loadPlacementSetting() {
+    try {
+      const sb = await getSB();
+      const { data } = await sb.from("settings").select("value").eq("key", "placement_active").single();
+      const active = data ? data.value === "true" : true;
+      document.getElementById("placement-toggle").checked = active;
+    } catch(e) {
+      document.getElementById("placement-toggle").checked = true; // default on
+    }
+  }
+
+  async function togglePlacement(checked) {
+    try {
+      const sb = await getSB();
+      const { error } = await sb.from("settings").upsert({ key: "placement_active", value: String(checked) }, { onConflict: "key" });
+      if (error) {
+        console.error("Supabase Error updating setting:", error);
+        alert("Failed to update setting: " + error.message);
+      }
+    } catch(e) {
+      console.warn("Could not save setting:", e);
+    }
+  }
+
   // ── Data loading ────────────────────────────────────────────────────────────
   async function init() {
     try {
@@ -705,6 +760,7 @@
       allApplicants = loadLocalData();
     }
 
+    await loadPlacementSetting();
     renderAll();
   }
 
