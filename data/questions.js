@@ -70,3 +70,83 @@ const EXAM_RULES = [
   { icon: "↔️", color: "#fef4e0", title: "Navigate Freely", desc: "You can go back and change answers at any time before submitting." },
   { icon: "📶", color: "#e7f5ee", title: "Stable Connection", desc: "Ensure a stable internet connection. Answers are saved as you progress." },
 ];
+
+const PLACEMENT_TEST_QUESTIONS = [
+  {
+    topic: "ROOTS", topicKey: "topic.roots",
+    text: "√64 =", textRu: "√64 =",
+    opts: ["8", "16", "32", "64"], correct: 0
+  },
+  {
+    topic: "LINEAR_EQUATIONS", topicKey: "topic.linearEquations",
+    text: "2x + 5 = 13", textRu: "2x + 5 = 13",
+    opts: ["2", "3", "6", "4"], correct: 3
+  },
+  {
+    topic: "DECIMALS", topicKey: "topic.decimals",
+    text: "0.35 as a fraction =", textRu: "0.35 в виде дроби =",
+    opts: ["7/20", "35/120", "3/5", "1/4"], correct: 0
+  },
+  {
+    topic: "PERCENTAGES", topicKey: "topic.percentages",
+    text: "3/4 as a percentage =", textRu: "3/4 в процентах =",
+    opts: ["25%", "33.33%", "65%", "75%"], correct: 3
+  },
+  {
+    topic: "DECIMALS", topicKey: "topic.decimals",
+    text: "12.5 ÷ 2.5 =", textRu: "12.5 ÷ 2.5 =",
+    opts: ["15", "10", "7", "5"], correct: 3
+  },
+  {
+    topic: "PERCENTAGES", topicKey: "topic.percentages",
+    text: "15% of 240 =", textRu: "15% от 240 =",
+    opts: ["36", "48", "60", "72"], correct: 0
+  },
+  {
+    topic: "IDENTITIES", topicKey: "topic.identities",
+    text: "x² = 81. Find x.", textRu: "x² = 81. Найдите x.",
+    opts: ["±9", "±10", "±11", "±12"], correct: 0
+  },
+  {
+    topic: "PERCENTAGES", topicKey: "topic.percentages",
+    text: "Price is 2500. Discount 20%. New price:", textRu: "Цена 2500 сом. Скидка 20%. Новая цена:",
+    opts: ["1500", "2000", "2500", "3000"], correct: 1
+  },
+  {
+    topic: "WORD_PROBLEMS", topicKey: "topic.wordProblems",
+    text: "A train travels 60 km/h. How far in 2.5 hours?", textRu: "Поезд едет 60 км/ч. Сколько за 2.5 часа?",
+    opts: ["120", "135", "150", "165"], correct: 2
+  },
+  {
+    topic: "GEOMETRY", topicKey: "topic.geometry",
+    text: "Area is 120 m², length is 15 m. Find the width.", textRu: "Площадь 120 м², длина 15 м. Найдите ширину.",
+    opts: ["8", "9", "10", "11"], correct: 0
+  },
+  {
+    topic: "RATIOS", topicKey: "topic.ratios",
+    text: "12 buns need 2 cups of flour. How many cups for 30 buns?", textRu: "12 булочек = 2 чашки муки. Сколько на 30 булочек?",
+    opts: ["3", "4", "5", "6"], correct: 2
+  },
+  {
+    topic: "ORDER_OF_OPS", topicKey: "topic.orderOfOps",
+    text: "20 + 20 × 0.5 =", textRu: "20 + 20 × 0.5 =",
+    opts: ["25", "14", "28", "30"], correct: 3
+  },
+  {
+    topic: "SEQUENCES", topicKey: "topic.sequences",
+    text: "2, 6, 12, 20, ___", textRu: "2, 6, 12, 20, ___",
+    opts: ["24", "30", "36", "40"], correct: 1
+  },
+  {
+    topic: "LOGIC", topicKey: "topic.logic",
+    text: "Tom is taller than Jerry. Jerry is shorter than Bob but taller than Alice. Who is the shortest?",
+    textRu: "Том выше Джерри. Джерри ниже Боба, но выше Алисы. Кто самый низкий?",
+    opts: ["Tom", "Jerry", "Bob", "Alice"],
+    optsRu: ["Том", "Джерри", "Боб", "Алиса"], correct: 3
+  },
+  {
+    topic: "FUNCTIONS", topicKey: "topic.functions",
+    text: "f(x) = 2x + 3. Find f(4).", textRu: "f(x) = 2x + 3. Найдите f(4).",
+    opts: ["7", "11", "5", "9"], correct: 1
+  },
+];
