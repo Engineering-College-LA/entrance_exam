@@ -1,4 +1,5 @@
 import { EXAM_CONFIG, GRADE_SCALE, TOPIC_NAMES } from '../constants'
+import { hasPhoneCompletedPlacement } from '../lib/placementCache'
 import type { ExamQuestion } from '../types/exam'
 import { BASE_QUESTIONS, EXTRA_QUESTIONS } from '../data/questionsData'
 
@@ -98,6 +99,12 @@ export const ValidationService = {
     if (!form.firstName) errs.firstName = 'error.firstName'
     if (!form.lastName) errs.lastName = 'error.lastName'
     if (!/^\+996\d{9}$/.test(form.phone ?? '')) errs.phone = 'error.phone'
+    else if (
+      examType === 'placement' &&
+      hasPhoneCompletedPlacement(form.phone ?? '')
+    ) {
+      errs.phone = 'error.placementAlreadyTaken'
+    }
     if (!form.grade) errs.grade = 'error.grade'
     if (examType === 'placement') {
       if (!/^\+996\d{9}$/.test(form.parentPhone ?? ''))

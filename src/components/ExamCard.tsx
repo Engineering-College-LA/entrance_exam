@@ -10,6 +10,8 @@ export function ExamCard({
   onStart,
   accent,
   disabled,
+  disabledHint,
+  disabledCta,
 }: {
   badge: string
   desc: string
@@ -19,6 +21,9 @@ export function ExamCard({
   onStart: () => void
   accent: string
   disabled?: boolean
+  /** When set, replaces the default “admin closed” disabled copy */
+  disabledHint?: string
+  disabledCta?: string
 }) {
   const { t } = useLang()
   const rows = [
@@ -113,9 +118,10 @@ export function ExamCard({
         }}
       >
         {disabled
-          ? isEn
-            ? 'Registration is currently closed by the administrator.'
-            : 'Регистрация временно закрыта администратором.'
+          ? disabledHint ??
+            (isEn
+              ? 'Registration is currently closed by the administrator.'
+              : 'Регистрация временно закрыта администратором.')
           : desc}
       </p>
       {rows.map(([label, val]) => (
@@ -177,7 +183,9 @@ export function ExamCard({
           letterSpacing: 0.3,
         }}
       >
-        {disabled ? (isEn ? 'Unavailable' : 'Недоступно') : ctaLabel}{' '}
+        {disabled
+          ? disabledCta ?? (isEn ? 'Unavailable' : 'Недоступно')
+          : ctaLabel}{' '}
         {!disabled && <span style={{ fontSize: 16 }}>→</span>}
       </button>
     </div>

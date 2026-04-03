@@ -9,6 +9,10 @@ import { Landing } from './pages/Landing'
 import { Register } from './pages/Register'
 import { Report } from './pages/Report'
 import {
+  clearLastRegisteredPhone,
+  setLastRegisteredPhone,
+} from './lib/placementCache'
+import {
   PLACEMENT_QUESTIONS_BASE,
   QuestionService,
   TRIAL_QUESTIONS_BASE,
@@ -64,11 +68,13 @@ export default function App() {
     nav.go('register')
   }
   const handleStartPlacement = () => {
+    clearLastRegisteredPhone()
     nav.setExamType('placement')
     setQuestions(QuestionService.shuffle(PLACEMENT_QUESTIONS_BASE))
     nav.go('register')
   }
   const handleRegister = (form: Record<string, string>) => {
+    setLastRegisteredPhone(form.phone ?? '')
     nav.setStudent(form)
     nav.go('intro')
   }

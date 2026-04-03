@@ -1,7 +1,9 @@
+import { useEffect, useState } from 'react'
 import { COLORS } from '../constants'
+import { ExamCard } from '../components/ExamCard'
 import { useLang } from '../context/LangContext'
 import { useIsMobile } from '../hooks/examHooks'
-import { ExamCard } from '../components/ExamCard'
+import { shouldDisablePlacementStart } from '../lib/placementCache'
 
 export function Landing({
   onStartTrial,
@@ -14,6 +16,21 @@ export function Landing({
 }) {
   const { t } = useLang()
   const isMobile = useIsMobile()
+  const [placementCachedOut, setPlacementCachedOut] = useState(
+    shouldDisablePlacementStart,
+  )
+
+  useEffect(() => {
+    const refresh = () => setPlacementCachedOut(shouldDisablePlacementStart())
+    refresh()
+    window.addEventListener('storage', refresh)
+    window.addEventListener('focus', refresh)
+    return () => {
+      window.removeEventListener('storage', refresh)
+      window.removeEventListener('focus', refresh)
+    }
+  }, [])
+
   return (
     <div
       style={{
@@ -202,6 +219,13 @@ export function Landing({
               ctaLabel={t('landing.placement.cta')}
               onStart={onStartPlacement}
               accent={COLORS.blue}
+              disabled={placementCachedOut}
+              disabledHint={
+                placementCachedOut ? t('landing.placement.cacheDisabled') : undefined
+              }
+              disabledCta={
+                placementCachedOut ? t('landing.placement.cacheCta') : undefined
+              }
             />
           )}
         </div>

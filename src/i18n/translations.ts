@@ -49,8 +49,9 @@ export const TRANSLATIONS = {
     "register.validation.phone": "Phone number must be in format +996XXXXXXXXX (13 characters total).",
     "error.firstName": "First name is required",
     "error.lastName": "Last name (surname) is required",
-    "error.phone": "Enter a valid phone: +996 followed by 9 digits",
-    "error.grade": "Please select your grade",
+        "error.phone": "Enter a valid phone: +996 followed by 9 digits",
+        "error.placementAlreadyTaken": "This phone number has already completed the placement test on this device.",
+        "error.grade": "Please select your grade",
 
     // Fields
     "field.firstName": "First Name",
@@ -157,6 +158,8 @@ export const TRANSLATIONS = {
     "landing.placement.questions": "45 questions",
     "landing.placement.time": "60 minutes",
     "landing.placement.desc": "Full placement exam — 45 questions, 60 minutes.",
+    "landing.placement.cacheDisabled": "You have already completed the placement test from this device.",
+    "landing.placement.cacheCta": "Already completed",
     "landing.card.attempts.val.placement": "ONE ATTEMPT",
   },
 
@@ -210,8 +213,9 @@ export const TRANSLATIONS = {
     "register.validation.phone": "Номер телефона должен быть в формате +996XXXXXXXXX (13 символов).",
     "error.firstName": "Введите имя",
     "error.lastName": "Введите фамилию",
-    "error.phone": "Введите телефон в формате +996 и 9 цифр",
-    "error.grade": "Выберите класс",
+        "error.phone": "Введите телефон в формате +996 и 9 цифр",
+        "error.placementAlreadyTaken": "Этот номер уже проходил отборочный экзамен на этом устройстве.",
+        "error.grade": "Выберите класс",
 
     // Fields
     "field.firstName": "Имя",
@@ -318,6 +322,8 @@ export const TRANSLATIONS = {
     "landing.placement.questions": "45 вопросов",
     "landing.placement.time": "60 минут",
     "landing.placement.desc": "Полный отборочный экзамен — 45 вопросов, 60 минут.",
+    "landing.placement.cacheDisabled": "Вы уже прошли отборочный экзамен с этого устройства.",
+    "landing.placement.cacheCta": "Уже пройдено",
     "landing.card.attempts.val.placement": "ОДНА ПОПЫТКА",
   },
 };

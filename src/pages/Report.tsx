@@ -8,6 +8,7 @@ import {
 } from '../components/primitives'
 import { useLang } from '../context/LangContext'
 import { useIsMobile } from '../hooks/examHooks'
+import { recordPlacementCompletion } from '../lib/placementCache'
 import { supabase } from '../lib/supabase'
 import { GradingService, TimeService } from '../services/examServices'
 import { Styles } from '../styles'
@@ -54,6 +55,10 @@ export function Report({
       ) as unknown[]
       existing.push(record)
       localStorage.setItem('ec_applicants', JSON.stringify(existing))
+
+      if (examType === 'placement') {
+        recordPlacementCompletion(student, result)
+      }
 
       void supabase
         ?.from('applicants')
