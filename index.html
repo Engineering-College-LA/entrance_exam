@@ -4,9 +4,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description"
-    content="Проверочный экзамен (Placement Test) по математике для ИТ-Колледжа E|C — Приём 2026" />
-  <title>E|C Engineering College — Проверочный экзамен (Placement Test)</title>
+  <meta name="description" content="Пробный экзамен (Trial Test) по математике для ИТ-Колледжа E|C — Приём 2026" />
+  <title>E|C Engineering College — Пробный экзамен (Trial Test)</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -102,6 +101,13 @@
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+    window._supabase = createClient(
+      "https://jeipvqyetmcqsxvliwpp.supabase.co",
+      "sb_publishable_xLw_44i9tOTEfWTGcDQ41Q_DLWbaC1o"
+    );
+  </script>
 </head>
 
 <body>
@@ -307,11 +313,99 @@
       },
     ];
 
+    // Extra 15 questions — used only in Placement Test (45 total)
+    const EXTRA_QUESTIONS = [
+      {
+        topic: "ROOTS", topicKey: "topic.roots",
+        text: "√64 =", textRu: "√64 =",
+        opts: ["8", "16", "32", "64"], correct: 0
+      },
+      {
+        topic: "LINEAR_EQUATIONS", topicKey: "topic.linearEquations",
+        text: "2x + 5 = 13", textRu: "2x + 5 = 13",
+        opts: ["2", "3", "6", "4"], correct: 3
+      },
+      {
+        topic: "DECIMALS", topicKey: "topic.decimals",
+        text: "0.35 as a fraction =", textRu: "0.35 в виде дроби =",
+        opts: ["7/20", "35/100", "3/5", "1/4"], correct: 0
+      },
+      {
+        topic: "PERCENTAGES", topicKey: "topic.percentages",
+        text: "3/4 as a percentage =", textRu: "3/4 в процентах =",
+        opts: ["25%", "33.33%", "65%", "75%"], correct: 3
+      },
+      {
+        topic: "DECIMALS", topicKey: "topic.decimals",
+        text: "12.5 ÷ 2.5 =", textRu: "12.5 ÷ 2.5 =",
+        opts: ["15", "10", "7", "5"], correct: 3
+      },
+      {
+        topic: "PERCENTAGES", topicKey: "topic.percentages",
+        text: "15% of 240 =", textRu: "15% от 240 =",
+        opts: ["36", "48", "60", "72"], correct: 0
+      },
+      {
+        topic: "IDENTITIES", topicKey: "topic.identities",
+        text: "x² = 81. Find x.", textRu: "x² = 81. Найдите x.",
+        opts: ["±9", "±10", "±11", "±12"], correct: 0
+      },
+      {
+        topic: "PERCENTAGES", topicKey: "topic.percentages",
+        text: "Price is 2500. Discount 20%. New price:", textRu: "Цена 2500 сом. Скидка 20%. Новая цена:",
+        opts: ["1500", "2000", "2500", "3000"], correct: 1
+      },
+      {
+        topic: "WORD_PROBLEMS", topicKey: "topic.wordProblems",
+        text: "A train travels 60 km/h. How far in 2.5 hours?", textRu: "Поезд едет 60 км/ч. Сколько за 2.5 часа?",
+        opts: ["120", "135", "150", "165"], correct: 2
+      },
+      {
+        topic: "GEOMETRY", topicKey: "topic.geometry",
+        text: "Area is 120 m², length is 15 m. Find the width.", textRu: "Площадь 120 м², длина 15 м. Найдите ширину.",
+        opts: ["8", "9", "10", "11"], correct: 0
+      },
+      {
+        topic: "RATIOS", topicKey: "topic.ratios",
+        text: "12 buns need 2 cups of flour. How many cups for 30 buns?", textRu: "12 булочек = 2 чашки муки. Сколько на 30 булочек?",
+        opts: ["3", "4", "5", "6"], correct: 2
+      },
+      {
+        topic: "ORDER_OF_OPS", topicKey: "topic.orderOfOps",
+        text: "20 + 20 × 0.5 =", textRu: "20 + 20 × 0.5 =",
+        opts: ["25", "14", "28", "30"], correct: 3
+      },
+      {
+        topic: "SEQUENCES", topicKey: "topic.sequences",
+        text: "2, 6, 12, 20, ___", textRu: "2, 6, 12, 20, ___",
+        opts: ["24", "30", "36", "40"], correct: 1
+      },
+      {
+        topic: "LOGIC", topicKey: "topic.logic",
+        text: "Tom is taller than Jerry. Jerry is shorter than Bob but taller than Alice. Who is the shortest?",
+        textRu: "Том выше Джерри. Джерри ниже Боба, но выше Алисы. Кто самый низкий?",
+        opts: ["Tom", "Jerry", "Bob", "Alice"],
+        optsRu: ["Том", "Джерри", "Боб", "Алиса"], correct: 3
+      },
+      {
+        topic: "FUNCTIONS", topicKey: "topic.functions",
+        text: "f(x) = 2x + 3. Find f(4).", textRu: "f(x) = 2x + 3. Найдите f(4).",
+        opts: ["7", "11", "5", "9"], correct: 1
+      },
+    ];
+
     const REGISTRATION_FIELDS = [
       { key: "firstName", labelKey: "field.firstName", required: true, placeholderKey: "field.firstName.ph", type: "text" },
       { key: "lastName", labelKey: "field.lastName", required: true, placeholderKey: "field.lastName.ph", type: "text" },
       { key: "phone", labelKey: "field.phone", required: true, type: "phone", initialValue: "+996" },
       { key: "grade", labelKey: "field.grade", required: true, type: "select", options: ["9", "10", "11"] },
+    ];
+
+    // Extra fields shown only for Placement Test
+    const PLACEMENT_EXTRA_FIELDS = [
+      { key: "parentPhone", labelKey: "field.parentPhone", required: true, type: "phone", initialValue: "+996" },
+      { key: "parentName",  labelKey: "field.parentName",  required: true, placeholderKey: "field.parentName.ph", type: "text" },
+      { key: "attended",    labelKey: "field.attended",    required: true, type: "select", options: ["attended", "not_attended"] },
     ];
 
     const EXAM_RULES = [
@@ -343,25 +437,25 @@
         "page.landing": "college.edu.kg",
         "page.register": "Step 1 — Registration",
         "page.intro": "Step 2 — Instructions",
-        "page.exam": "Step 3 — Placement Test",
+        "page.exam": "Step 3 — Trial Test",
         "page.report": "Results",
 
         // Step bar
         "step.register": "Register",
         "step.intro": "Instructions",
-        "step.exam": "Placement Test",
+        "step.exam": "Trial Test",
         "step.report": "Report",
 
         // Landing
         "landing.admissions": "Admissions 2026 — Now Open",
         "landing.title1": "Mathematics",
-        "landing.title2": "Placement Test",
+        "landing.title2": "Trial Test",
         "landing.desc": "Demonstrate your mathematical aptitude for admission to E|C Engineering College. 30 multiple-choice questions, 60 minutes.",
         "landing.stat.questions": "Questions",
         "landing.stat.minutes": "Minutes",
         "landing.stat.attempt": "Attempt",
-        "landing.cta": "Take the Placement Test",
-        "landing.card.title": "Math Placement Test",
+        "landing.cta": "Take the Trial Test",
+        "landing.card.title": "Math Trial Test",
         "landing.card.subject": "Subject",
         "landing.card.subject.val": "Mathematics",
         "landing.card.format": "Format",
@@ -376,11 +470,11 @@
         "landing.card.results.val": "Instant Report",
 
         // Register
-        "register.breadcrumb.exam": "Placement Test",
+        "register.breadcrumb.exam": "Trial Test",
         "register.breadcrumb.step": "Registration",
-        "register.header": "Placement Test Registration",
-        "register.subheader": "Fill in your details to proceed to the placement test",
-        "register.info": "Your information is securely linked to your placement test attempt.",
+        "register.header": "Trial Test Registration",
+        "register.subheader": "Fill in your details to proceed to the trial test",
+        "register.info": "Your information is securely linked to your trial test attempt.",
         "register.back": "← Back",
         "register.continue": "Continue to Instructions →",
         "register.secure": "🔒 Your data is securely recorded.",
@@ -399,19 +493,28 @@
         "field.phone": "Phone Number",
         "field.grade": "Grade",
         "field.select": "Select",
+        "field.parentPhone": "Parent's Phone Number",
+        "field.parentName": "Parent's Full Name",
+        "field.parentName.ph": "Umarov Bekzod Alievich",
+        "field.attended": "Did the parent come?",
+        "field.attended.attended": "Came",
+        "field.attended.not_attended": "Did not come",
+        "error.parentPhone": "Enter a valid parent phone: +996 followed by 9 digits",
+        "error.parentName": "Parent's full name is required",
+        "error.attended": "Please select an option",
 
         // Instructions
         "intro.breadcrumb.step": "Instructions",
         "intro.ready": "// Ready to begin",
         "intro.welcome": "Welcome,",
-        "intro.desc": "You are registered for the Mathematics Placement Test at Engineering College. Please read the rules below carefully before starting.",
+        "intro.desc": "You are registered for the Mathematics Trial Test at Engineering College. Please read the rules below carefully before starting.",
         "intro.stat.questions": "Questions",
         "intro.stat.timelimit": "Time Limit",
         "intro.stat.format": "Format",
         "intro.stat.attempts": "Attempts",
         "intro.stat.results": "Results",
         "intro.checkbox": "I have read the rules and I am ready to begin",
-        "intro.start": "Start Placement Test →",
+        "intro.start": "Start Trial Test →",
 
         // Exam rules
         "rule.timer.title": "Timer Runs Continuously",
@@ -428,7 +531,7 @@
         "exam.of": "of",
         "exam.prev": "← Previous",
         "exam.next": "Next →",
-        "exam.submit": "Submit Placement Test",
+        "exam.submit": "Submit Trial Test",
         "exam.confirm": "You have {n} unanswered question(s). Submit anyway?",
         "exam.navigator": "📍 Navigator",
         "exam.legend.answered": "Answered",
@@ -438,7 +541,7 @@
 
         // Report
         "report.breadcrumb.step": "Results",
-        "report.completed": "Placement Test Completed!",
+        "report.completed": "Trial Test Completed!",
         "report.desc": "Here is your performance report,",
         "report.score": "Score",
         "report.correct": "Correct",
@@ -450,6 +553,7 @@
         "report.visit": "🏛 Visit College Website",
         "report.home": "← Back to Home",
         "report.print": "🖨 Print Report",
+        "report.download": "⬇ Download PDF",
         "report.promo": "Want to test your knowledge in English, Advanced Math, and explore career guidance? Come to our Engineering College!",
 
         // Grades
@@ -469,6 +573,23 @@
         "topic.roots": "Square Roots",
         "topic.percentages": "Percentages",
         "topic.sequences": "Sequences",
+        "topic.wordProblems": "Word Problems",
+        "topic.ratios": "Ratios & Proportions",
+        "topic.logic": "Logic",
+        "topic.functions": "Functions",
+
+        // Landing — two exam cards
+        "landing.trial.badge": "Trial Test",
+        "landing.trial.cta": "Start Trial Test",
+        "landing.trial.questions": "30 questions",
+        "landing.trial.time": "60 minutes",
+        "landing.trial.desc": "Practice exam — 30 questions, 60 minutes.",
+        "landing.placement.badge": "Placement Test",
+        "landing.placement.cta": "Start Placement Test",
+        "landing.placement.questions": "45 questions",
+        "landing.placement.time": "90 minutes",
+        "landing.placement.desc": "Full placement exam — 45 questions, 90 minutes.",
+        "landing.card.attempts.val.placement": "ONE ATTEMPT",
       },
 
       ru: {
@@ -476,7 +597,7 @@
         "page.landing": "college.edu.kg",
         "page.register": "Шаг 1 — Регистрация",
         "page.intro": "Шаг 2 — Инструкции",
-        "page.exam": "Шаг 3 — Проверочный Экзамен",
+        "page.exam": "Шаг 3 — Пробный Экзамен",
         "page.report": "Результаты",
 
         // Step bar
@@ -488,13 +609,13 @@
         // Landing
         "landing.admissions": "Приём 2026 — Открыт",
         "landing.title1": "Математика",
-        "landing.title2": "Проверочный Экзамен",
+        "landing.title2": "Пробный Экзамен",
         "landing.desc": "Продемонстрируйте свои математические способности для поступления в ИТ-Колледж E|C. 30 вопросов с выбором ответа, 60 минут.",
         "landing.stat.questions": "Вопросов",
         "landing.stat.minutes": "Минут",
         "landing.stat.attempt": "Попытка",
-        "landing.cta": "Пройти Проверочный Экзамен",
-        "landing.card.title": "Проверочный Экзамен по Математике",
+        "landing.cta": "Пройти Пробный Экзамен",
+        "landing.card.title": "Пробный Экзамен по Математике",
         "landing.card.subject": "Предмет",
         "landing.card.subject.val": "Математика",
         "landing.card.format": "Формат",
@@ -509,9 +630,9 @@
         "landing.card.results.val": "Мгновенный отчёт",
 
         // Register
-        "register.breadcrumb.exam": "Проверочный Экзамен",
+        "register.breadcrumb.exam": "Пробный Экзамен",
         "register.breadcrumb.step": "Регистрация",
-        "register.header": "Регистрация на Проверочный Экзамен",
+        "register.header": "Регистрация на Пробный Экзамен",
         "register.subheader": "Введите свои данные для прохождения Проверочного Экзамена",
         "register.info": "Ваши данные надёжно связаны с вашей попыткой прохождения Проверочного Экзамена.",
         "register.back": "← Назад",
@@ -532,19 +653,28 @@
         "field.phone": "Номер телефона",
         "field.grade": "Класс",
         "field.select": "Выбрать",
+        "field.parentPhone": "Номер телефона родителя",
+        "field.parentName": "ФИО родителя",
+        "field.parentName.ph": "Умаров Бекзод Алиевич",
+        "field.attended": "Родитель пришёл?",
+        "field.attended.attended": "Пришёл",
+        "field.attended.not_attended": "Не пришёл",
+        "error.parentPhone": "Введите корректный телефон: +996 и 9 цифр",
+        "error.parentName": "ФИО родителя обязательно",
+        "error.attended": "Пожалуйста, выберите вариант",
 
         // Instructions
         "intro.breadcrumb.step": "Инструкции",
         "intro.ready": "// Готовы начать",
         "intro.welcome": "Добро пожаловать,",
-        "intro.desc": "Вы зарегистрированы на Проверочный Экзамен по Математике в «Инженерный колледж». Пожалуйста, внимательно ознакомьтесь с правилами перед началом.",
+        "intro.desc": "Вы зарегистрированы на Пробный Экзамен по Математике в «Инженерный колледж». Пожалуйста, внимательно ознакомьтесь с правилами перед началом.",
         "intro.stat.questions": "Вопросов",
         "intro.stat.timelimit": "Лимит времени",
         "intro.stat.format": "Формат",
         "intro.stat.attempts": "Попытки",
         "intro.stat.results": "Результаты",
         "intro.checkbox": "Я ознакомился с правилами и готов начать",
-        "intro.start": "Начать Проверочный Экзамен →",
+        "intro.start": "Начать Пробный Экзамен →",
 
         // Exam rules
         "rule.timer.title": "Таймер идёт непрерывно",
@@ -561,7 +691,7 @@
         "exam.of": "из",
         "exam.prev": "← Назад",
         "exam.next": "Далее →",
-        "exam.submit": "Завершить Проверочный Экзамен",
+        "exam.submit": "Завершить Пробный Экзамен",
         "exam.confirm": "У вас есть {n} неотвеченных вопроса(ов). Всё равно отправить?",
         "exam.navigator": "📍 Навигатор",
         "exam.legend.answered": "Отвечено",
@@ -571,7 +701,7 @@
 
         // Report
         "report.breadcrumb.step": "Результаты",
-        "report.completed": "Проверочный Экзамен завершён!",
+        "report.completed": "Пробный Экзамен завершён!",
         "report.desc": "Вот ваш отчёт об успеваемости,",
         "report.score": "Балл",
         "report.correct": "Верно",
@@ -583,6 +713,7 @@
         "report.visit": "🏛 Сайт Колледжа",
         "report.home": "← На главную",
         "report.print": "🖨 Распечатать отчёт",
+        "report.download": "⬇ Скачать PDF",
         "report.promo": "Хотите проверить знания по английскому, углублённой математике и пройти профориентацию? Приходите в наш Инженерный колледж!",
 
         // Grades
@@ -602,6 +733,23 @@
         "topic.roots": "Квадратные корни",
         "topic.percentages": "Проценты",
         "topic.sequences": "Последовательности",
+        "topic.wordProblems": "Задачи",
+        "topic.ratios": "Пропорции",
+        "topic.logic": "Логика",
+        "topic.functions": "Функции",
+
+        // Landing — два варианта экзамена
+        "landing.trial.badge": "Пробный Экзамен",
+        "landing.trial.cta": "Пройти Пробный Экзамен",
+        "landing.trial.questions": "30 вопросов",
+        "landing.trial.time": "60 минут",
+        "landing.trial.desc": "Ознакомительный экзамен — 30 вопросов, 60 минут.",
+        "landing.placement.badge": "Вступительный Экзамен",
+        "landing.placement.cta": "Пройти Вступительный Экзамен",
+        "landing.placement.questions": "45 вопросов",
+        "landing.placement.time": "90 минут",
+        "landing.placement.desc": "Полный вступительный экзамен — 45 вопросов, 90 минут.",
+        "landing.card.attempts.val.placement": "ОДНА ПОПЫТКА",
       },
     };
 
@@ -659,16 +807,21 @@
     };
 
     const ValidationService = {
-      registrationErrors(form) {
+      registrationErrors(form, examType) {
         const errs = {};
         if (!form.firstName) errs.firstName = "error.firstName";
         if (!form.lastName) errs.lastName = "error.lastName";
         if (!/^\+996\d{9}$/.test(form.phone)) errs.phone = "error.phone";
         if (!form.grade) errs.grade = "error.grade";
+        if (examType === "placement") {
+          if (!/^\+996\d{9}$/.test(form.parentPhone)) errs.parentPhone = "error.parentPhone";
+          if (!form.parentName || !form.parentName.trim()) errs.parentName = "error.parentName";
+          if (!form.attended) errs.attended = "error.attended";
+        }
         return errs;
       },
-      registration(form) {
-        const errs = this.registrationErrors(form);
+      registration(form, examType) {
+        const errs = this.registrationErrors(form, examType);
         const valid = Object.keys(errs).length === 0;
         return { valid, errs };
       },
@@ -750,8 +903,9 @@
       const [page, setPage] = useState("landing");
       const [student, setStudent] = useState({});
       const [result, setResult] = useState(null);
+      const [examType, setExamType] = useState("trial");
       const go = useCallback((p) => setPage(p), []);
-      return { page, go, student, setStudent, result, setResult };
+      return { page, go, student, setStudent, result, setResult, examType, setExamType };
     }
 
     /* ═══════════════════════════════════════════════════════════
@@ -1039,63 +1193,115 @@
                 EN
               </button>
             </div>
+            <a href="pages/admin/login.html" title="Admin" style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 32, height: 32, borderRadius: "50%", background: "rgba(255,255,255,.08)", border: "1px solid rgba(255,255,255,.12)", color: "#8fa3c0", textDecoration: "none", flexShrink: 0, marginLeft: 4 }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" /></svg>
+            </a>
           </div>
         </div>
       );
     }
 
-    function Landing({ onStart }) {
+    function ExamCard({ badge, desc, questions, time, ctaLabel, onStart, accent }) {
+      const { t } = useLang();
+      const rows = [
+        [t("landing.card.subject"), t("landing.card.subject.val")],
+        [t("landing.card.format"), t("landing.card.format.val")],
+        [t("landing.card.questions"), questions],
+        [t("landing.card.time"), time],
+        [t("landing.card.results"), t("landing.card.results.val")],
+      ];
+      return (
+        <div style={{ background: "rgba(255,255,255,.05)", border: `1px solid ${accent}44`, borderRadius: 8, padding: 22, backdropFilter: "blur(10px)", display: "flex", flexDirection: "column", gap: 0 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+            <div style={{ fontWeight: 700, fontSize: 14, color: COLORS.white, display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{ color: accent, fontSize: 16 }}>∑</span> {badge}
+            </div>
+            <span style={{ fontFamily: "monospace", fontSize: 10, background: `${accent}22`, color: accent, border: `1px solid ${accent}44`, padding: "2px 8px", borderRadius: 2, letterSpacing: 1 }}>MCQ</span>
+          </div>
+          <p style={{ fontSize: 12, color: "#6a85a8", marginBottom: 14, lineHeight: 1.5 }}>{desc}</p>
+          {rows.map(([label, val]) => (
+            <div key={label} style={{ display: "flex", justifyContent: "space-between", padding: "9px 0", borderBottom: "1px solid rgba(255,255,255,.06)", fontSize: 13 }}>
+              <span style={{ color: "#8fa3c0" }}>{label}</span>
+              <span style={{ color: COLORS.white, fontWeight: 600 }}>{val}</span>
+            </div>
+          ))}
+          <div style={{ padding: "9px 0", display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 13 }}>
+            <span style={{ color: "#8fa3c0" }}>{t("landing.card.attempts")}</span>
+            <span style={{ background: "rgba(21,101,192,.3)", color: "#7fb3ff", fontFamily: "monospace", fontSize: 11, padding: "2px 8px", borderRadius: 2 }}>{t("landing.card.attempts.val")}</span>
+          </div>
+          <button onClick={onStart} style={{ marginTop: 18, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, background: accent, color: COLORS.navy, fontWeight: 800, fontSize: 13, padding: "12px 20px", borderRadius: 3, border: "none", cursor: "pointer", letterSpacing: 0.3 }}>
+            {ctaLabel} <span style={{ fontSize: 16 }}>→</span>
+          </button>
+        </div>
+      );
+    }
+
+    function Landing({ onStartTrial, onStartPlacement }) {
       const { t } = useLang();
       const isMobile = useIsMobile();
-      const cardRows = [
-        ["landing.card.subject", "landing.card.subject.val"],
-        ["landing.card.format", "landing.card.format.val"],
-        ["landing.card.questions", "landing.card.questions.val"],
-        ["landing.card.time", "landing.card.time.val"],
-        ["landing.card.attempts", "landing.card.attempts.val"],
-        ["landing.card.results", "landing.card.results.val"],
-      ];
       return (
         <div style={{ background: COLORS.navy, minHeight: "calc(100vh - 60px)", position: "relative", overflow: "hidden" }}>
           <div style={{ position: "absolute", inset: 0, opacity: 0.04, backgroundImage: "linear-gradient(#fff 1px,transparent 1px),linear-gradient(90deg,#fff 1px,transparent 1px)", backgroundSize: "40px 40px", pointerEvents: "none" }} />
           <div style={{ position: "absolute", top: -200, right: -200, width: 700, height: 700, borderRadius: "50%", background: "radial-gradient(circle,rgba(21,101,192,.25) 0%,transparent 70%)", pointerEvents: "none" }} />
-          <div style={{ position: "relative", zIndex: 1, maxWidth: 1000, margin: "0 auto", padding: isMobile ? "48px 20px 40px" : "80px 32px 60px", display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 360px", gap: isMobile ? 32 : 60, alignItems: "center" }}>
+          <div style={{ position: "relative", zIndex: 1, maxWidth: 1060, margin: "0 auto", padding: isMobile ? "48px 20px 40px" : "80px 32px 60px", display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 420px", gap: isMobile ? 32 : 60, alignItems: "start" }}>
+            {/* Left — hero */}
             <div>
               <div style={{ display: "inline-flex", alignItems: "center", gap: 8, fontFamily: "monospace", fontSize: 11, color: COLORS.accent, letterSpacing: 2, textTransform: "uppercase", background: "rgba(232,160,32,.1)", border: "1px solid rgba(232,160,32,.3)", padding: "5px 14px", borderRadius: 2, marginBottom: 24 }}>
                 <span style={{ width: 6, height: 6, borderRadius: "50%", background: COLORS.accent, display: "inline-block" }} />{t("landing.admissions")}
               </div>
-              <h1 style={{ fontWeight: 800, fontSize: isMobile ? 32 : 48, lineHeight: 1.05, color: COLORS.white, marginBottom: 18 }}>{t("landing.title1")}<br /><span style={{ color: COLORS.accent }}>{t("landing.title2")}</span></h1>
+              <h1 style={{ fontWeight: 800, fontSize: isMobile ? 32 : 48, lineHeight: 1.05, color: COLORS.white, marginBottom: 18 }}>
+                {t("landing.title1")}<br /><span style={{ color: COLORS.accent }}>{t("landing.title1") === "Mathematics" ? "Exams" : "Экзамены"}</span>
+              </h1>
               <p style={{ fontSize: isMobile ? 14 : 16, color: "#8fa3c0", lineHeight: 1.7, maxWidth: 420, marginBottom: 40 }}>{t("landing.desc")}</p>
-              <div style={{ display: "flex", gap: 32, marginBottom: 48 }}>
-                {[["30", "landing.stat.questions"], ["60", "landing.stat.minutes"], ["1×", "landing.stat.attempt"]].map(([n, lk]) => (
-                  <div key={lk} style={{ borderLeft: `3px solid ${COLORS.blue}`, paddingLeft: 14 }}>
-                    <div style={{ fontWeight: 800, fontSize: 26, color: COLORS.white }}>{n}</div>
-                    <div style={{ fontSize: 12, color: "#6a85a8", marginTop: 2 }}>{t(lk)}</div>
-                  </div>))}
+              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                  <div style={{ width: 38, height: 38, borderRadius: 6, background: "rgba(232,160,32,.12)", border: "1px solid rgba(232,160,32,.25)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, flexShrink: 0 }}>📝</div>
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: 13, color: COLORS.white }}>{t("landing.trial.badge")}</div>
+                    <div style={{ fontSize: 12, color: "#6a85a8", marginTop: 2 }}>{t("landing.trial.questions")} · {t("landing.trial.time")}</div>
+                  </div>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                  <div style={{ width: 38, height: 38, borderRadius: 6, background: "rgba(21,101,192,.15)", border: "1px solid rgba(21,101,192,.3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, flexShrink: 0 }}>🎯</div>
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: 13, color: COLORS.white }}>{t("landing.placement.badge")}</div>
+                    <div style={{ fontSize: 12, color: "#6a85a8", marginTop: 2 }}>{t("landing.placement.questions")} · {t("landing.placement.time")}</div>
+                  </div>
+                </div>
               </div>
-              <button onClick={onStart} style={{ display: "inline-flex", alignItems: "center", gap: 12, background: COLORS.accent, color: COLORS.navy, fontWeight: 800, fontSize: 15, padding: "15px 36px", borderRadius: 3, border: "none", cursor: "pointer", boxShadow: "0 8px 32px rgba(232,160,32,.35)", letterSpacing: 0.3 }}>{t("landing.cta")} <span style={{ fontSize: 18 }}>→</span></button>
             </div>
-            <div style={{ background: "rgba(255,255,255,.05)", border: "1px solid rgba(255,255,255,.1)", borderRadius: 8, padding: 28, backdropFilter: "blur(10px)" }}>
-              <div style={{ fontWeight: 700, fontSize: 15, color: COLORS.white, marginBottom: 18, display: "flex", alignItems: "center", gap: 8 }}><span style={{ color: COLORS.accent, fontSize: 18 }}>∑</span> {t("landing.card.title")}</div>
-              {cardRows.map(([kk, vk]) => (
-                <div key={kk} style={{ display: "flex", justifyContent: "space-between", padding: "11px 0", borderBottom: "1px solid rgba(255,255,255,.07)", fontSize: 13 }}>
-                  <span style={{ color: "#8fa3c0" }}>{t(kk)}</span>
-                  <span style={{ color: COLORS.white, fontWeight: 600 }}>
-                    {kk === "landing.card.attempts"
-                      ? <span style={{ background: "rgba(21,101,192,.3)", color: "#7fb3ff", fontFamily: "monospace", fontSize: 11, padding: "2px 8px", borderRadius: 2 }}>{t(vk)}</span>
-                      : t(vk)}
-                  </span>
-                </div>))}
+            {/* Right — two exam cards */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              <ExamCard
+                badge={t("landing.trial.badge")}
+                desc={t("landing.trial.desc")}
+                questions={t("landing.trial.questions")}
+                time={t("landing.trial.time")}
+                ctaLabel={t("landing.trial.cta")}
+                onStart={onStartTrial}
+                accent={COLORS.accent}
+              />
+              <ExamCard
+                badge={t("landing.placement.badge")}
+                desc={t("landing.placement.desc")}
+                questions={t("landing.placement.questions")}
+                time={t("landing.placement.time")}
+                ctaLabel={t("landing.placement.cta")}
+                onStart={onStartPlacement}
+                accent={COLORS.blue}
+              />
             </div>
           </div>
         </div>
       );
     }
 
-    function Register({ onSubmit, onBack }) {
+    function Register({ onSubmit, onBack, examType }) {
       const { t } = useLang();
       const isMobile = useIsMobile();
-      const { form, set } = useFormState(REGISTRATION_FIELDS);
+      const isPlacement = examType === "placement";
+      const allFields = isPlacement ? [...REGISTRATION_FIELDS, ...PLACEMENT_EXTRA_FIELDS] : REGISTRATION_FIELDS;
+      const { form, set } = useFormState(allFields);
       const [errors, setErrors] = useState({});
       const [shakeKey, setShakeKey] = useState(0);
       const [toast, setToast] = useState(null);
@@ -1106,7 +1312,7 @@
       };
 
       const handleSubmit = () => {
-        const { valid, errs } = ValidationService.registration(form);
+        const { valid, errs } = ValidationService.registration(form, examType);
         if (!valid) {
           setErrors(errs);
           setShakeKey(k => k + 1);
@@ -1116,7 +1322,11 @@
         onSubmit(form);
       };
 
-      const rows = [[0, 1], [2, 3]];
+      // Attended select: translate option labels
+      const attendedOptions = ["attended", "not_attended"].map(v => ({
+        value: v, label: t(`field.attended.${v}`)
+      }));
+
       return (
         <div style={{ maxWidth: 660, margin: "0 auto", padding: "48px 20px" }}>
           {toast && <Toast message={toast} onClose={() => setToast(null)} />}
@@ -1132,7 +1342,8 @@
             </div>
             <div style={{ padding: 28 }}>
               <InfoBanner icon="ℹ" text={t("register.info")} bg="#f0f6ff" borderColor="#c5d9f5" color={COLORS.blue} />
-              {rows.map((pair, ri) => (
+              {/* Base fields: 2×2 grid */}
+              {[[0, 1], [2, 3]].map((pair, ri) => (
                 <div key={ri} style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 14, marginBottom: 14 }}>
                   {pair.map(fi => {
                     const f = REGISTRATION_FIELDS[fi];
@@ -1140,6 +1351,31 @@
                   })}
                 </div>
               ))}
+              {/* Placement-only extra fields */}
+              {isPlacement && (
+                <div style={{ borderTop: `1px solid ${COLORS.border}`, marginTop: 8, paddingTop: 20 }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: COLORS.muted, textTransform: "uppercase", letterSpacing: 1, marginBottom: 14 }}>
+                    {t("field.parentPhone").startsWith("Parent") ? "Parent / Guardian Info" : "Информация о родителе"}
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: 14, marginBottom: 14 }}>
+                    <FormField field={PLACEMENT_EXTRA_FIELDS[0]} value={form.parentPhone} onChange={handleChange("parentPhone")} error={errors.parentPhone} shakeKey={errors.parentPhone ? shakeKey : 0} />
+                    <FormField field={PLACEMENT_EXTRA_FIELDS[1]} value={form.parentName}  onChange={handleChange("parentName")}  error={errors.parentName}  shakeKey={errors.parentName  ? shakeKey : 0} />
+                  </div>
+                  {/* Attended dropdown — custom select with translated options */}
+                  <div style={{ marginBottom: 14 }}>
+                    <label style={Styles.label}>{t("field.attended")}</label>
+                    <select
+                      value={form.attended || ""}
+                      onChange={handleChange("attended")}
+                      style={{ ...Styles.input, cursor: "pointer", borderColor: errors.attended ? COLORS.danger : COLORS.border }}
+                    >
+                      <option value="">{t("field.select")}</option>
+                      {attendedOptions.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                    </select>
+                    {errors.attended && <div style={{ fontSize: 12, color: COLORS.danger, marginTop: 4 }}>{t(errors.attended)}</div>}
+                  </div>
+                </div>
+              )}
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 24 }}>
                 <button onClick={onBack} style={Styles.btnGhost}>{t("register.back")}</button>
                 <button onClick={handleSubmit} style={Styles.btnPrimary()}>{t("register.continue")}</button>
@@ -1182,11 +1418,11 @@
       );
     }
 
-    function Exam({ questions, onFinish }) {
+    function Exam({ questions, timeLimitSec, onFinish }) {
       const { lang, t } = useLang();
       const isMobile = useIsMobile();
       const exam = useExamState(questions);
-      const timer = useTimer(EXAM_CONFIG.timeLimitSec, () => submitExam(true));
+      const timer = useTimer(timeLimitSec, () => submitExam(true));
       const q = exam.question;
       const qText = (lang === "ru" && q.textRu) ? q.textRu : q.text;
       const qOpts = (lang === "ru" && q.optsRu) ? q.optsRu : q.opts;
@@ -1250,13 +1486,74 @@
       );
     }
 
-    function Report({ student, result, onHome }) {
-      const { t } = useLang();
+    function Report({ student, result, examType, questions, onHome }) {
+      const { lang, t } = useLang();
       const isMobile = useIsMobile();
       const pct = GradingService.percentage(result.correct, result.total);
       const { mm, ss } = TimeService.format(result.elapsed);
       const { labelKey, color: gradeColor } = GradingService.grade(pct);
-      const topics = GradingService.topicBreakdown(result.answers, QUESTIONS);
+      const topics = GradingService.topicBreakdown(result.answers, questions);
+
+      React.useEffect(() => {
+        try {
+          const record = {
+            id: Date.now().toString(),
+            firstName: student.firstName,
+            lastName: student.lastName,
+            phone: student.phone,
+            grade: student.grade,
+            score: pct,
+            correct: result.correct,
+            total: result.total,
+            elapsed: result.elapsed,
+            completedAt: new Date().toISOString(),
+            lang,
+            examType: examType || "trial",
+          };
+          const existing = JSON.parse(localStorage.getItem("ec_applicants") || "[]");
+          existing.push(record);
+          localStorage.setItem("ec_applicants", JSON.stringify(existing));
+
+          window._supabase?.from("applicants").insert({
+            id: record.id,
+            first_name:   student.firstName,
+            last_name:    student.lastName,
+            phone:        student.phone,
+            grade:        student.grade,
+            exam_type:    examType || "trial",
+            score:        pct,
+            correct:      result.correct,
+            total:        result.total,
+            elapsed:      result.elapsed,
+            lang,
+            completed_at: record.completedAt,
+            topics:       topics.map(tp => ({ key: tp.nameKey, pct: tp.pct })),
+            parent_phone: student.parentPhone || null,
+            parent_name:  student.parentName  || null,
+            attended:     student.attended    || null,
+          }).then(({ error }) => { if (error) console.warn("Supabase insert error:", error); });
+        } catch (e) { }
+      }, []);
+
+      const savePrintData = () => {
+        const printData = {
+          student,
+          result,
+          lang,
+          topics: topics.map(tp => ({ name: t(tp.nameKey), pct: tp.pct })),
+        };
+        sessionStorage.setItem("ec_print_report", JSON.stringify(printData));
+      };
+
+      const handlePrint = () => {
+        savePrintData();
+        window.open("print_report.html", "_blank");
+      };
+
+      const handleDownload = () => {
+        savePrintData();
+        window.open("print_report.html?download=1", "_blank");
+      };
 
       return (
         <div style={{ maxWidth: 820, margin: "0 auto", padding: "48px 20px" }}>
@@ -1301,7 +1598,8 @@
               WhatsApp
             </a>
             <button onClick={onHome} style={{ ...Styles.btnOutline, display: "inline-flex", alignItems: "center", gap: 8, color: COLORS.text, fontWeight: 600 }}>{t("report.home")}</button>
-            <button onClick={() => window.print()} style={{ ...Styles.btnOutline, display: "inline-flex", alignItems: "center", gap: 8, color: COLORS.text, fontWeight: 600 }}>{t("report.print")}</button>
+            <button onClick={handlePrint} style={{ ...Styles.btnOutline, display: "inline-flex", alignItems: "center", gap: 8, color: COLORS.text, fontWeight: 600 }}>{t("report.print")}</button>
+            <button onClick={handleDownload} style={{ ...Styles.btnOutline, display: "inline-flex", alignItems: "center", gap: 8, color: COLORS.text, fontWeight: 600 }}>{t("report.download")}</button>
           </div>
         </div>
       );
@@ -1311,10 +1609,16 @@
        APP — Orchestrator (DIP — depends on abstractions)
        ═══════════════════════════════════════════════════════════ */
 
-    const QUESTIONS = QuestionService.build(BASE_QUESTIONS, EXAM_CONFIG.totalQuestions);
+    const TRIAL_QUESTIONS = QuestionService.build(BASE_QUESTIONS, 30);
+    const PLACEMENT_QUESTIONS = [...BASE_QUESTIONS, ...EXTRA_QUESTIONS];
 
     function App() {
       const nav = usePageNav();
+      const questions = nav.examType === "placement" ? PLACEMENT_QUESTIONS : TRIAL_QUESTIONS;
+      const timeLimitSec = nav.examType === "placement" ? 5400 : 3600;
+
+      const handleStartTrial = () => { nav.setExamType("trial"); nav.go("register"); };
+      const handleStartPlacement = () => { nav.setExamType("placement"); nav.go("register"); };
       const handleRegister = (form) => { nav.setStudent(form); nav.go("intro"); };
       const handleFinish = (res) => { nav.setResult(res); nav.go("report"); };
 
@@ -1322,11 +1626,11 @@
         <LangProvider>
           <div style={Styles.page}>
             <Header page={nav.page} onLogoClick={() => nav.go("landing")} />
-            {nav.page === "landing" && <Landing onStart={() => nav.go("register")} />}
-            {nav.page === "register" && <Register onSubmit={handleRegister} onBack={() => nav.go("landing")} />}
+            {nav.page === "landing" && <Landing onStartTrial={handleStartTrial} onStartPlacement={handleStartPlacement} />}
+            {nav.page === "register" && <Register onSubmit={handleRegister} onBack={() => nav.go("landing")} examType={nav.examType} />}
             {nav.page === "intro" && <Instructions student={nav.student} onStart={() => nav.go("exam")} />}
-            {nav.page === "exam" && <Exam questions={QUESTIONS} onFinish={handleFinish} />}
-            {nav.page === "report" && <Report student={nav.student} result={nav.result} onHome={() => nav.go("landing")} />}
+            {nav.page === "exam" && <Exam questions={questions} timeLimitSec={timeLimitSec} onFinish={handleFinish} />}
+            {nav.page === "report" && <Report student={nav.student} result={nav.result} examType={nav.examType} questions={questions} onHome={() => nav.go("landing")} />}
           </div>
         </LangProvider>
       );
