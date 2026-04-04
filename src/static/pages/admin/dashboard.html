@@ -1008,20 +1008,8 @@
 
   function printCurrentRecord() {
     if (!currentRecord) return;
-    const r = currentRecord;
-    const recordLang = adminLang;
-    const topics = (Array.isArray(r.topics) ? r.topics : []).map(tp => ({
-      name: topicName(recordLang, tp.key),
-      pct: tp.pct,
-    }));
-    const printData = {
-      student: { firstName: r.firstName, lastName: r.lastName, phone: r.phone, grade: r.grade },
-      result:  { correct: r.correct, total: r.total, elapsed: r.elapsed, answers: {} },
-      lang:    r.lang || "ru",
-      topics,
-    };
-    sessionStorage.setItem("ec_print_report", JSON.stringify(printData));
-    window.open("../../print_report.html", "_blank");
+    // Pass record id in URL — print_report.html fetches full data from Supabase
+    window.open("/print_report.html?id=" + encodeURIComponent(currentRecord.id), "_blank");
   }
 
   // ── Placement toggle ────────────────────────────────────────────────────────

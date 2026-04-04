@@ -180,9 +180,18 @@
       letter-spacing: 1px;
     }
 
-    /* ── Student info strip ── */
+    /* ── Student / parent info strips ── */
     .student-strip {
       background: #122848;
+      padding: 4px 24px;
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      border-top: 1px solid rgba(255, 255, 255, .06);
+    }
+
+    .parent-strip {
+      background: #0d2444;
       padding: 4px 24px;
       display: flex;
       gap: 20px;
@@ -198,6 +207,25 @@
     .student-field span {
       color: #ffffff;
       font-weight: 600;
+      margin-left: 6px;
+    }
+
+    .parent-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: #3d5a7a;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      align-self: center;
+      white-space: nowrap;
+    }
+
+    .attended-badge {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 3px;
       margin-left: 6px;
     }
 
@@ -463,6 +491,12 @@
         phone: "Телефон",
         badge: isPlacement ? "Вступительный Экзамен" : "Пробный Экзамен",
         footer: "E|C Engineering College — college.edu.kg",
+        parentSection: "Родитель / Опекун",
+        parentName: "ФИО родителя",
+        parentPhone: "Тел. родителя",
+        attended: "Присутствие",
+        attendedYes: "Пришёл",
+        attendedNo: "Не пришёл",
       };
 
       const topicsHTML = topics.map(tp => `
@@ -514,6 +548,13 @@
         <div class="student-field">${T.grade}:<span>${student.grade}</span></div>
         <div class="student-field">${T.phone}:<span>${student.phone}</span></div>
       </div>
+      ${isPlacement ? `
+      <div class="parent-strip">
+        <div class="parent-label">${T.parentSection}</div>
+        <div class="student-field">${T.parentName}:<span>${student.parentName || "—"}</span></div>
+        <div class="student-field">${T.parentPhone}:<span>${student.parentPhone || "—"}</span></div>
+        <div class="student-field">${T.attended}:<span class="attended-badge" style="background:${student.attended === 'attended' ? '#1b8c5e22' : '#c0392b22'};color:${student.attended === 'attended' ? '#1b8c5e' : '#c0392b'};border:1px solid ${student.attended === 'attended' ? '#1b8c5e44' : '#c0392b44'}">${student.attended === 'attended' ? T.attendedYes : student.attended === 'not_attended' ? T.attendedNo : '—'}</span></div>
+      </div>` : ""}
 
       <div class="stats">
         <div class="stat-box">
@@ -552,7 +593,12 @@
     `;
     }
 
-    const isDownloadMode = new URLSearchParams(window.location.search).get("download") === "1";
+    const SUPABASE_URL = "https://jeipvqyetmcqsxvliwpp.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_xLw_44i9tOTEfWTGcDQ41Q_DLWbaC1o";
+
+    const params = new URLSearchParams(window.location.search);
+    const recordId    = params.get("id");
+    const isDownloadMode = params.get("download") === "1";
 
     function showOverlay(msg) {
       const ov = document.createElement("div");
@@ -571,7 +617,6 @@
     }
 
     async function downloadAsPDF(student) {
-      const isRu = document.documentElement.lang === "ru";
       showOverlay("Создание PDF…");
       await document.fonts.ready;
       const el = document.querySelector(".page");
@@ -598,22 +643,82 @@
       }
     }
 
-    try {
-      const raw = sessionStorage.getItem("ec_print_report");
-      if (!raw) {
-        document.getElementById("report").innerHTML = "<p style='padding:40px;text-align:center;color:#c0392b'>Данные отчёта не найдены. Вернитесь назад и нажмите «Скачать» снова.</p>";
+    // Convert a Supabase row into the printData format
+    function rowToPrintData(r) {
+      const topics = Array.isArray(r.topics) ? r.topics : [];
+      return {
+        examType: r.exam_type || "trial",
+        lang:     r.lang      || "ru",
+        student: {
+          firstName:   r.first_name   || "",
+          lastName:    r.last_name    || "",
+          phone:       r.phone        || "",
+          grade:       r.grade        || "",
+          parentName:  r.parent_name  || "",
+          parentPhone: r.parent_phone || "",
+          attended:    r.attended     || "",
+        },
+        result: {
+          correct: r.correct ?? 0,
+          total:   r.total   ?? 0,
+          elapsed: r.elapsed ?? 0,
+          answers: {},
+        },
+        topics: topics.map(tp => ({ key: tp.key, name: tp.key, pct: tp.pct })),
+      };
+    }
+
+    function renderData(data) {
+      document.getElementById("report").innerHTML = buildReport(data);
+      document.documentElement.lang = data.lang || "ru";
+      if (isDownloadMode) {
+        setTimeout(() => downloadAsPDF(data.student), 800);
       } else {
-        const data = JSON.parse(raw);
-        document.getElementById("report").innerHTML = buildReport(data);
-        document.documentElement.lang = data.lang || "ru";
-        if (isDownloadMode) {
-          setTimeout(() => downloadAsPDF(data.student), 800);
-        } else {
-          setTimeout(() => window.print(), 600);
-        }
+        setTimeout(() => window.print(), 600);
       }
-    } catch (e) {
-      document.getElementById("report").innerHTML = "<p style='padding:40px;text-align:center;color:#c0392b'>Ошибка загрузки данных отчёта.</p>";
+    }
+
+    function showError(msg) {
+      document.getElementById("report").innerHTML =
+        "<p style='padding:40px;text-align:center;color:#c0392b'>" + msg + "</p>";
+    }
+
+    async function loadFromSupabase(id) {
+      showOverlay("Загрузка данных…");
+      try {
+        const { createClient } = await import("https://esm.sh/@supabase/supabase-js@2");
+        const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+        const { data, error } = await sb
+          .from("applicants")
+          .select("id, first_name, last_name, phone, grade, exam_type, score, correct, total, elapsed, lang, completed_at, topics, parent_name, parent_phone, attended")
+          .eq("id", id)
+          .single();
+        hideOverlay();
+        if (error || !data) {
+          showError("Запись не найдена в базе данных.");
+          return;
+        }
+        renderData(rowToPrintData(data));
+      } catch (e) {
+        hideOverlay();
+        showError("Ошибка загрузки данных: " + e.message);
+      }
+    }
+
+    // Entry point: prefer Supabase fetch (via ?id=), fall back to sessionStorage
+    if (recordId) {
+      loadFromSupabase(recordId);
+    } else {
+      try {
+        const raw = sessionStorage.getItem("ec_print_report");
+        if (!raw) {
+          showError("Данные отчёта не найдены. Вернитесь назад и нажмите «Печать» снова.");
+        } else {
+          renderData(JSON.parse(raw));
+        }
+      } catch (e) {
+        showError("Ошибка загрузки данных отчёта.");
+      }
     }
   </script>
 </body>

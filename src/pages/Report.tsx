@@ -94,7 +94,8 @@ export function Report({
       student,
       result,
       lang,
-      topics: topics.map((tp) => ({ name: t(tp.nameKey), pct: tp.pct })),
+      examType,
+      topics: topics.map((tp) => ({ key: tp.nameKey, name: t(tp.nameKey), pct: tp.pct })),
     }
     sessionStorage.setItem('ec_print_report', JSON.stringify(printData))
   }
@@ -147,7 +148,9 @@ export function Report({
             pointerEvents: 'none',
           }}
         />
-        <div style={{ fontSize: 36, marginBottom: 12 }}>🎓</div>
+        <div style={{ fontSize: 36, marginBottom: 12 }}>
+          {examType === 'placement' ? '📋' : '🎓'}
+        </div>
         <h2
           style={{
             fontWeight: 800,
@@ -156,7 +159,9 @@ export function Report({
             marginBottom: 6,
           }}
         >
-          {t('report.completed')}
+          {examType === 'placement'
+            ? t('report.completed.placement')
+            : t('report.completed')}
         </h2>
         <p style={{ color: '#8fa3c0', fontSize: 14 }}>
           {t('report.desc')}{' '}
@@ -214,6 +219,75 @@ export function Report({
           color={COLORS.blue}
         />
       </div>
+      {examType === 'placement' && (
+        <div
+          style={{
+            ...Styles.card,
+            marginBottom: 24,
+            overflow: 'hidden',
+            boxShadow: 'none',
+          }}
+        >
+          <div
+            style={{
+              padding: '14px 22px',
+              background: '#f7f9fc',
+              borderBottom: `1px solid ${COLORS.border}`,
+              fontWeight: 700,
+              fontSize: 13,
+              color: COLORS.navy,
+            }}
+          >
+            {t('report.parentInfo')}
+          </div>
+          <div
+            style={{
+              padding: '18px 22px',
+              display: 'grid',
+              gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr 1fr',
+              gap: 16,
+            }}
+          >
+            <div>
+              <div style={{ fontSize: 11, color: COLORS.muted, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 4 }}>
+                {t('field.parentName')}
+              </div>
+              <div style={{ fontSize: 14, fontWeight: 600, color: COLORS.text }}>
+                {student.parentName || '—'}
+              </div>
+            </div>
+            <div>
+              <div style={{ fontSize: 11, color: COLORS.muted, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 4 }}>
+                {t('field.parentPhone')}
+              </div>
+              <div style={{ fontSize: 14, fontWeight: 600, color: COLORS.text }}>
+                {student.parentPhone || '—'}
+              </div>
+            </div>
+            <div>
+              <div style={{ fontSize: 11, color: COLORS.muted, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 4 }}>
+                {t('field.attended')}
+              </div>
+              <div
+                style={{
+                  display: 'inline-block',
+                  fontSize: 12,
+                  fontWeight: 700,
+                  padding: '3px 10px',
+                  borderRadius: 3,
+                  background: student.attended === 'attended' ? `${COLORS.success}18` : `${COLORS.danger}18`,
+                  color: student.attended === 'attended' ? COLORS.success : COLORS.danger,
+                  border: `1px solid ${student.attended === 'attended' ? COLORS.success : COLORS.danger}44`,
+                }}
+              >
+                {student.attended
+                  ? t(`field.attended.${student.attended}`)
+                  : '—'}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       <div
         style={{
           ...Styles.card,

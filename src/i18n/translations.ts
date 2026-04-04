@@ -111,6 +111,8 @@ export const TRANSLATIONS = {
     // Report
     "report.breadcrumb.step": "Results",
     "report.completed": "Trial Test Completed!",
+    "report.completed.placement": "Placement Test Completed!",
+    "report.parentInfo": "Parent / Guardian Details",
     "report.desc": "Here is your performance report,",
     "report.score": "Score",
     "report.correct": "Correct",
@@ -275,6 +277,8 @@ export const TRANSLATIONS = {
     // Report
     "report.breadcrumb.step": "Результаты",
     "report.completed": "Пробный Экзамен завершён!",
+    "report.completed.placement": "Отборочный Экзамен завершён!",
+    "report.parentInfo": "Данные родителя / опекуна",
     "report.desc": "Вот ваш отчёт об успеваемости,",
     "report.score": "Балл",
     "report.correct": "Верно",
