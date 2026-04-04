@@ -5,7 +5,12 @@
       "Bash(sed -i '' 's/Placement Test/Trial Test/g' /Users/ramilsalihar/development/4m/ec_entrance_exam/print_report.html)",
       "Bash(sed -i '' 's/Placement Test/Trial Test/g' /Users/ramilsalihar/development/4m/ec_entrance_exam/pages/admin/login.html)",
       "Bash(sed -i '' 's/Проверочный Экзамен/Пробный Экзамен/g; s/Проверочный экзамен/Пробный экзамен/g; s/Проверочный экзамен/Пробный экзамен/g' /Users/ramilsalihar/development/4m/ec_entrance_exam/index.html)",
-      "Bash(sed -i '' 's/Проверочный Экзамен/Пробный Экзамен/g' /Users/ramilsalihar/development/4m/ec_entrance_exam/print_report.html)"
+      "Bash(sed -i '' 's/Проверочный Экзамен/Пробный Экзамен/g' /Users/ramilsalihar/development/4m/ec_entrance_exam/print_report.html)",
+      "Bash(npx vite:*)",
+      "Bash(node -e \"const c = require\\('./vite.config.ts'\\); console.log\\('config ok'\\)\")"
+    ],
+    "additionalDirectories": [
+      "/Users/ramilsalihar/development/4m/entrance_exam/src/static"
     ]
   }
 }
