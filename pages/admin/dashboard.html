@@ -43,6 +43,10 @@
     .topbar-title { font-size: 15px; font-weight: 700; color: #0b1f3a; }
     .topbar-right { display: flex; align-items: center; gap: 14px; }
     .topbar-date { font-size: 12px; color: #6b7a95; }
+    .sidebar-lang { display: flex; gap: 4px; padding: 10px 10px 4px; }
+    .sidebar-lang-btn { flex: 1; font-size: 11px; font-weight: 700; padding: 6px 0; border-radius: 4px; border: 1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.04); color: #6b7a95; cursor: pointer; font-family: monospace; letter-spacing: .5px; transition: all .15s; text-align: center; }
+    .sidebar-lang-btn:hover { background: rgba(255,255,255,.08); color: #c8d8ea; }
+    .sidebar-lang-btn.active { background: #1565c0; color: #ffffff; border-color: #1565c0; }
     .content { padding: 28px; flex: 1; }
 
     /* ── Stats ── */
@@ -119,56 +123,56 @@
     .modal-overlay.hidden { display: none; }
 
     /* ── Report card (mirrors student page) ── */
-    .report-card { width: 100%; max-width: 820px; animation: modalIn .22s ease both; }
+    .report-card { width: 100%; max-width: 820px; animation: modalIn .22s ease both; display: flex; flex-direction: column; gap: 3px; }
     @keyframes modalIn { from { opacity:0; transform: translateY(16px); } to { opacity:1; transform: translateY(0); } }
 
     /* Hero */
-    .rpt-hero { background: linear-gradient(135deg,#0b1f3a 0%,#0a2240 100%); border-radius: 10px 10px 0 0; padding: 44px 40px 36px; text-align: center; position: relative; overflow: hidden; }
+    .rpt-hero { background: linear-gradient(135deg,#0b1f3a 0%,#0a2240 100%); border-radius: 10px; padding: 16px 24px 12px; text-align: center; position: relative; overflow: hidden; }
     .rpt-hero-glow { position: absolute; top: -100px; left: 50%; transform: translateX(-50%); width: 500px; height: 500px; border-radius: 50%; background: radial-gradient(circle,rgba(27,140,94,.12) 0%,transparent 70%); pointer-events: none; }
-    .rpt-hero-close { position: absolute; top: 14px; right: 16px; background: rgba(255,255,255,.12); border: none; color: #fff; width: 34px; height: 34px; border-radius: 50%; cursor: pointer; font-size: 17px; display: flex; align-items: center; justify-content: center; transition: background .15s; z-index: 2; }
+    .rpt-hero-close { position: absolute; top: 8px; right: 10px; background: rgba(255,255,255,.12); border: none; color: #fff; width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; transition: background .15s; z-index: 2; }
     .rpt-hero-close:hover { background: rgba(255,255,255,.24); }
-    .rpt-hero-emoji { font-size: 36px; margin-bottom: 12px; }
-    .rpt-hero-title { font-weight: 800; font-size: 26px; color: #ffffff; margin-bottom: 6px; }
-    .rpt-hero-sub { color: #8fa3c0; font-size: 14px; margin-bottom: 0; }
+    .rpt-hero-emoji { font-size: 22px; margin-bottom: 5px; }
+    .rpt-hero-title { font-weight: 800; font-size: 18px; color: #ffffff; margin-bottom: 3px; }
+    .rpt-hero-sub { color: #8fa3c0; font-size: 12px; margin-bottom: 0; }
     .rpt-hero-name { color: #e8a020; font-weight: 600; }
 
     /* Score ring */
-    .rpt-ring-wrap { display: flex; justify-content: center; margin: 28px 0 16px; }
-    .rpt-ring-inner { position: relative; width: 140px; height: 140px; }
+    .rpt-ring-wrap { display: flex; justify-content: center; margin: 8px 0 6px; }
+    .rpt-ring-inner { position: relative; width: 90px; height: 90px; }
     .rpt-ring-inner svg { transform: rotate(-90deg); overflow: visible; background: transparent; display: block; }
     .rpt-ring-label { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-    .rpt-ring-pct { font-weight: 800; font-size: 32px; color: #ffffff; line-height: 1; }
-    .rpt-ring-txt { font-size: 12px; color: #8fa3c0; margin-top: 4px; }
+    .rpt-ring-pct { font-weight: 800; font-size: 22px; color: #ffffff; line-height: 1; }
+    .rpt-ring-txt { font-size: 10px; color: #8fa3c0; margin-top: 2px; }
 
     /* Grade badge */
-    .rpt-grade-badge { display: inline-block; border-radius: 3px; padding: 4px 16px; font-size: 12px; font-weight: 700; letter-spacing: 1px; }
+    .rpt-grade-badge { display: inline-block; border-radius: 3px; padding: 2px 10px; font-size: 11px; font-weight: 700; letter-spacing: 1px; }
 
     /* Student strip */
-    .rpt-strip { background: #122848; padding: 14px 40px; display: flex; gap: 28px; flex-wrap: wrap; border-top: 1px solid rgba(255,255,255,.06); }
-    .rpt-strip-field { font-size: 12px; color: #8fa3c0; }
-    .rpt-strip-field span { color: #ffffff; font-weight: 600; margin-left: 6px; }
+    .rpt-strip { background: #122848; padding: 4px 16px; display: flex; gap: 14px; flex-wrap: wrap; border-radius: 8px; }
+    .rpt-strip-field { font-size: 11px; color: #8fa3c0; }
+    .rpt-strip-field span { color: #ffffff; font-weight: 600; margin-left: 4px; }
 
     /* Stats */
-    .rpt-stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; padding: 24px; background: #f0f3f9; }
-    .rpt-stat-box { background: #ffffff; border: 1px solid #dde3ed; border-radius: 8px; padding: 20px 16px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,.05); }
-    .rpt-stat-val { font-weight: 800; font-size: 28px; margin-bottom: 6px; }
-    .rpt-stat-label { font-size: 11px; color: #6b7a95; font-weight: 500; text-transform: uppercase; letter-spacing: .5px; }
+    .rpt-stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 3px; padding: 3px; background: #f0f3f9; border-radius: 8px; }
+    .rpt-stat-box { background: #ffffff; border: 1px solid #dde3ed; border-radius: 5px; padding: 5px 8px; text-align: center; box-shadow: none; }
+    .rpt-stat-val { font-weight: 800; font-size: 18px; margin-bottom: 1px; }
+    .rpt-stat-label { font-size: 10px; color: #6b7a95; font-weight: 500; text-transform: uppercase; letter-spacing: .5px; }
 
     /* Topics */
-    .rpt-topics { background: #ffffff; border-top: 1px solid #dde3ed; border-bottom: 1px solid #dde3ed; overflow: hidden; }
-    .rpt-topics-header { padding: 14px 22px; background: #f7f9fc; border-bottom: 1px solid #dde3ed; font-weight: 700; font-size: 13px; color: #0b1f3a; display: flex; justify-content: space-between; align-items: center; }
-    .rpt-topic-row { display: flex; align-items: center; gap: 16px; padding: 12px 22px; border-bottom: 1px solid #f0f3f9; }
+    .rpt-topics { background: #ffffff; border: 1px solid #dde3ed; border-radius: 8px; overflow: hidden; }
+    .rpt-topics-header { padding: 4px 12px; background: #f7f9fc; border-bottom: 1px solid #dde3ed; font-weight: 700; font-size: 11px; color: #0b1f3a; display: flex; justify-content: space-between; align-items: center; }
+    .rpt-topic-row { display: flex; align-items: center; gap: 10px; padding: 3px 12px; border-bottom: 1px solid #f0f3f9; }
     .rpt-topic-row:last-child { border-bottom: none; }
-    .rpt-topic-name { flex: 1; font-size: 13px; font-weight: 500; color: #1a2535; }
-    .rpt-topic-bar-bg { flex: 2; height: 8px; background: #dde3ed; border-radius: 4px; overflow: hidden; }
-    .rpt-topic-bar-fill { height: 100%; border-radius: 4px; transition: width .4s ease; }
-    .rpt-topic-pct { font-family: monospace; font-size: 12px; min-width: 38px; text-align: right; font-weight: 600; }
+    .rpt-topic-name { flex: 1; font-size: 12px; font-weight: 500; color: #1a2535; }
+    .rpt-topic-bar-bg { flex: 2; height: 6px; background: #dde3ed; border-radius: 3px; overflow: hidden; }
+    .rpt-topic-bar-fill { height: 100%; border-radius: 3px; transition: width .4s ease; }
+    .rpt-topic-pct { font-family: monospace; font-size: 11px; min-width: 34px; text-align: right; font-weight: 600; }
 
     /* Footer */
-    .rpt-footer { background: linear-gradient(135deg,#0b1f3a 0%,#122848 100%); border-radius: 0 0 10px 10px; padding: 18px 32px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
-    .rpt-footer-left { font-size: 12px; color: #6a85a8; }
-    .rpt-footer-actions { display: flex; gap: 10px; flex-wrap: wrap; }
-    .rpt-btn { padding: 9px 20px; border-radius: 4px; font-size: 13px; font-weight: 700; font-family: inherit; cursor: pointer; border: none; transition: opacity .15s; }
+    .rpt-footer { background: linear-gradient(135deg,#0b1f3a 0%,#122848 100%); border-radius: 10px; padding: 8px 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+    .rpt-footer-left { font-size: 11px; color: #6a85a8; }
+    .rpt-footer-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .rpt-btn { padding: 6px 14px; border-radius: 4px; font-size: 12px; font-weight: 700; font-family: inherit; cursor: pointer; border: none; transition: opacity .15s; }
     .rpt-btn:hover { opacity: .85; }
     .rpt-btn-print { background: #e8a020; color: #0b1f3a; }
     .rpt-btn-delete { background: rgba(255,255,255,.08); color: #e88; border: 1px solid rgba(255,255,255,.12); }
@@ -176,13 +180,13 @@
     /* ── Responsive ── */
     @media (max-width: 768px) {
       .sidebar { width: 60px; }
-      .sidebar-brand-text,.sidebar-brand-sub,.nav-item span,.nav-section-label,.logout-btn span { display: none; }
+      .sidebar-brand-text,.sidebar-brand-sub,.nav-item span,.nav-section-label,.logout-btn span,.sidebar-lang { display: none; }
       .main { margin-left: 60px; }
       .stats-row { grid-template-columns: repeat(2,1fr); }
       .search-input { width: 140px; }
       .rpt-stats { grid-template-columns: repeat(2,1fr); }
-      .rpt-hero { padding: 32px 20px 28px; }
-      .rpt-strip { padding: 12px 20px; }
+      .rpt-hero { padding: 12px 14px 10px; border-radius: 8px; }
+      .rpt-strip { padding: 5px 14px; border-radius: 6px; }
     }
   </style>
 </head>
@@ -198,27 +202,31 @@
     </div>
   </div>
   <nav class="sidebar-nav">
-    <div class="nav-section-label">Main</div>
+    <div class="nav-section-label" id="lbl-nav-main">Main</div>
     <a class="nav-item active" href="dashboard.html">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
-      <span>Applicants</span>
+      <span id="lbl-nav-applicants">Applicants</span>
     </a>
-    <div class="nav-section-label">Settings</div>
+    <div class="nav-section-label" id="lbl-nav-settings">Settings</div>
     <div class="toggle-row">
       <div class="toggle-label">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="#8fa3c0"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/></svg>
-        <span>Placement Test</span>
+        <span id="lbl-nav-placement">Placement Test</span>
       </div>
       <label class="toggle-switch">
         <input type="checkbox" id="placement-toggle" onchange="togglePlacement(this.checked)" />
         <span class="toggle-track"></span>
       </label>
     </div>
+    <div class="sidebar-lang">
+      <button class="sidebar-lang-btn active" id="lang-btn-ru" onclick="setAdminLang('ru')">RU</button>
+      <button class="sidebar-lang-btn"        id="lang-btn-en" onclick="setAdminLang('en')">EN</button>
+    </div>
   </nav>
   <div class="sidebar-footer">
     <button class="logout-btn" onclick="logout()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
-      <span>Log Out</span>
+      <span id="lbl-logout">Log Out</span>
     </button>
   </div>
 </aside>
@@ -226,7 +234,7 @@
 <!-- Main -->
 <div class="main">
   <div class="topbar">
-    <div class="topbar-title">Applicants</div>
+    <div class="topbar-title" id="topbar-title">Applicants</div>
     <div class="topbar-right">
       <span class="topbar-date" id="topbar-date"></span>
     </div>
@@ -240,19 +248,19 @@
     <!-- Stats -->
     <div class="stats-row">
       <div class="stat-card">
-        <div class="stat-card-label">Total Applicants</div>
+        <div class="stat-card-label" id="lbl-stat-total">Total Applicants</div>
         <div class="stat-card-val" id="stat-total" style="color:#0b1f3a">—</div>
       </div>
       <div class="stat-card">
-        <div class="stat-card-label">Avg. Score</div>
+        <div class="stat-card-label" id="lbl-stat-avg">Avg. Score</div>
         <div class="stat-card-val" id="stat-avg" style="color:#1565c0">—</div>
       </div>
       <div class="stat-card">
-        <div class="stat-card-label">Passed (≥50%)</div>
+        <div class="stat-card-label" id="lbl-stat-passed">Passed (≥50%)</div>
         <div class="stat-card-val" id="stat-passed" style="color:#1b8c5e">—</div>
       </div>
       <div class="stat-card">
-        <div class="stat-card-label">Excellent (≥80%)</div>
+        <div class="stat-card-label" id="lbl-stat-excellent">Excellent (≥80%)</div>
         <div class="stat-card-val" id="stat-excellent" style="color:#e8a020">—</div>
       </div>
     </div>
@@ -262,7 +270,7 @@
       <div class="section-header">
         <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
           <div>
-            <span class="section-title">All Exam Results</span>
+            <span class="section-title" id="lbl-section-title">All Exam Results</span>
             <span class="section-count" id="result-count"></span>
           </div>
           <div style="display:flex;gap:6px">
@@ -273,13 +281,13 @@
         </div>
         <div style="display:flex;gap:8px;align-items:center">
           <input class="search-input" id="search" type="text" placeholder="Search by name or phone…" oninput="renderTable()" />
-          <button class="clear-btn" onclick="clearAllData()">Clear All</button>
+          <button class="clear-btn" id="lbl-clear-btn" onclick="clearAllData()">Clear All</button>
         </div>
       </div>
       <div id="table-container">
         <div class="spinner-wrap">
           <div class="spinner"></div>
-          <div style="font-size:13px;color:#6b7a95">Loading applicants…</div>
+          <div style="font-size:13px;color:#6b7a95" id="loading-text">Loading applicants…</div>
         </div>
       </div>
     </div>
@@ -301,17 +309,17 @@
       <!-- Score ring -->
       <div class="rpt-ring-wrap">
         <div class="rpt-ring-inner">
-          <svg width="140" height="140" viewBox="0 0 140 140">
-            <circle cx="70" cy="70" r="60" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="10"/>
-            <circle id="rpt-ring-fg" cx="70" cy="70" r="60" fill="none" stroke="#1b8c5e" stroke-width="10"
+          <svg width="90" height="90" viewBox="0 0 90 90">
+            <circle cx="45" cy="45" r="38" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="7"/>
+            <circle id="rpt-ring-fg" cx="45" cy="45" r="38" fill="none" stroke="#1b8c5e" stroke-width="7"
               stroke-linecap="round"
-              stroke-dasharray="376.99"
-              stroke-dashoffset="376.99"
+              stroke-dasharray="238.76"
+              stroke-dashoffset="238.76"
               style="transition: stroke-dashoffset .6s ease, stroke .3s"/>
           </svg>
           <div class="rpt-ring-label">
             <div class="rpt-ring-pct" id="rpt-pct">0%</div>
-            <div class="rpt-ring-txt">Score</div>
+            <div class="rpt-ring-txt" id="rpt-score-lbl">Score</div>
           </div>
         </div>
       </div>
@@ -320,43 +328,43 @@
 
     <!-- Student strip -->
     <div class="rpt-strip">
-      <div class="rpt-strip-field">Grade: <span id="rpt-grade"></span></div>
-      <div class="rpt-strip-field">Phone: <span id="rpt-phone"></span></div>
-      <div class="rpt-strip-field">Type: <span id="rpt-type"></span></div>
-      <div class="rpt-strip-field">Date: <span id="rpt-date"></span></div>
+      <div class="rpt-strip-field"><span id="rpt-lbl-grade">Grade</span>: <span id="rpt-grade"></span></div>
+      <div class="rpt-strip-field"><span id="rpt-lbl-phone">Phone</span>: <span id="rpt-phone"></span></div>
+      <div class="rpt-strip-field"><span id="rpt-lbl-type">Type</span>: <span id="rpt-type"></span></div>
+      <div class="rpt-strip-field"><span id="rpt-lbl-date">Date</span>: <span id="rpt-date"></span></div>
     </div>
     <!-- Parent strip (placement only) -->
     <div class="rpt-strip" id="rpt-parent-strip" style="display:none;background:#0d2444;">
-      <div class="rpt-strip-field">Parent: <span id="rpt-parent-name"></span></div>
-      <div class="rpt-strip-field">Parent Phone: <span id="rpt-parent-phone"></span></div>
-      <div class="rpt-strip-field">Attended: <span id="rpt-attended"></span></div>
+      <div class="rpt-strip-field"><span id="rpt-lbl-parent">Parent</span>: <span id="rpt-parent-name"></span></div>
+      <div class="rpt-strip-field"><span id="rpt-lbl-parent-phone">Parent Phone</span>: <span id="rpt-parent-phone"></span></div>
+      <div class="rpt-strip-field"><span id="rpt-lbl-attended">Attended</span>: <span id="rpt-attended"></span></div>
     </div>
 
     <!-- Stats -->
     <div class="rpt-stats">
       <div class="rpt-stat-box">
         <div class="rpt-stat-val" id="rpt-correct" style="color:#1b8c5e">—</div>
-        <div class="rpt-stat-label">Correct</div>
+        <div class="rpt-stat-label" id="rpt-lbl-correct">Correct</div>
       </div>
       <div class="rpt-stat-box">
         <div class="rpt-stat-val" id="rpt-incorrect" style="color:#c0392b">—</div>
-        <div class="rpt-stat-label">Incorrect</div>
+        <div class="rpt-stat-label" id="rpt-lbl-incorrect">Incorrect</div>
       </div>
       <div class="rpt-stat-box">
         <div class="rpt-stat-val" id="rpt-total" style="color:#0b1f3a">—</div>
-        <div class="rpt-stat-label">Total</div>
+        <div class="rpt-stat-label" id="rpt-lbl-total">Total</div>
       </div>
       <div class="rpt-stat-box">
-        <div class="rpt-stat-val" id="rpt-time" style="color:#1565c0;font-size:22px">—</div>
-        <div class="rpt-stat-label">Time Used</div>
+        <div class="rpt-stat-val" id="rpt-time" style="color:#1565c0;font-size:18px">—</div>
+        <div class="rpt-stat-label" id="rpt-lbl-time">Time Used</div>
       </div>
     </div>
 
     <!-- Topics -->
     <div class="rpt-topics">
       <div class="rpt-topics-header">
-        <span>Performance by Topic</span>
-        <span style="font-size:11px;font-weight:400;color:#6b7a95">Breakdown</span>
+        <span id="rpt-lbl-topics">Performance by Topic</span>
+        <span id="rpt-lbl-estimated" style="font-size:11px;font-weight:400;color:#6b7a95">Breakdown</span>
       </div>
       <div id="rpt-topics-body"></div>
     </div>
@@ -365,8 +373,8 @@
     <div class="rpt-footer">
       <div class="rpt-footer-left">E|C Engineering College — college.edu.kg</div>
       <div class="rpt-footer-actions">
-        <button class="rpt-btn rpt-btn-delete" onclick="deleteCurrentRecord()">Delete Record</button>
-        <button class="rpt-btn rpt-btn-print" onclick="printCurrentRecord()">🖨 Print Report</button>
+        <button class="rpt-btn rpt-btn-delete" id="rpt-btn-delete" onclick="deleteCurrentRecord()">Delete Record</button>
+        <button class="rpt-btn rpt-btn-print" id="rpt-btn-print" onclick="printCurrentRecord()">🖨 Print Report</button>
       </div>
     </div>
 
@@ -384,28 +392,258 @@
     window.location.replace("login.html");
   }
 
-  // Topbar date
-  document.getElementById("topbar-date").textContent = new Date().toLocaleDateString("en-US", {
-    weekday: "short", day: "numeric", month: "short", year: "numeric"
-  });
+  // ── Admin language ──────────────────────────────────────────────────────────
+  let adminLang = localStorage.getItem("ec_admin_lang") || "ru";
 
-  // ── Topic lookup ────────────────────────────────────────────────────────────
-  const TOPIC_NAMES = {
-    "topic.fractions":      "Fractions",
-    "topic.linearEquations":"Linear Equations",
-    "topic.geometry":       "Geometry",
-    "topic.identities":     "Algebraic Identities",
-    "topic.orderOfOps":     "Order of Operations",
-    "topic.decimals":       "Decimals",
-    "topic.powers":         "Powers",
-    "topic.roots":          "Square Roots",
-    "topic.percentages":    "Percentages",
-    "topic.sequences":      "Sequences",
-    "topic.wordProblems":   "Word Problems",
-    "topic.ratios":         "Ratios & Proportions",
-    "topic.logic":          "Logic",
-    "topic.functions":      "Functions",
+  const ADMIN_STRINGS = {
+    en: {
+      "topbar.title":       "Applicants",
+      "stat.total":         "Total Applicants",
+      "stat.avg":           "Avg. Score",
+      "stat.passed":        "Passed (≥50%)",
+      "stat.excellent":     "Excellent (≥80%)",
+      "section.title":      "All Exam Results",
+      "filter.all":         "All",
+      "filter.trial":       "Trial",
+      "filter.placement":   "Placement",
+      "search.placeholder": "Search by name or phone…",
+      "clear.btn":          "Clear All",
+      "nav.main":           "Main",
+      "nav.applicants":     "Applicants",
+      "nav.settings":       "Settings",
+      "nav.placement":      "Placement Test",
+      "nav.logout":         "Log Out",
+      "col.name":           "Name",
+      "col.phone":          "Phone",
+      "col.grade":          "Grade",
+      "col.type":           "Type",
+      "col.score":          "Score",
+      "col.result":         "Result",
+      "col.correct":        "Correct",
+      "col.time":           "Time",
+      "col.date":           "Date",
+      "type.trial":         "Trial",
+      "type.placement":     "Placement",
+      "empty.title":        "No applicants yet",
+      "empty.desc":         "Results will appear here once students complete the exam.",
+      "empty.search":       "No results match your search.",
+      "loading":            "Loading applicants…",
+      "records":            (n) => n + " record" + (n !== 1 ? "s" : ""),
+      "delete.confirm":     "Delete this applicant record?",
+      "clear.confirm":      "Delete ALL applicant records? This cannot be undone.",
+      "sort.highest":       "Sorted: highest score first (click for lowest first)",
+      "sort.lowest":        "Sorted: lowest score first (click for highest first)",
+      "sort.default":       "Sort by score (click: highest first)",
+      "topbar.date.locale": "en-US",
+    },
+    ru: {
+      "topbar.title":       "Абитуриенты",
+      "stat.total":         "Всего абитуриентов",
+      "stat.avg":           "Средний балл",
+      "stat.passed":        "Прошли (≥50%)",
+      "stat.excellent":     "Отлично (≥80%)",
+      "section.title":      "Все результаты",
+      "filter.all":         "Все",
+      "filter.trial":       "Пробный",
+      "filter.placement":   "Отборочный",
+      "search.placeholder": "Поиск по имени или телефону…",
+      "clear.btn":          "Очистить",
+      "nav.main":           "Главная",
+      "nav.applicants":     "Абитуриенты",
+      "nav.settings":       "Настройки",
+      "nav.placement":      "Отборочный экзамен",
+      "nav.logout":         "Выйти",
+      "col.name":           "Имя",
+      "col.phone":          "Телефон",
+      "col.grade":          "Класс",
+      "col.type":           "Тип",
+      "col.score":          "Балл",
+      "col.result":         "Результат",
+      "col.correct":        "Верно",
+      "col.time":           "Время",
+      "col.date":           "Дата",
+      "type.trial":         "Пробный",
+      "type.placement":     "Отборочный",
+      "empty.title":        "Нет абитуриентов",
+      "empty.desc":         "Результаты появятся здесь после прохождения экзамена.",
+      "empty.search":       "Ничего не найдено.",
+      "loading":            "Загрузка…",
+      "records":            (n) => n + " " + (n % 10 === 1 && n % 100 !== 11 ? "запись" : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? "записи" : "записей"),
+      "delete.confirm":     "Удалить эту запись?",
+      "clear.confirm":      "Удалить ВСЕ записи? Это действие необратимо.",
+      "sort.highest":       "Сортировка: от высокого к низкому (нажмите для обратного)",
+      "sort.lowest":        "Сортировка: от низкого к высокому (нажмите для обратного)",
+      "sort.default":       "Сортировать по баллу",
+      "topbar.date.locale": "ru-RU",
+    },
   };
+
+  function tAdmin(key) {
+    const dict = ADMIN_STRINGS[adminLang] || ADMIN_STRINGS.en;
+    const val = dict[key] ?? ADMIN_STRINGS.en[key] ?? key;
+    return typeof val === "function" ? val : val;
+  }
+
+  function tAdminFn(key, ...args) {
+    const dict = ADMIN_STRINGS[adminLang] || ADMIN_STRINGS.en;
+    const val = dict[key] ?? ADMIN_STRINGS.en[key] ?? key;
+    return typeof val === "function" ? val(...args) : val;
+  }
+
+  function setAdminLang(lang) {
+    adminLang = lang;
+    localStorage.setItem("ec_admin_lang", lang);
+    document.getElementById("lang-btn-ru").classList.toggle("active", lang === "ru");
+    document.getElementById("lang-btn-en").classList.toggle("active", lang === "en");
+    renderUI();
+    renderTable();
+  }
+
+  function renderUI() {
+    // Topbar
+    document.getElementById("topbar-title").textContent = tAdmin("topbar.title");
+    document.getElementById("topbar-date").textContent = new Date().toLocaleDateString(
+      tAdmin("topbar.date.locale"),
+      { weekday: "short", day: "numeric", month: "short", year: "numeric" }
+    );
+    // Sidebar
+    document.getElementById("lbl-nav-main").textContent       = tAdmin("nav.main");
+    document.getElementById("lbl-nav-applicants").textContent = tAdmin("nav.applicants");
+    document.getElementById("lbl-nav-settings").textContent   = tAdmin("nav.settings");
+    document.getElementById("lbl-nav-placement").textContent  = tAdmin("nav.placement");
+    document.getElementById("lbl-logout").textContent         = tAdmin("nav.logout");
+    // Stat labels
+    document.getElementById("lbl-stat-total").textContent     = tAdmin("stat.total");
+    document.getElementById("lbl-stat-avg").textContent       = tAdmin("stat.avg");
+    document.getElementById("lbl-stat-passed").textContent    = tAdmin("stat.passed");
+    document.getElementById("lbl-stat-excellent").textContent = tAdmin("stat.excellent");
+    // Section
+    document.getElementById("lbl-section-title").textContent  = tAdmin("section.title");
+    document.getElementById("filter-all").textContent         = tAdmin("filter.all");
+    document.getElementById("filter-trial").textContent       = tAdmin("filter.trial");
+    document.getElementById("filter-placement").textContent   = tAdmin("filter.placement");
+    document.getElementById("search").placeholder             = tAdmin("search.placeholder");
+    document.getElementById("lbl-clear-btn").textContent      = tAdmin("clear.btn");
+  }
+
+  // Init date (before full renderUI to avoid flicker)
+  document.getElementById("topbar-date").textContent = new Date().toLocaleDateString(
+    tAdmin("topbar.date.locale"),
+    { weekday: "short", day: "numeric", month: "short", year: "numeric" }
+  );
+  // Sync switcher button state on load
+  document.getElementById("lang-btn-ru").classList.toggle("active", adminLang === "ru");
+  document.getElementById("lang-btn-en").classList.toggle("active", adminLang === "en");
+
+  // ── Topic lookup (bilingual) ────────────────────────────────────────────────
+  const TOPIC_NAMES = {
+    en: {
+      "topic.fractions":      "Fractions",
+      "topic.linearEquations":"Linear Equations",
+      "topic.geometry":       "Geometry",
+      "topic.identities":     "Algebraic Identities",
+      "topic.orderOfOps":     "Order of Operations",
+      "topic.decimals":       "Decimals",
+      "topic.powers":         "Powers",
+      "topic.roots":          "Square Roots",
+      "topic.percentages":    "Percentages",
+      "topic.sequences":      "Sequences",
+      "topic.wordProblems":   "Word Problems",
+      "topic.ratios":         "Ratios & Proportions",
+      "topic.logic":          "Logic",
+      "topic.functions":      "Functions",
+    },
+    ru: {
+      "topic.fractions":      "Дроби",
+      "topic.linearEquations":"Линейные уравнения",
+      "topic.geometry":       "Геометрия",
+      "topic.identities":     "Алг. тождества",
+      "topic.orderOfOps":     "Порядок действий",
+      "topic.decimals":       "Десятичные дроби",
+      "topic.powers":         "Степени",
+      "topic.roots":          "Квадратные корни",
+      "topic.percentages":    "Проценты",
+      "topic.sequences":      "Последовательности",
+      "topic.wordProblems":   "Задачи",
+      "topic.ratios":         "Пропорции",
+      "topic.logic":          "Логика",
+      "topic.functions":      "Функции",
+    },
+  };
+
+  // ── UI strings for the report modal (bilingual) ─────────────────────────────
+  const UI_STRINGS = {
+    en: {
+      "report.completed.trial":      "Trial Test Completed!",
+      "report.completed.placement":  "Placement Test Completed!",
+      "report.desc":                 "Performance report,",
+      "report.score":                "Score",
+      "report.correct":              "Correct",
+      "report.incorrect":            "Incorrect",
+      "report.total":                "Total",
+      "report.timeused":             "Time Used",
+      "report.topics":               "Performance by Topic",
+      "report.estimated":            "Breakdown",
+      "report.type.trial":           "Trial Test",
+      "report.type.placement":       "Placement Test",
+      "report.strip.grade":          "Grade",
+      "report.strip.phone":          "Phone",
+      "report.strip.type":           "Type",
+      "report.strip.date":           "Date",
+      "report.strip.parent":         "Parent",
+      "report.strip.parentPhone":    "Parent Phone",
+      "report.strip.attended":       "Attended",
+      "report.attended.came":        "Came",
+      "report.attended.not":         "Did not come",
+      "report.delete":               "Delete Record",
+      "report.print":                "🖨 Print Report",
+      "grade.excellent":             "Excellent",
+      "grade.good":                  "Good",
+      "grade.satisfactory":          "Satisfactory",
+      "grade.needsImprovement":      "Needs Work",
+      "topics.unavailable":          "Topic breakdown not available for this record.",
+    },
+    ru: {
+      "report.completed.trial":      "Пробный Экзамен завершён!",
+      "report.completed.placement":  "Отборочный Экзамен завершён!",
+      "report.desc":                 "Отчёт об успеваемости,",
+      "report.score":                "Балл",
+      "report.correct":              "Верно",
+      "report.incorrect":            "Неверно",
+      "report.total":                "Всего",
+      "report.timeused":             "Время",
+      "report.topics":               "Результаты по темам",
+      "report.estimated":            "Разбивка",
+      "report.type.trial":           "Пробный Экзамен",
+      "report.type.placement":       "Отборочный Экзамен",
+      "report.strip.grade":          "Класс",
+      "report.strip.phone":          "Телефон",
+      "report.strip.type":           "Тип",
+      "report.strip.date":           "Дата",
+      "report.strip.parent":         "Родитель",
+      "report.strip.parentPhone":    "Тел. родителя",
+      "report.strip.attended":       "Пришёл?",
+      "report.attended.came":        "Пришёл",
+      "report.attended.not":         "Не пришёл",
+      "report.delete":               "Удалить запись",
+      "report.print":                "🖨 Распечатать",
+      "grade.excellent":             "Отлично",
+      "grade.good":                  "Хорошо",
+      "grade.satisfactory":          "Удовлетворительно",
+      "grade.needsImprovement":      "Требует улучшения",
+      "topics.unavailable":          "Разбивка по темам недоступна для этой записи.",
+    },
+  };
+
+  function tr(lang, key) {
+    const dict = UI_STRINGS[lang] || UI_STRINGS.en;
+    return dict[key] ?? UI_STRINGS.en[key] ?? key;
+  }
+
+  function topicName(lang, key) {
+    const dict = TOPIC_NAMES[lang] || TOPIC_NAMES.en;
+    return dict[key] ?? TOPIC_NAMES.en[key] ?? key;
+  }
 
   // ── State ───────────────────────────────────────────────────────────────────
   let allApplicants = [];
@@ -432,9 +670,9 @@
   }
 
   function scoreSortTitle() {
-    if (scoreSortOrder === "asc") return "Sorted: lowest score first (click for highest first)";
-    if (scoreSortOrder === "desc") return "Sorted: highest score first (click for lowest first)";
-    return "Sort by score (click: highest first)";
+    if (scoreSortOrder === "asc")  return tAdmin("sort.lowest");
+    if (scoreSortOrder === "desc") return tAdmin("sort.highest");
+    return tAdmin("sort.default");
   }
 
   function setFilter(f) {
@@ -455,10 +693,10 @@
   }
 
   function gradeLabel(pct) {
-    if (pct >= 80) return "Excellent";
-    if (pct >= 65) return "Good";
-    if (pct >= 50) return "Satisfactory";
-    return "Needs Work";
+    if (pct >= 80) return tr(adminLang, "grade.excellent");
+    if (pct >= 65) return tr(adminLang, "grade.good");
+    if (pct >= 50) return tr(adminLang, "grade.satisfactory");
+    return tr(adminLang, "grade.needsImprovement");
   }
 
   function formatTime(elapsed) {
@@ -538,7 +776,7 @@
     }
 
     document.getElementById("result-count").textContent =
-      data.length ? " — " + data.length + " record" + (data.length !== 1 ? "s" : "") : "";
+      data.length ? " — " + tAdminFn("records", data.length) : "";
 
     const container = document.getElementById("table-container");
 
@@ -546,21 +784,21 @@
       container.innerHTML = `
         <div class="empty-state">
           <div class="empty-state-icon">📋</div>
-          <div class="empty-state-title">No applicants yet</div>
-          <div class="empty-state-desc">Results will appear here once students complete the exam.</div>
+          <div class="empty-state-title">${tAdmin("empty.title")}</div>
+          <div class="empty-state-desc">${tAdmin("empty.desc")}</div>
         </div>`;
       return;
     }
 
     if (data.length === 0) {
-      container.innerHTML = `<div class="empty-state"><div class="empty-state-title">No results match your search.</div></div>`;
+      container.innerHTML = `<div class="empty-state"><div class="empty-state-title">${tAdmin("empty.search")}</div></div>`;
       return;
     }
 
     const rows = data.map((r, i) => {
       const color = scoreColor(r.score);
       const label = gradeLabel(r.score);
-      const typeLabel = r.examType === "placement" ? "Placement" : "Trial";
+      const typeLabel = r.examType === "placement" ? tAdmin("type.placement") : tAdmin("type.trial");
       const typeColor = r.examType === "placement" ? "#1565c0" : "#e8a020";
       return `
         <tr class="data-row" onclick="openModal('${r.id}')">
@@ -585,16 +823,16 @@
     container.innerHTML = `
       <table>
         <thead><tr>
-          <th>#</th><th>Name</th><th>Phone</th><th>Grade</th><th>Type</th>
+          <th>#</th><th>${tAdmin("col.name")}</th><th>${tAdmin("col.phone")}</th><th>${tAdmin("col.grade")}</th><th>${tAdmin("col.type")}</th>
           <th>
             <span class="th-score-wrap">
-              Score
+              ${tAdmin("col.score")}
               <button type="button" class="${scoreSortBtnClass}" onclick="event.stopPropagation(); toggleScoreSort()" title="${scoreSortTitle()}" aria-label="${scoreSortTitle()}">
                 ${scoreSortIconSvg()}
               </button>
             </span>
           </th>
-          <th>Result</th><th>Correct</th><th>Time</th><th>Date</th><th></th>
+          <th>${tAdmin("col.result")}</th><th>${tAdmin("col.correct")}</th><th>${tAdmin("col.time")}</th><th>${tAdmin("col.date")}</th><th></th>
         </tr></thead>
         <tbody>${rows}</tbody>
       </table>`;
@@ -606,7 +844,7 @@
 
   // ── Delete ──────────────────────────────────────────────────────────────────
   async function deleteRecord(id) {
-    if (!confirm("Delete this applicant record?")) return;
+    if (!confirm(tAdmin("delete.confirm"))) return;
     allApplicants = allApplicants.filter(r => r.id !== id);
     // Remove from localStorage
     try {
@@ -623,7 +861,7 @@
   }
 
   async function clearAllData() {
-    if (!confirm("Delete ALL applicant records? This cannot be undone.")) return;
+    if (!confirm(tAdmin("clear.confirm"))) return;
     allApplicants = [];
     localStorage.removeItem("ec_applicants");
     try {
@@ -635,7 +873,7 @@
   }
 
   // ── Modal ───────────────────────────────────────────────────────────────────
-  const C = 2 * Math.PI * 60; // circumference for r=60
+  const C = 2 * Math.PI * 38; // circumference for r=38
 
   function openModal(id) {
     const r = allApplicants.find(a => a.id === id);
@@ -645,23 +883,27 @@
     const pct = r.score;
     const color = scoreColor(pct);
     const label = gradeLabel(pct);
-    const typeLabel = r.examType === "placement" ? "Placement Test" : "Trial Test";
+    const lang = adminLang;
+    const typeLabel = tr(lang, r.examType === "placement" ? "report.type.placement" : "report.type.trial");
 
     // Hero
     document.getElementById("rpt-title").textContent =
-      r.examType === "placement" ? "Placement Test Completed!" : "Trial Test Completed!";
+      tr(lang, r.examType === "placement" ? "report.completed.placement" : "report.completed.trial");
     document.getElementById("rpt-sub").innerHTML =
-      `Performance report, <span class="rpt-hero-name">${r.firstName} ${r.lastName}</span>`;
+      `${tr(lang, "report.desc")} <span class="rpt-hero-name">${r.firstName} ${r.lastName}</span>`;
     document.getElementById("rpt-pct").textContent = pct + "%";
 
     // Ring animate
     const fg = document.getElementById("rpt-ring-fg");
     fg.style.stroke = color;
     fg.setAttribute("stroke-dasharray", C.toFixed(2));
-    fg.setAttribute("stroke-dashoffset", C.toFixed(2)); // start at 0%
+    fg.setAttribute("stroke-dashoffset", C.toFixed(2));
     setTimeout(() => {
       fg.setAttribute("stroke-dashoffset", (C - (pct / 100) * C).toFixed(2));
     }, 40);
+
+    // Score ring label
+    document.getElementById("rpt-score-lbl").textContent = tr(lang, "report.score");
 
     // Grade badge
     const badge = document.getElementById("rpt-grade-badge");
@@ -670,38 +912,61 @@
     badge.style.color = color;
     badge.style.border = "1px solid " + color + "44";
 
-    // Strip
+    // Strip labels
+    document.getElementById("rpt-lbl-grade").textContent = tr(lang, "report.strip.grade");
+    document.getElementById("rpt-lbl-phone").textContent = tr(lang, "report.strip.phone");
+    document.getElementById("rpt-lbl-type").textContent  = tr(lang, "report.strip.type");
+    document.getElementById("rpt-lbl-date").textContent  = tr(lang, "report.strip.date");
+
+    // Strip values
     document.getElementById("rpt-grade").textContent = r.grade || "—";
     document.getElementById("rpt-phone").textContent = r.phone || "—";
-    document.getElementById("rpt-type").textContent = typeLabel;
-    document.getElementById("rpt-date").textContent = formatDate(r.completedAt);
+    document.getElementById("rpt-type").textContent  = typeLabel;
+    document.getElementById("rpt-date").textContent  = formatDate(r.completedAt);
 
     // Parent strip (placement only)
     const parentStrip = document.getElementById("rpt-parent-strip");
     if (r.examType === "placement" && (r.parentName || r.parentPhone)) {
+      document.getElementById("rpt-lbl-parent").textContent       = tr(lang, "report.strip.parent");
+      document.getElementById("rpt-lbl-parent-phone").textContent = tr(lang, "report.strip.parentPhone");
+      document.getElementById("rpt-lbl-attended").textContent     = tr(lang, "report.strip.attended");
       document.getElementById("rpt-parent-name").textContent  = r.parentName  || "—";
       document.getElementById("rpt-parent-phone").textContent = r.parentPhone || "—";
-      const attendedLabel = r.attended === "attended" ? "Came" : r.attended === "not_attended" ? "Did not come" : "—";
+      const attendedLabel = r.attended === "attended"
+        ? tr(lang, "report.attended.came")
+        : r.attended === "not_attended"
+          ? tr(lang, "report.attended.not")
+          : "—";
       document.getElementById("rpt-attended").textContent = attendedLabel;
       parentStrip.style.display = "";
     } else {
       parentStrip.style.display = "none";
     }
 
-    // Stats
-    document.getElementById("rpt-correct").textContent = r.correct;
-    document.getElementById("rpt-incorrect").textContent = r.total - r.correct;
-    document.getElementById("rpt-total").textContent = r.total;
-    document.getElementById("rpt-time").textContent = formatTime(r.elapsed);
+    // Stat labels
+    document.getElementById("rpt-lbl-correct").textContent   = tr(lang, "report.correct");
+    document.getElementById("rpt-lbl-incorrect").textContent = tr(lang, "report.incorrect");
+    document.getElementById("rpt-lbl-total").textContent     = tr(lang, "report.total");
+    document.getElementById("rpt-lbl-time").textContent      = tr(lang, "report.timeused");
 
-    // Topics
+    // Stat values
+    document.getElementById("rpt-correct").textContent   = r.correct;
+    document.getElementById("rpt-incorrect").textContent = r.total - r.correct;
+    document.getElementById("rpt-total").textContent     = r.total;
+    document.getElementById("rpt-time").textContent      = formatTime(r.elapsed);
+
+    // Topics section header
+    document.getElementById("rpt-lbl-topics").textContent    = tr(lang, "report.topics");
+    document.getElementById("rpt-lbl-estimated").textContent = tr(lang, "report.estimated");
+
+    // Topics body
     const topicsEl = document.getElementById("rpt-topics-body");
     const topics = Array.isArray(r.topics) ? r.topics : [];
     if (topics.length === 0) {
-      topicsEl.innerHTML = `<div style="padding:18px 22px;font-size:13px;color:#9aabb8;font-style:italic">Topic breakdown not available for this record.</div>`;
+      topicsEl.innerHTML = `<div style="padding:18px 22px;font-size:13px;color:#9aabb8;font-style:italic">${tr(lang, "topics.unavailable")}</div>`;
     } else {
       topicsEl.innerHTML = topics.map(tp => {
-        const name = TOPIC_NAMES[tp.key] || tp.key || "Unknown";
+        const name = topicName(lang, tp.key);
         const barColor = tp.pct >= 70 ? "#1b8c5e" : tp.pct >= 50 ? "#e8a020" : "#c0392b";
         return `
           <div class="rpt-topic-row">
@@ -713,6 +978,10 @@
           </div>`;
       }).join("");
     }
+
+    // Footer buttons
+    document.getElementById("rpt-btn-delete").textContent = tr(lang, "report.delete");
+    document.getElementById("rpt-btn-print").textContent  = tr(lang, "report.print");
 
     document.getElementById("modal-overlay").classList.remove("hidden");
     document.body.style.overflow = "hidden";
@@ -740,8 +1009,9 @@
   function printCurrentRecord() {
     if (!currentRecord) return;
     const r = currentRecord;
+    const recordLang = adminLang;
     const topics = (Array.isArray(r.topics) ? r.topics : []).map(tp => ({
-      name: TOPIC_NAMES[tp.key] || tp.key || tp.name || "",
+      name: topicName(recordLang, tp.key),
       pct: tp.pct,
     }));
     const printData = {
@@ -832,6 +1102,7 @@
     renderAll();
   }
 
+  renderUI();
   init();
 </script>
 </body>

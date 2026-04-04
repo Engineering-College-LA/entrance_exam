@@ -183,9 +183,9 @@
     /* ── Student info strip ── */
     .student-strip {
       background: #122848;
-      padding: 10px 40px;
+      padding: 4px 24px;
       display: flex;
-      gap: 32px;
+      gap: 20px;
       flex-wrap: wrap;
       border-top: 1px solid rgba(255, 255, 255, .06);
     }
@@ -205,27 +205,27 @@
     .stats {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
-      margin: 14px 0;
+      gap: 5px;
+      margin: 5px 0;
     }
 
     .stat-box {
       background: #ffffff;
       border: 1px solid #dde3ed;
-      border-radius: 8px;
-      padding: 12px 10px;
+      border-radius: 6px;
+      padding: 5px 8px;
       text-align: center;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, .05);
+      box-shadow: none;
     }
 
     .stat-val {
       font-weight: 800;
-      font-size: 22px;
-      margin-bottom: 4px;
+      font-size: 18px;
+      margin-bottom: 1px;
     }
 
     .stat-label {
-      font-size: 11px;
+      font-size: 10px;
       color: #6b7a95;
       font-weight: 500;
       text-transform: uppercase;
@@ -238,16 +238,16 @@
       border: 1px solid #dde3ed;
       border-radius: 8px;
       overflow: hidden;
-      margin-bottom: 14px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, .05);
+      margin-bottom: 5px;
+      box-shadow: none;
     }
 
     .topics-header {
-      padding: 10px 18px;
+      padding: 4px 14px;
       background: #f7f9fc;
       border-bottom: 1px solid #dde3ed;
       font-weight: 700;
-      font-size: 13px;
+      font-size: 12px;
       color: #0b1f3a;
       display: flex;
       justify-content: space-between;
@@ -255,7 +255,7 @@
     }
 
     .topics-header span {
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 400;
       color: #6b7a95;
     }
@@ -263,8 +263,8 @@
     .topic-row {
       display: flex;
       align-items: center;
-      gap: 12px;
-      padding: 11px 18px;
+      gap: 10px;
+      padding: 3px 14px;
       border-bottom: 1px solid #dde3ed;
     }
 
@@ -274,15 +274,15 @@
 
     .topic-name {
       flex: 1;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 500;
     }
 
     .topic-bar-wrap {
       flex: 2;
-      height: 8px;
+      height: 6px;
       background: #dde3ed;
-      border-radius: 4px;
+      border-radius: 3px;
       overflow: hidden;
     }
 
@@ -367,6 +367,53 @@
       accent: "#e8a020",
     };
 
+    // Russian topic name lookup — matches both translation keys and English names
+    const TOPIC_RU = {
+      // by key
+      "topic.fractions":      "Дроби",
+      "topic.linearEquations":"Линейные уравнения",
+      "topic.geometry":       "Геометрия",
+      "topic.identities":     "Алг. тождества",
+      "topic.orderOfOps":     "Порядок действий",
+      "topic.decimals":       "Десятичные дроби",
+      "topic.powers":         "Степени",
+      "topic.roots":          "Квадратные корни",
+      "topic.percentages":    "Проценты",
+      "topic.sequences":      "Последовательности",
+      "topic.wordProblems":   "Задачи",
+      "topic.ratios":         "Пропорции",
+      "topic.logic":          "Логика",
+      "topic.functions":      "Функции",
+      "topic.algebra":        "Алгебра",
+      "topic.calculus":       "Мат. Анализ",
+      "topic.statistics":     "Статистика",
+      "topic.numberTheory":   "Теория чисел",
+      // by English name (fallback for records saved in English)
+      "Fractions":            "Дроби",
+      "Linear Equations":     "Линейные уравнения",
+      "Geometry":             "Геометрия",
+      "Algebraic Identities": "Алг. тождества",
+      "Alg. тождества":       "Алг. тождества",
+      "Order of Operations":  "Порядок действий",
+      "Decimals":             "Десятичные дроби",
+      "Powers":               "Степени",
+      "Square Roots":         "Квадратные корни",
+      "Percentages":          "Проценты",
+      "Sequences":            "Последовательности",
+      "Word Problems":        "Задачи",
+      "Ratios & Proportions": "Пропорции",
+      "Logic":                "Логика",
+      "Functions":            "Функции",
+      "Algebra":              "Алгебра",
+      "Calculus":             "Мат. Анализ",
+      "Statistics":           "Статистика",
+      "Number Theory":        "Теория чисел",
+    };
+
+    function topicRu(tp) {
+      return TOPIC_RU[tp.key] || TOPIC_RU[tp.name] || tp.name;
+    }
+
     function topicColor(pct) {
       if (pct >= 70) return COLORS.success;
       if (pct >= 50) return COLORS.accent;
@@ -374,22 +421,22 @@
     }
 
     function gradeInfo(pct) {
-      if (pct >= 80) return { label: { ru: "Отлично", en: "Excellent" }, color: COLORS.success };
-      if (pct >= 65) return { label: { ru: "Хорошо", en: "Good" }, color: "#1976d2" };
-      if (pct >= 50) return { label: { ru: "Удовлетворительно", en: "Satisfactory" }, color: COLORS.accent };
-      return { label: { ru: "Требует улучшения", en: "Needs Improvement" }, color: COLORS.danger };
+      if (pct >= 80) return { label: "Отлично",              color: COLORS.success };
+      if (pct >= 65) return { label: "Хорошо",               color: "#1976d2" };
+      if (pct >= 50) return { label: "Удовлетворительно",    color: COLORS.accent };
+      return          { label: "Требует улучшения",           color: COLORS.danger };
     }
 
     function pad(n) { return String(n).padStart(2, "0"); }
 
     function buildReport(data) {
-      const { student, result, topics, lang } = data;
-      const isRu = lang === "ru";
+      const { student, result, topics, lang, examType } = data;
+      const isPlacement = examType === "placement";
       const pct = Math.round((result.correct / result.total) * 100);
       const mm = pad(Math.floor(result.elapsed / 60));
       const ss = pad(result.elapsed % 60);
       const grade = gradeInfo(pct);
-      const gradeLabel = grade.label[lang] || grade.label.ru;
+      const gradeLabel = grade.label;
       const gradeColor = grade.color;
 
       // SVG ring
@@ -397,29 +444,29 @@
       const offset = C - (pct / 100) * C;
 
       const now = new Date();
-      const dateStr = now.toLocaleDateString(isRu ? "ru-RU" : "en-US", { day: "2-digit", month: "long", year: "numeric" });
-      const timeStr = now.toLocaleTimeString(isRu ? "ru-RU" : "en-US", { hour: "2-digit", minute: "2-digit" });
+      const dateStr = now.toLocaleDateString("ru-RU", { day: "2-digit", month: "long", year: "numeric" });
+      const timeStr = now.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
 
       const T = {
-        completed: isRu ? "Пробный Экзамен завершён!" : "Trial Test Completed!",
-        desc: isRu ? "Отчёт о результатах," : "Performance report,",
-        score: isRu ? "Результат" : "Score",
-        correct: isRu ? "Правильно" : "Correct",
-        incorrect: isRu ? "Неверно" : "Incorrect",
-        total: isRu ? "Всего" : "Total",
-        timeused: isRu ? "Время" : "Time Used",
-        topics: isRu ? "Результаты по темам" : "Performance by Topic",
-        estimated: isRu ? "Разбивка" : "Breakdown",
-        generated: isRu ? `Сформировано ${dateStr} в ${timeStr}` : `Generated ${dateStr} at ${timeStr}`,
-        grade: isRu ? "Класс" : "Grade",
-        phone: isRu ? "Телефон" : "Phone",
-        badge: isRu ? "Пробный Экзамен" : "Trial Test",
-        footer: isRu ? "E|C Engineering College — college.edu.kg" : "E|C Engineering College — college.edu.kg",
+        completed: isPlacement ? "Вступительный Экзамен завершён!" : "Пробный Экзамен завершён!",
+        desc: "Отчёт о результатах,",
+        score: "Результат",
+        correct: "Правильно",
+        incorrect: "Неверно",
+        total: "Всего",
+        timeused: "Время",
+        topics: "Результаты по темам",
+        estimated: "Разбивка",
+        generated: `Сформировано ${dateStr} в ${timeStr}`,
+        grade: "Класс",
+        phone: "Телефон",
+        badge: isPlacement ? "Вступительный Экзамен" : "Пробный Экзамен",
+        footer: "E|C Engineering College — college.edu.kg",
       };
 
       const topicsHTML = topics.map(tp => `
       <div class="topic-row">
-        <div class="topic-name">${tp.name}</div>
+        <div class="topic-name">${topicRu(tp)}</div>
         <div class="topic-bar-wrap">
           <div class="topic-bar" style="width:${tp.pct}%;background:${topicColor(tp.pct)}"></div>
         </div>
@@ -523,8 +570,7 @@
     }
 
     async function downloadAsPDF(student) {
-      const isRu = document.documentElement.lang === "ru";
-      showOverlay(isRu ? "Создание PDF…" : "Generating PDF…");
+      showOverlay("Создание PDF…");
       await document.fonts.ready;
       const el = document.querySelector(".page");
       const name = (student.firstName + "_" + student.lastName).replace(/\s+/g, "_");
@@ -553,7 +599,7 @@
     try {
       const raw = sessionStorage.getItem("ec_print_report");
       if (!raw) {
-        document.getElementById("report").innerHTML = "<p style='padding:40px;text-align:center;color:#c0392b'>No report data found. Please go back and click Download again.</p>";
+        document.getElementById("report").innerHTML = "<p style='padding:40px;text-align:center;color:#c0392b'>Данные отчёта не найдены. Вернитесь назад и нажмите «Скачать» снова.</p>";
       } else {
         const data = JSON.parse(raw);
         document.getElementById("report").innerHTML = buildReport(data);
@@ -565,7 +611,7 @@
         }
       }
     } catch (e) {
-      document.getElementById("report").innerHTML = "<p style='padding:40px;text-align:center;color:#c0392b'>Error loading report data.</p>";
+      document.getElementById("report").innerHTML = "<p style='padding:40px;text-align:center;color:#c0392b'>Ошибка загрузки данных отчёта.</p>";
     }
   </script>
 </body>
