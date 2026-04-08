@@ -1025,24 +1025,35 @@
   async function loadPlacementSetting() {
     try {
       const sb = await getSB();
-      const { data } = await sb.from("settings").select("value").eq("key", "placement_active").single();
-      const active = data ? data.value === "true" : true;
-      document.getElementById("placement-toggle").checked = active;
+      const { data, error } = await sb.from("settings").select("value").eq("key", "placement_active").single();
+      if (error) {
+        console.warn("Could not read placement setting:", error.message);
+        document.getElementById("placement-toggle").checked = true; // default on
+        return;
+      }
+      document.getElementById("placement-toggle").checked = data ? data.value === "true" : true;
     } catch(e) {
       document.getElementById("placement-toggle").checked = true; // default on
     }
   }
 
   async function togglePlacement(checked) {
+    const toggle = document.getElementById("placement-toggle");
     try {
       const sb = await getSB();
-      const { error } = await sb.from("settings").upsert({ key: "placement_active", value: String(checked) }, { onConflict: "key" });
+      const { error } = await sb.from("settings").upsert(
+        { key: "placement_active", value: String(checked) },
+        { onConflict: "key" }
+      );
       if (error) {
-        console.error("Supabase Error updating setting:", error);
-        alert("Failed to update setting: " + error.message);
+        toggle.checked = !checked; // revert visual state
+        alert("❌ Failed to save setting:\n" + error.message);
+        console.error("Supabase togglePlacement error:", error);
       }
     } catch(e) {
-      console.warn("Could not save setting:", e);
+      toggle.checked = !checked; // revert visual state
+      alert("❌ Could not connect to Supabase:\n" + (e.message || e));
+      console.error("togglePlacement exception:", e);
     }
   }
 

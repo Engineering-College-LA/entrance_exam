@@ -12,7 +12,7 @@ export function Landing({
 }: {
   onStartTrial: () => void
   onStartPlacement: () => void
-  isPlacementActive: boolean
+  isPlacementActive: boolean | null
 }) {
   const { t } = useLang()
   const isMobile = useIsMobile()

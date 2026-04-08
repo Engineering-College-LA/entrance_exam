@@ -23,40 +23,37 @@ import type { ExamQuestion, ExamResult } from './types/exam'
 export default function App() {
   const nav = usePageNav()
   const [questions, setQuestions] = useState<ExamQuestion[]>([])
-  const [isPlacementActive, setIsPlacementActive] = useState(true)
+  const [isPlacementActive, setIsPlacementActive] = useState<boolean | null>(null)
 
   useEffect(() => {
-    const fetchSetting = async () => {
-      if (!supabase) return
-      const { data } = await supabase
-        .from('settings')
-        .select('value')
-        .eq('key', 'placement_active')
-        .single()
-      if (data) setIsPlacementActive(data.value === 'true')
-    }
-    void fetchSetting()
-
+    // Subscribe first, then fetch — so no realtime change can arrive
+    // between fetch completion and subscription setup and be missed.
     const channel = supabase
       ?.channel('settings-changes')
       .on(
         'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'settings',
-          filter: 'key=eq.placement_active',
-        },
+        { event: '*', schema: 'public', table: 'settings' },
         (payload) => {
-          if (payload.new && typeof payload.new === 'object' && 'value' in payload.new) {
-            setIsPlacementActive((payload.new as { value: string }).value === 'true')
+          const row = payload.new as { key?: string; value?: string } | undefined
+          if (row?.key === 'placement_active') {
+            setIsPlacementActive(row.value === 'true')
           }
         },
       )
-      .subscribe()
+      .subscribe(async () => {
+        // Fetch initial value only after subscription is active
+        if (!supabase) { setIsPlacementActive(false); return }
+        const { data, error } = await supabase
+          .from('settings')
+          .select('value')
+          .eq('key', 'placement_active')
+          .single()
+        if (error || !data) { setIsPlacementActive(false); return }
+        setIsPlacementActive(data.value === 'true')
+      })
 
     return () => {
-      if (channel) void supabase?.removeChannel(channel)
+      void supabase?.removeChannel(channel!)
     }
   }, [])
 
