@@ -177,6 +177,20 @@
     .rpt-btn-print { background: #e8a020; color: #0b1f3a; }
     .rpt-btn-delete { background: rgba(255,255,255,.08); color: #e88; border: 1px solid rgba(255,255,255,.12); }
 
+    /* ── Date filter ── */
+    .date-filter-wrap { position: relative; }
+    .date-filter-btn { display: flex; align-items: center; gap: 6px; border: 1.5px solid #dde3ed; border-radius: 6px; padding: 7px 12px; font-size: 12px; font-weight: 600; font-family: inherit; color: #1a2535; background: #ffffff; cursor: pointer; white-space: nowrap; transition: border-color .15s, background .15s, color .15s; }
+    .date-filter-btn:hover { border-color: #b0bcd0; }
+    .date-filter-btn.active { border-color: #1565c0; color: #1565c0; background: #e3f0ff; }
+    .date-dropdown { position: absolute; top: calc(100% + 4px); right: 0; min-width: 220px; background: #fff; border: 1px solid #dde3ed; border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,.12); z-index: 100; overflow: hidden; display: none; }
+    .date-dropdown.open { display: block; }
+    .date-dropdown-header { padding: 8px 14px; font-size: 11px; font-weight: 600; color: #6b7a95; text-transform: uppercase; letter-spacing: .5px; border-bottom: 1px solid #f0f3f9; }
+    .date-option { display: flex; align-items: center; justify-content: space-between; padding: 9px 14px; font-size: 13px; color: #1a2535; cursor: pointer; transition: background .12s; gap: 12px; }
+    .date-option:hover { background: #f0f6ff; }
+    .date-option.selected { background: #e3f0ff; color: #1565c0; font-weight: 600; }
+    .date-option-count { font-size: 11px; font-weight: 600; background: #f0f3f9; border-radius: 10px; padding: 2px 8px; color: #6b7a95; flex-shrink: 0; }
+    .date-option.selected .date-option-count { background: #c8deff; color: #1045a0; }
+
     /* ── Responsive ── */
     @media (max-width: 768px) {
       .sidebar { width: 60px; }
@@ -280,6 +294,14 @@
           </div>
         </div>
         <div style="display:flex;gap:8px;align-items:center">
+          <div class="date-filter-wrap" id="date-filter-wrap">
+            <button class="date-filter-btn" id="date-filter-btn" onclick="toggleDateDropdown()" type="button">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20 3h-1V1h-2v2H7V1H5v2H4C2.9 3 2 3.9 2 5v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 18H4V8h16v13zm0-15H4V5h16v1z"/></svg>
+              <span id="date-filter-label">All dates</span>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 10l5 5 5-5H7z"/></svg>
+            </button>
+            <div class="date-dropdown" id="date-dropdown"></div>
+          </div>
           <input class="search-input" id="search" type="text" placeholder="Search by name or phone…" oninput="renderTable()" />
           <button class="clear-btn" id="lbl-clear-btn" onclick="clearAllData()">Clear All</button>
         </div>
@@ -434,6 +456,8 @@
       "sort.highest":       "Sorted: highest score first (click for lowest first)",
       "sort.lowest":        "Sorted: lowest score first (click for highest first)",
       "sort.default":       "Sort by score (click: highest first)",
+      "date.all":           "All dates",
+      "date.title":         "Filter by date",
       "topbar.date.locale": "en-US",
     },
     ru: {
@@ -474,6 +498,8 @@
       "sort.highest":       "Сортировка: от высокого к низкому (нажмите для обратного)",
       "sort.lowest":        "Сортировка: от низкого к высокому (нажмите для обратного)",
       "sort.default":       "Сортировать по баллу",
+      "date.all":           "Все даты",
+      "date.title":         "Фильтр по дате",
       "topbar.date.locale": "ru-RU",
     },
   };
@@ -524,6 +550,7 @@
     document.getElementById("filter-placement").textContent   = tAdmin("filter.placement");
     document.getElementById("search").placeholder             = tAdmin("search.placeholder");
     document.getElementById("lbl-clear-btn").textContent      = tAdmin("clear.btn");
+    updateDateFilterBtn();
   }
 
   // Init date (before full renderUI to avoid flicker)
@@ -651,6 +678,8 @@
   let activeFilter  = "all";
   /** null = keep source order (e.g. by date); "desc" = highest score first; "asc" = lowest first */
   let scoreSortOrder = null;
+  /** null = show all dates; "YYYY-MM-DD" = specific day */
+  let activeDateFilter = null;
 
   function toggleScoreSort() {
     if (scoreSortOrder === null) scoreSortOrder = "desc";
@@ -682,6 +711,95 @@
       btn.className = "filter-btn" + (f === id ? " active-" + id : "");
     });
     renderTable();
+  }
+
+  // ── Date filter ─────────────────────────────────────────────────────────────
+  function toDateKey(iso) {
+    if (!iso) return "";
+    try { return new Date(iso).toISOString().slice(0, 10); }
+    catch(e) { return ""; }
+  }
+
+  function formatDateKey(key) {
+    try {
+      return new Date(key + "T12:00:00").toLocaleDateString(
+        tAdmin("topbar.date.locale"),
+        { day: "numeric", month: "short", year: "numeric" }
+      );
+    } catch(e) { return key; }
+  }
+
+  function getAvailableDates() {
+    const counts = {};
+    for (const r of allApplicants) {
+      const key = toDateKey(r.completedAt);
+      if (key) counts[key] = (counts[key] || 0) + 1;
+    }
+    return Object.entries(counts)
+      .sort((a, b) => b[0].localeCompare(a[0]))
+      .map(([key, count]) => ({ key, count }));
+  }
+
+  function updateDateFilterBtn() {
+    const btn = document.getElementById("date-filter-btn");
+    const label = document.getElementById("date-filter-label");
+    if (!btn || !label) return;
+    if (activeDateFilter) {
+      label.textContent = formatDateKey(activeDateFilter);
+      btn.classList.add("active");
+    } else {
+      label.textContent = tAdmin("date.all");
+      btn.classList.remove("active");
+    }
+  }
+
+  function setDateFilter(dateKey) {
+    activeDateFilter = dateKey || null;
+    closeDateDropdown();
+    updateDateFilterBtn();
+    renderTable();
+  }
+
+  let _closeDateDropdownOutside = null;
+
+  function toggleDateDropdown() {
+    const dd = document.getElementById("date-dropdown");
+    if (dd.classList.contains("open")) {
+      closeDateDropdown();
+    } else {
+      openDateDropdown();
+    }
+  }
+
+  function openDateDropdown() {
+    const dd = document.getElementById("date-dropdown");
+    const dates = getAvailableDates();
+    dd.innerHTML =
+      `<div class="date-dropdown-header">${tAdmin("date.title")}</div>` +
+      `<div class="date-option${!activeDateFilter ? " selected" : ""}" onclick="setDateFilter(null)">` +
+        `${tAdmin("date.all")}<span class="date-option-count">${allApplicants.length}</span>` +
+      `</div>` +
+      dates.map(d =>
+        `<div class="date-option${activeDateFilter === d.key ? " selected" : ""}" onclick="setDateFilter('${d.key}')">` +
+          `${formatDateKey(d.key)}<span class="date-option-count">${d.count}</span>` +
+        `</div>`
+      ).join("");
+    dd.classList.add("open");
+    if (_closeDateDropdownOutside) document.removeEventListener("click", _closeDateDropdownOutside);
+    _closeDateDropdownOutside = (e) => {
+      const wrap = document.getElementById("date-filter-wrap");
+      if (wrap && !wrap.contains(e.target)) closeDateDropdown();
+    };
+    setTimeout(() => document.addEventListener("click", _closeDateDropdownOutside, { once: true }), 0);
+  }
+
+  function closeDateDropdown() {
+    const dd = document.getElementById("date-dropdown");
+    if (dd) dd.classList.remove("open");
+    if (_closeDateDropdownOutside) {
+      document.removeEventListener("click", _closeDateDropdownOutside);
+      _closeDateDropdownOutside = null;
+    }
   }
 
   // ── Helpers ─────────────────────────────────────────────────────────────────
@@ -742,6 +860,9 @@
     let data = activeFilter === "all"
       ? allApplicants
       : allApplicants.filter(r => r.examType === activeFilter);
+    if (activeDateFilter) {
+      data = data.filter(r => toDateKey(r.completedAt) === activeDateFilter);
+    }
     const q = document.getElementById("search").value.trim().toLowerCase();
     if (q) {
       data = data.filter(r =>
