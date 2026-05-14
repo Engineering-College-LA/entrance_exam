@@ -340,9 +340,9 @@
       <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
       <span id="lbl-nav-applicants">Applicants</span>
     </button>
-    <button type="button" class="nav-item" id="nav-tab-open-doors" onclick="setAdminTab('openDoors')" title="Open doors">
+    <button type="button" class="nav-item" id="nav-tab-open-doors" onclick="setAdminTab('openDoors')" title="Project Fest">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 19V5c0-1.1-.9-2-2-2H7c-1.1 0-2 .9-2 2v14H3v2h18v-2h-2zm-2 0H7V5h10v14zm-8-8h2v6H9v-6zm4 0h2v6h-2v-6zM7 3h10v1H7V3z"/></svg>
-      <span id="lbl-nav-open-doors">Open doors participants</span>
+      <span id="lbl-nav-open-doors">Project Fest</span>
     </button>
     <div class="nav-section-label" id="lbl-nav-settings">Settings</div>
     <div class="toggle-row">
@@ -444,7 +444,7 @@
     <div class="section">
       <div class="section-header">
         <div>
-          <span class="section-title" id="lbl-open-door-section-title">Open door registrations</span>
+          <span class="section-title" id="lbl-open-door-section-title">Project Fest registrations</span>
           <span class="section-count" id="open-door-count"></span>
         </div>
       </div>
@@ -551,7 +551,7 @@
   <div class="open-door-detail-card" role="dialog" aria-modal="true" aria-labelledby="od-modal-title" onclick="event.stopPropagation()">
     <div class="od-modal-hero">
       <button type="button" class="od-modal-close" onclick="closeOpenDoorModal()" title="Close">✕</button>
-      <div class="od-modal-title" id="od-modal-title">Open doors</div>
+      <div class="od-modal-title" id="od-modal-title">Project Fest</div>
       <div class="od-modal-sub" id="od-modal-sub"></div>
     </div>
     <div class="od-detail-body">
@@ -628,14 +628,14 @@
       "clear.btn":          "Clear All",
       "nav.main":           "Main",
       "nav.applicants":     "Applicants",
-      "nav.openDoorsParticipants": "Open doors participants",
+      "nav.openDoorsParticipants": "Project Fest",
       "nav.settings":       "Settings",
       "nav.placement":      "Placement Test",
       "nav.logout":         "Log Out",
       "col.name":           "Name",
       "col.phone":          "Phone",
       "col.grade":          "Grade",
-      "col.openDoorReg":    "Open door",
+      "col.openDoorReg":    "Project Fest",
       "col.type":           "Type",
       "col.score":          "Score",
       "col.result":         "Result",
@@ -650,8 +650,8 @@
       "loading":            "Loading applicants…",
       "records":            (n) => n + " record" + (n !== 1 ? "s" : ""),
       "delete.confirm":     "Delete this applicant record?",
-      "clear.confirm":      "Delete ALL applicant records AND open door registrations? This cannot be undone.",
-      "section.openDoorTitle": "Open door registrations",
+      "clear.confirm":      "Delete ALL applicant records AND Project Fest registrations? This cannot be undone.",
+      "section.openDoorTitle": "Project Fest registrations",
       "openDoor.regYes":    "Yes",
       "openDoor.col.parent":      "Parent",
       "openDoor.col.parentPhone": "Parent phone",
@@ -659,10 +659,10 @@
       "openDoor.col.date":        "Registered",
       "openDoor.attended.yes":    "Yes",
       "openDoor.attended.no":     "No",
-      "openDoor.empty.title":     "No open door registrations yet",
-      "openDoor.empty.desc":      "Sign-ups from the Open Doors form will appear here.",
-      "openDoor.delete.confirm":  "Delete this open door registration?",
-      "openDoor.modal.title":     "Open doors",
+      "openDoor.empty.title":     "No Project Fest registrations yet",
+      "openDoor.empty.desc":      "Sign-ups from the Project Fest form will appear here.",
+      "openDoor.delete.confirm":  "Delete this Project Fest registration?",
+      "openDoor.modal.title":     "Project Fest",
       "openDoor.modal.sub":       "Participant details",
       "openDoor.modal.student":   "Student",
       "openDoor.modal.copyTitle": "Copy number",
@@ -690,14 +690,14 @@
       "clear.btn":          "Очистить",
       "nav.main":           "Главная",
       "nav.applicants":     "Абитуриенты",
-      "nav.openDoorsParticipants": "Участники открытых дверей",
+      "nav.openDoorsParticipants": "Project Fest",
       "nav.settings":       "Настройки",
       "nav.placement":      "Отборочный экзамен",
       "nav.logout":         "Выйти",
       "col.name":           "Имя",
       "col.phone":          "Телефон",
       "col.grade":          "Класс",
-      "col.openDoorReg":    "Откр. двери",
+      "col.openDoorReg":    "Project Fest",
       "col.type":           "Тип",
       "col.score":          "Балл",
       "col.result":         "Результат",
@@ -712,8 +712,8 @@
       "loading":            "Загрузка…",
       "records":            (n) => n + " " + (n % 10 === 1 && n % 100 !== 11 ? "запись" : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? "записи" : "записей"),
       "delete.confirm":     "Удалить эту запись?",
-      "clear.confirm":      "Удалить ВСЕ записи экзаменов И регистрации на открытые двери? Это необратимо.",
-      "section.openDoorTitle": "Регистрация — открытые двери",
+      "clear.confirm":      "Удалить ВСЕ записи экзаменов И регистрации Project Fest? Это необратимо.",
+      "section.openDoorTitle": "Регистрации Project Fest",
       "openDoor.regYes":    "Да",
       "openDoor.col.parent":      "Родитель",
       "openDoor.col.parentPhone": "Тел. родителя",
@@ -721,10 +721,10 @@
       "openDoor.col.date":        "Дата записи",
       "openDoor.attended.yes":    "Да",
       "openDoor.attended.no":     "Нет",
-      "openDoor.empty.title":     "Пока нет записей на открытые двери",
-      "openDoor.empty.desc":      "Здесь появятся данные из формы «Открытые двери».",
-      "openDoor.delete.confirm":  "Удалить эту запись?",
-      "openDoor.modal.title":     "Открытые двери",
+      "openDoor.empty.title":     "Пока нет регистраций Project Fest",
+      "openDoor.empty.desc":      "Здесь появятся данные из формы Project Fest.",
+      "openDoor.delete.confirm":  "Удалить эту регистрацию Project Fest?",
+      "openDoor.modal.title":     "Project Fest",
       "openDoor.modal.sub":       "Данные участника",
       "openDoor.modal.student":   "Ученик",
       "openDoor.modal.copyTitle": "Скопировать номер",

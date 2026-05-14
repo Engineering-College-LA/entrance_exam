@@ -1,6 +1,6 @@
 import type { ExamType, PageId } from '../types/exam'
 
-/** Shareable URL for Open Doors registration (no trailing slash). */
+/** Shareable URL for Project Fest registration (no trailing slash). */
 export const OPEN_DOORS_PATH = '/open_doors'
 
 export const OPEN_DOORS_THANKS_PATH = '/open_doors/thanks'
