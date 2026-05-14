@@ -48,6 +48,9 @@
     .sidebar-lang-btn:hover { background: rgba(255,255,255,.08); color: #c8d8ea; }
     .sidebar-lang-btn.active { background: #1565c0; color: #ffffff; border-color: #1565c0; }
     .content { padding: 28px; flex: 1; }
+    .content-panel { display: none; }
+    .content-panel.visible { display: block; }
+    button.nav-item { width: 100%; border: none; background: transparent; font: inherit; font-family: inherit; text-align: left; cursor: pointer; }
 
     /* ── Stats ── */
     .stats-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 24px; }
@@ -107,6 +110,122 @@
     .score-bar { height: 100%; border-radius: 3px; }
     .delete-btn { background: none; border: none; cursor: pointer; color: #c0392b; padding: 4px 8px; border-radius: 4px; font-size: 13px; opacity: 0; transition: opacity .15s, background .15s; }
     tr.data-row:hover .delete-btn { opacity: 1; }
+    tr.data-row-od { cursor: pointer; touch-action: manipulation; }
+    tr.data-row-od:hover td { background: #f0f6ff; }
+
+    /* Open door detail modal */
+    .open-door-detail-card {
+      width: 100%;
+      max-width: 440px;
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 16px 48px rgba(0,0,0,.2);
+      overflow: hidden;
+      animation: modalIn .22s ease both;
+    }
+    .od-modal-hero {
+      background: linear-gradient(135deg,#0b1f3a 0%,#122848 100%);
+      padding: 18px 20px 16px;
+      position: relative;
+    }
+    .od-modal-close {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(255,255,255,.12);
+      border: none;
+      color: #fff;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .od-modal-close:hover { background: rgba(255,255,255,.22); }
+    .od-modal-title { font-weight: 800; font-size: 17px; color: #fff; padding-right: 36px; }
+    .od-modal-sub { font-size: 12px; color: #8fa3c0; margin-top: 4px; }
+    .od-detail-body { padding: 20px 22px; }
+    .od-field { margin-bottom: 16px; }
+    .od-field:last-of-type { margin-bottom: 0; }
+    .od-field-label { font-size: 10px; font-weight: 700; color: #6b7a95; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; }
+    .od-field-value { font-size: 15px; font-weight: 600; color: #0b1f3a; }
+    .od-phone-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .od-phone-row .od-field-value { font-family: ui-monospace, monospace; font-size: 14px; }
+    .od-copy-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      border: 1px solid #dde3ed;
+      background: #f7f9fc;
+      color: #1565c0;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background .15s, border-color .15s;
+    }
+    .od-copy-btn:hover { background: #e3f0ff; border-color: #1565c0; }
+    .od-copy-btn svg { display: block; }
+    .od-modal-footer {
+      padding: 14px 22px 18px;
+      border-top: 1px solid #f0f3f9;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    .od-btn-secondary {
+      padding: 9px 16px;
+      border-radius: 6px;
+      border: 1px solid #dde3ed;
+      background: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      color: #1a2535;
+    }
+    .od-btn-secondary:hover { background: #f7f9fc; }
+    .od-btn-danger {
+      padding: 9px 16px;
+      border-radius: 6px;
+      border: none;
+      background: #fdecea;
+      color: #c0392b;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+    }
+    .od-btn-danger:hover { background: #fad2cd; }
+
+    /* Copy toast */
+    .od-copy-toast {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%) translateY(120%);
+      background: #0b1f3a;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      z-index: 2000;
+      box-shadow: 0 8px 24px rgba(0,0,0,.25);
+      transition: transform .22s ease;
+      pointer-events: none;
+    }
+    .od-copy-toast.visible { transform: translateX(-50%) translateY(0); }
     .delete-btn:hover { background: #fce8e6; }
     .empty-state { padding: 60px 24px; text-align: center; color: #6b7a95; }
     .empty-state-icon { font-size: 40px; margin-bottom: 14px; }
@@ -217,10 +336,14 @@
   </div>
   <nav class="sidebar-nav">
     <div class="nav-section-label" id="lbl-nav-main">Main</div>
-    <a class="nav-item active" href="dashboard.html">
+    <button type="button" class="nav-item active" id="nav-tab-applicants" onclick="setAdminTab('applicants')" title="Applicants">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
       <span id="lbl-nav-applicants">Applicants</span>
-    </a>
+    </button>
+    <button type="button" class="nav-item" id="nav-tab-open-doors" onclick="setAdminTab('openDoors')" title="Open doors">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 19V5c0-1.1-.9-2-2-2H7c-1.1 0-2 .9-2 2v14H3v2h18v-2h-2zm-2 0H7V5h10v14zm-8-8h2v6H9v-6zm4 0h2v6h-2v-6zM7 3h10v1H7V3z"/></svg>
+      <span id="lbl-nav-open-doors">Open doors participants</span>
+    </button>
     <div class="nav-section-label" id="lbl-nav-settings">Settings</div>
     <div class="toggle-row">
       <div class="toggle-label">
@@ -259,6 +382,7 @@
     <div class="alert alert-error" id="alert-error"></div>
     <div class="alert alert-warn" id="alert-warn"></div>
 
+    <div id="panel-applicants" class="content-panel visible">
     <!-- Stats -->
     <div class="stats-row">
       <div class="stat-card">
@@ -302,7 +426,7 @@
             </button>
             <div class="date-dropdown" id="date-dropdown"></div>
           </div>
-          <input class="search-input" id="search" type="text" placeholder="Search by name or phone…" oninput="renderTable()" />
+          <input class="search-input" id="search" type="text" placeholder="Search by name or phone…" oninput="renderAll()" />
           <button class="clear-btn" id="lbl-clear-btn" onclick="clearAllData()">Clear All</button>
         </div>
       </div>
@@ -312,6 +436,25 @@
           <div style="font-size:13px;color:#6b7a95" id="loading-text">Loading applicants…</div>
         </div>
       </div>
+    </div>
+    </div>
+
+    <!-- Open doors participants (separate tab) -->
+    <div id="panel-open-doors" class="content-panel">
+    <div class="section">
+      <div class="section-header">
+        <div>
+          <span class="section-title" id="lbl-open-door-section-title">Open door registrations</span>
+          <span class="section-count" id="open-door-count"></span>
+        </div>
+      </div>
+      <div id="open-door-table-container">
+        <div class="spinner-wrap">
+          <div class="spinner"></div>
+          <div style="font-size:13px;color:#6b7a95">Loading…</div>
+        </div>
+      </div>
+    </div>
     </div>
   </div>
 </div>
@@ -403,6 +546,58 @@
   </div>
 </div>
 
+<!-- Open door participant detail modal -->
+<div class="modal-overlay hidden" id="open-door-modal-overlay" onclick="handleOpenDoorOverlayClick(event)">
+  <div class="open-door-detail-card" role="dialog" aria-modal="true" aria-labelledby="od-modal-title" onclick="event.stopPropagation()">
+    <div class="od-modal-hero">
+      <button type="button" class="od-modal-close" onclick="closeOpenDoorModal()" title="Close">✕</button>
+      <div class="od-modal-title" id="od-modal-title">Open doors</div>
+      <div class="od-modal-sub" id="od-modal-sub"></div>
+    </div>
+    <div class="od-detail-body">
+      <div class="od-field">
+        <div class="od-field-label" id="od-lbl-student"></div>
+        <div class="od-field-value" id="od-val-student"></div>
+      </div>
+      <div class="od-field">
+        <div class="od-field-label" id="od-lbl-grade"></div>
+        <div class="od-field-value" id="od-val-grade"></div>
+      </div>
+      <div class="od-field">
+        <div class="od-field-label" id="od-lbl-phone"></div>
+        <div class="od-phone-row">
+          <span class="od-field-value" id="od-val-phone">—</span>
+          <button type="button" class="od-copy-btn" id="od-copy-phone" onclick="copyOpenDoorPhone('student')" title="Copy">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="od-field">
+        <div class="od-field-label" id="od-lbl-parent"></div>
+        <div class="od-field-value" id="od-val-parent-name"></div>
+      </div>
+      <div class="od-field">
+        <div class="od-field-label" id="od-lbl-parent-phone"></div>
+        <div class="od-phone-row">
+          <span class="od-field-value" id="od-val-parent-phone">—</span>
+          <button type="button" class="od-copy-btn" id="od-copy-parent-phone" onclick="copyOpenDoorPhone('parent')" title="Copy">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="od-field">
+        <div class="od-field-label" id="od-lbl-registered"></div>
+        <div class="od-field-value" id="od-val-registered"></div>
+      </div>
+    </div>
+    <div class="od-modal-footer">
+      <button type="button" class="od-btn-danger" id="od-btn-delete" onclick="deleteOpenDoorFromModal()">Delete</button>
+      <button type="button" class="od-btn-secondary" id="od-btn-close" onclick="closeOpenDoorModal()">Close</button>
+    </div>
+  </div>
+</div>
+<div class="od-copy-toast" id="od-copy-toast" role="status"></div>
+
 <script>
   // ── Auth guard ──────────────────────────────────────────────────────────────
   if (sessionStorage.getItem("ec_admin_auth") !== "1") {
@@ -416,6 +611,7 @@
 
   // ── Admin language ──────────────────────────────────────────────────────────
   let adminLang = localStorage.getItem("ec_admin_lang") || "ru";
+  let activeAdminTab = "applicants";
 
   const ADMIN_STRINGS = {
     en: {
@@ -432,12 +628,14 @@
       "clear.btn":          "Clear All",
       "nav.main":           "Main",
       "nav.applicants":     "Applicants",
+      "nav.openDoorsParticipants": "Open doors participants",
       "nav.settings":       "Settings",
       "nav.placement":      "Placement Test",
       "nav.logout":         "Log Out",
       "col.name":           "Name",
       "col.phone":          "Phone",
       "col.grade":          "Grade",
+      "col.openDoorReg":    "Open door",
       "col.type":           "Type",
       "col.score":          "Score",
       "col.result":         "Result",
@@ -452,7 +650,25 @@
       "loading":            "Loading applicants…",
       "records":            (n) => n + " record" + (n !== 1 ? "s" : ""),
       "delete.confirm":     "Delete this applicant record?",
-      "clear.confirm":      "Delete ALL applicant records? This cannot be undone.",
+      "clear.confirm":      "Delete ALL applicant records AND open door registrations? This cannot be undone.",
+      "section.openDoorTitle": "Open door registrations",
+      "openDoor.regYes":    "Yes",
+      "openDoor.col.parent":      "Parent",
+      "openDoor.col.parentPhone": "Parent phone",
+      "openDoor.col.attended":    "Parent came?",
+      "openDoor.col.date":        "Registered",
+      "openDoor.attended.yes":    "Yes",
+      "openDoor.attended.no":     "No",
+      "openDoor.empty.title":     "No open door registrations yet",
+      "openDoor.empty.desc":      "Sign-ups from the Open Doors form will appear here.",
+      "openDoor.delete.confirm":  "Delete this open door registration?",
+      "openDoor.modal.title":     "Open doors",
+      "openDoor.modal.sub":       "Participant details",
+      "openDoor.modal.student":   "Student",
+      "openDoor.modal.copyTitle": "Copy number",
+      "openDoor.modal.copied":    "Copied to clipboard",
+      "openDoor.modal.close":     "Close",
+      "openDoor.modal.delete":    "Delete",
       "sort.highest":       "Sorted: highest score first (click for lowest first)",
       "sort.lowest":        "Sorted: lowest score first (click for highest first)",
       "sort.default":       "Sort by score (click: highest first)",
@@ -474,12 +690,14 @@
       "clear.btn":          "Очистить",
       "nav.main":           "Главная",
       "nav.applicants":     "Абитуриенты",
+      "nav.openDoorsParticipants": "Участники открытых дверей",
       "nav.settings":       "Настройки",
       "nav.placement":      "Отборочный экзамен",
       "nav.logout":         "Выйти",
       "col.name":           "Имя",
       "col.phone":          "Телефон",
       "col.grade":          "Класс",
+      "col.openDoorReg":    "Откр. двери",
       "col.type":           "Тип",
       "col.score":          "Балл",
       "col.result":         "Результат",
@@ -494,7 +712,25 @@
       "loading":            "Загрузка…",
       "records":            (n) => n + " " + (n % 10 === 1 && n % 100 !== 11 ? "запись" : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? "записи" : "записей"),
       "delete.confirm":     "Удалить эту запись?",
-      "clear.confirm":      "Удалить ВСЕ записи? Это действие необратимо.",
+      "clear.confirm":      "Удалить ВСЕ записи экзаменов И регистрации на открытые двери? Это необратимо.",
+      "section.openDoorTitle": "Регистрация — открытые двери",
+      "openDoor.regYes":    "Да",
+      "openDoor.col.parent":      "Родитель",
+      "openDoor.col.parentPhone": "Тел. родителя",
+      "openDoor.col.attended":    "Родитель пришёл?",
+      "openDoor.col.date":        "Дата записи",
+      "openDoor.attended.yes":    "Да",
+      "openDoor.attended.no":     "Нет",
+      "openDoor.empty.title":     "Пока нет записей на открытые двери",
+      "openDoor.empty.desc":      "Здесь появятся данные из формы «Открытые двери».",
+      "openDoor.delete.confirm":  "Удалить эту запись?",
+      "openDoor.modal.title":     "Открытые двери",
+      "openDoor.modal.sub":       "Данные участника",
+      "openDoor.modal.student":   "Ученик",
+      "openDoor.modal.copyTitle": "Скопировать номер",
+      "openDoor.modal.copied":    "Скопировано в буфер",
+      "openDoor.modal.close":     "Закрыть",
+      "openDoor.modal.delete":    "Удалить",
       "sort.highest":       "Сортировка: от высокого к низкому (нажмите для обратного)",
       "sort.lowest":        "Сортировка: от низкого к высокому (нажмите для обратного)",
       "sort.default":       "Сортировать по баллу",
@@ -516,18 +752,36 @@
     return typeof val === "function" ? val(...args) : val;
   }
 
+  function syncTopbarForActiveTab() {
+    document.getElementById("topbar-title").textContent =
+      activeAdminTab === "openDoors"
+        ? tAdmin("nav.openDoorsParticipants")
+        : tAdmin("topbar.title");
+  }
+
+  function setAdminTab(tab) {
+    activeAdminTab = tab;
+    document.getElementById("nav-tab-applicants").classList.toggle("active", tab === "applicants");
+    document.getElementById("nav-tab-open-doors").classList.toggle("active", tab === "openDoors");
+    document.getElementById("panel-applicants").classList.toggle("visible", tab === "applicants");
+    document.getElementById("panel-open-doors").classList.toggle("visible", tab === "openDoors");
+    syncTopbarForActiveTab();
+    closeModal();
+    closeOpenDoorModal();
+  }
+
   function setAdminLang(lang) {
     adminLang = lang;
     localStorage.setItem("ec_admin_lang", lang);
     document.getElementById("lang-btn-ru").classList.toggle("active", lang === "ru");
     document.getElementById("lang-btn-en").classList.toggle("active", lang === "en");
     renderUI();
-    renderTable();
+    renderAll();
   }
 
   function renderUI() {
     // Topbar
-    document.getElementById("topbar-title").textContent = tAdmin("topbar.title");
+    syncTopbarForActiveTab();
     document.getElementById("topbar-date").textContent = new Date().toLocaleDateString(
       tAdmin("topbar.date.locale"),
       { weekday: "short", day: "numeric", month: "short", year: "numeric" }
@@ -535,6 +789,7 @@
     // Sidebar
     document.getElementById("lbl-nav-main").textContent       = tAdmin("nav.main");
     document.getElementById("lbl-nav-applicants").textContent = tAdmin("nav.applicants");
+    document.getElementById("lbl-nav-open-doors").textContent = tAdmin("nav.openDoorsParticipants");
     document.getElementById("lbl-nav-settings").textContent   = tAdmin("nav.settings");
     document.getElementById("lbl-nav-placement").textContent  = tAdmin("nav.placement");
     document.getElementById("lbl-logout").textContent         = tAdmin("nav.logout");
@@ -550,7 +805,114 @@
     document.getElementById("filter-placement").textContent   = tAdmin("filter.placement");
     document.getElementById("search").placeholder             = tAdmin("search.placeholder");
     document.getElementById("lbl-clear-btn").textContent      = tAdmin("clear.btn");
+    const odDel = document.getElementById("od-btn-delete");
+    const odCl = document.getElementById("od-btn-close");
+    if (odDel) odDel.textContent = tAdmin("openDoor.modal.delete");
+    if (odCl) odCl.textContent = tAdmin("openDoor.modal.close");
+    const odCp = document.getElementById("od-copy-phone");
+    const odCpp = document.getElementById("od-copy-parent-phone");
+    const copyT = tAdmin("openDoor.modal.copyTitle");
+    if (odCp) odCp.title = copyT;
+    if (odCpp) odCpp.title = copyT;
+    const odX = document.querySelector(".od-modal-close");
+    if (odX) odX.title = tAdmin("openDoor.modal.close");
     updateDateFilterBtn();
+  }
+
+  function flashOdCopiedToast() {
+    const toast = document.getElementById("od-copy-toast");
+    if (!toast) return;
+    toast.textContent = tAdmin("openDoor.modal.copied");
+    toast.classList.add("visible");
+    window.clearTimeout(flashOdCopiedToast._t);
+    flashOdCopiedToast._t = window.setTimeout(() => toast.classList.remove("visible"), 2000);
+  }
+
+  function openOpenDoorModal(id) {
+    const sid = id == null ? "" : String(id);
+    const r = allOpenDoorRegs.find((x) => String(x.id) === sid);
+    if (!r) return;
+    currentOpenDoorRecord = r;
+    closeModal();
+
+    document.getElementById("od-modal-title").textContent = tAdmin("openDoor.modal.title");
+    document.getElementById("od-modal-sub").textContent = tAdmin("openDoor.modal.sub");
+    document.getElementById("od-lbl-student").textContent = tAdmin("openDoor.modal.student");
+    document.getElementById("od-val-student").textContent = `${r.firstName} ${r.lastName}`.trim() || "—";
+    document.getElementById("od-lbl-grade").textContent = tAdmin("col.grade");
+    document.getElementById("od-val-grade").textContent = r.grade || "—";
+    document.getElementById("od-lbl-phone").textContent = tAdmin("col.phone");
+    document.getElementById("od-val-phone").textContent = r.phone || "—";
+    document.getElementById("od-lbl-parent").textContent = tAdmin("openDoor.col.parent");
+    document.getElementById("od-val-parent-name").textContent = r.parentName || "—";
+    document.getElementById("od-lbl-parent-phone").textContent = tAdmin("openDoor.col.parentPhone");
+    document.getElementById("od-val-parent-phone").textContent = r.parentPhone || "—";
+    document.getElementById("od-lbl-registered").textContent = tAdmin("openDoor.col.date");
+    document.getElementById("od-val-registered").textContent = formatDate(r.registeredAt || "");
+
+    const btnSt = document.getElementById("od-copy-phone");
+    const btnPr = document.getElementById("od-copy-parent-phone");
+    const hasP = !!(r.phone && String(r.phone).trim());
+    const hasPP = !!(r.parentPhone && String(r.parentPhone).trim());
+    if (btnSt) {
+      btnSt.disabled = !hasP;
+      btnSt.style.opacity = hasP ? "1" : "0.35";
+      btnSt.style.pointerEvents = hasP ? "auto" : "none";
+    }
+    if (btnPr) {
+      btnPr.disabled = !hasPP;
+      btnPr.style.opacity = hasPP ? "1" : "0.35";
+      btnPr.style.pointerEvents = hasPP ? "auto" : "none";
+    }
+
+    document.getElementById("open-door-modal-overlay").classList.remove("hidden");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeOpenDoorModal() {
+    document.getElementById("open-door-modal-overlay").classList.add("hidden");
+    currentOpenDoorRecord = null;
+    const examOpen = !document.getElementById("modal-overlay").classList.contains("hidden");
+    if (!examOpen) document.body.style.overflow = "";
+  }
+
+  function handleOpenDoorOverlayClick(e) {
+    if (e.target.id === "open-door-modal-overlay") closeOpenDoorModal();
+  }
+
+  async function copyOpenDoorPhone(kind) {
+    if (!currentOpenDoorRecord) return;
+    const text =
+      kind === "parent"
+        ? String(currentOpenDoorRecord.parentPhone || "").trim()
+        : String(currentOpenDoorRecord.phone || "").trim();
+    if (!text) return;
+    try {
+      await navigator.clipboard.writeText(text);
+      flashOdCopiedToast();
+    } catch (err) {
+      try {
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        ta.style.position = "fixed";
+        ta.style.left = "-9999px";
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+        flashOdCopiedToast();
+      } catch (e2) {
+        console.warn(e2);
+      }
+    }
+  }
+
+  function deleteOpenDoorFromModal() {
+    if (!currentOpenDoorRecord) return;
+    if (!confirm(tAdmin("openDoor.delete.confirm"))) return;
+    const id = currentOpenDoorRecord.id;
+    closeOpenDoorModal();
+    void deleteOpenDoorRecord(id, { skipConfirm: true });
   }
 
   // Init date (before full renderUI to avoid flicker)
@@ -674,7 +1036,9 @@
 
   // ── State ───────────────────────────────────────────────────────────────────
   let allApplicants = [];
+  let allOpenDoorRegs = [];
   let currentRecord = null;
+  let currentOpenDoorRecord = null;
   let activeFilter  = "all";
   /** null = keep source order (e.g. by date); "desc" = highest score first; "asc" = lowest first */
   let scoreSortOrder = null;
@@ -685,7 +1049,7 @@
     if (scoreSortOrder === null) scoreSortOrder = "desc";
     else if (scoreSortOrder === "desc") scoreSortOrder = "asc";
     else scoreSortOrder = "desc";
-    renderTable();
+    renderAll();
   }
 
   function scoreSortIconSvg() {
@@ -710,7 +1074,7 @@
       const btn = document.getElementById("filter-" + id);
       btn.className = "filter-btn" + (f === id ? " active-" + id : "");
     });
-    renderTable();
+    renderAll();
   }
 
   // ── Date filter ─────────────────────────────────────────────────────────────
@@ -757,7 +1121,7 @@
     activeDateFilter = dateKey || null;
     closeDateDropdown();
     updateDateFilterBtn();
-    renderTable();
+    renderAll();
   }
 
   let _closeDateDropdownOutside = null;
@@ -850,6 +1214,31 @@
     };
   }
 
+  function normalizePhone(p) {
+    return String(p || "").replace(/\s/g, "");
+  }
+
+  function normalizeOpenDoorRow(r) {
+    return {
+      id: r.id != null ? String(r.id) : "",
+      firstName: r.first_name || "",
+      lastName: r.last_name || "",
+      phone: r.phone || "",
+      grade: r.grade || "",
+      parentPhone: r.parent_phone || "",
+      parentName: r.parent_name || "",
+      attended: r.attended || "",
+      lang: r.lang || "ru",
+      registeredAt: r.registered_at || "",
+    };
+  }
+
+  function openDoorPhoneSet() {
+    const s = new Set();
+    for (const r of allOpenDoorRegs) s.add(normalizePhone(r.phone));
+    return s;
+  }
+
   function loadLocalData() {
     try { return JSON.parse(localStorage.getItem("ec_applicants") || "[]").map(normalize); }
     catch(e) { return []; }
@@ -916,17 +1305,22 @@
       return;
     }
 
+    const odPhones = openDoorPhoneSet();
     const rows = data.map((r, i) => {
       const color = scoreColor(r.score);
       const label = gradeLabel(r.score);
       const typeLabel = r.examType === "placement" ? tAdmin("type.placement") : tAdmin("type.trial");
       const typeColor = r.examType === "placement" ? "#1565c0" : "#e8a020";
+      const openDoorBadge = odPhones.has(normalizePhone(r.phone))
+        ? `<span class="badge" style="background:#1b8c5e18;color:#1b8c5e;border:1px solid #1b8c5e44">${tAdmin("openDoor.regYes")}</span>`
+        : "—";
       return `
         <tr class="data-row" onclick="openModal('${r.id}')">
           <td style="color:#6b7a95;font-weight:600">${i + 1}</td>
           <td><span style="font-weight:600">${r.firstName} ${r.lastName}</span></td>
           <td style="color:#526a8a">${r.phone || "—"}</td>
           <td style="font-weight:600;color:#0b1f3a">${r.grade || "—"}</td>
+          <td>${openDoorBadge}</td>
           <td><span class="badge" style="background:${typeColor}18;color:${typeColor};border:1px solid ${typeColor}33">${typeLabel}</span></td>
           <td>
             <span class="score-bar-wrap"><span class="score-bar" style="width:${r.score}%;background:${color}"></span></span>
@@ -944,7 +1338,7 @@
     container.innerHTML = `
       <table>
         <thead><tr>
-          <th>#</th><th>${tAdmin("col.name")}</th><th>${tAdmin("col.phone")}</th><th>${tAdmin("col.grade")}</th><th>${tAdmin("col.type")}</th>
+          <th>#</th><th>${tAdmin("col.name")}</th><th>${tAdmin("col.phone")}</th><th>${tAdmin("col.grade")}</th><th>${tAdmin("col.openDoorReg")}</th><th>${tAdmin("col.type")}</th>
           <th>
             <span class="th-score-wrap">
               ${tAdmin("col.score")}
@@ -959,8 +1353,58 @@
       </table>`;
   }
 
+  function renderOpenDoorSection() {
+    const container = document.getElementById("open-door-table-container");
+    const titleEl = document.getElementById("lbl-open-door-section-title");
+    const countEl = document.getElementById("open-door-count");
+    if (!container || !titleEl || !countEl) return;
+    titleEl.textContent = tAdmin("section.openDoorTitle");
+    countEl.textContent = allOpenDoorRegs.length ? (" — " + tAdminFn("records", allOpenDoorRegs.length)) : "";
+
+    if (!allOpenDoorRegs.length) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon">🚪</div>
+          <div class="empty-state-title">${tAdmin("openDoor.empty.title")}</div>
+          <div class="empty-state-desc">${tAdmin("openDoor.empty.desc")}</div>
+        </div>`;
+      return;
+    }
+
+    const rows = allOpenDoorRegs.map((r, i) => {
+      const idEnc = encodeURIComponent(String(r.id));
+      return `
+        <tr class="data-row data-row-od" data-open-door-id="${idEnc}">
+          <td style="color:#6b7a95;font-weight:600">${i + 1}</td>
+          <td><span style="font-weight:600">${r.firstName} ${r.lastName}</span></td>
+          <td style="color:#526a8a">${r.phone || "—"}</td>
+          <td style="font-weight:600;color:#0b1f3a">${r.grade || "—"}</td>
+          <td>${r.parentName || "—"}</td>
+          <td style="color:#526a8a">${r.parentPhone || "—"}</td>
+          <td style="color:#6b7a95;font-size:12px">${formatDate(r.registeredAt)}</td>
+          <td><button type="button" class="delete-btn" style="opacity:1" data-od-delete-id="${idEnc}" title="Delete">✕</button></td>
+        </tr>`;
+    }).join("");
+
+    container.innerHTML = `
+      <table>
+        <thead><tr>
+          <th>#</th>
+          <th>${tAdmin("col.name")}</th>
+          <th>${tAdmin("col.phone")}</th>
+          <th>${tAdmin("col.grade")}</th>
+          <th>${tAdmin("openDoor.col.parent")}</th>
+          <th>${tAdmin("openDoor.col.parentPhone")}</th>
+          <th>${tAdmin("openDoor.col.date")}</th>
+          <th></th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+  }
+
   function renderAll() {
     renderTable();
+    renderOpenDoorSection();
   }
 
   // ── Delete ──────────────────────────────────────────────────────────────────
@@ -981,14 +1425,52 @@
     renderAll();
   }
 
+  async function deleteOpenDoorRecord(id, opts) {
+    const skipConfirm = opts && opts.skipConfirm;
+    if (!skipConfirm && !confirm(tAdmin("openDoor.delete.confirm"))) return;
+    const sid = id == null ? "" : String(id);
+    allOpenDoorRegs = allOpenDoorRegs.filter((r) => String(r.id) !== sid);
+    try {
+      const sb = await getSB();
+      await sb.from("open_door_registrations").delete().eq("id", sid);
+    } catch(e) {}
+    renderAll();
+  }
+
+  function setupOpenDoorTableDelegation() {
+    const wrap = document.getElementById("open-door-table-container");
+    if (!wrap || wrap.dataset.odDelegated === "1") return;
+    wrap.dataset.odDelegated = "1";
+    wrap.addEventListener("click", (ev) => {
+      const delBtn = ev.target.closest("button[data-od-delete-id]");
+      if (delBtn) {
+        ev.preventDefault();
+        ev.stopPropagation();
+        const enc = delBtn.getAttribute("data-od-delete-id");
+        if (enc == null) return;
+        void deleteOpenDoorRecord(decodeURIComponent(enc));
+        return;
+      }
+      const row = ev.target.closest("tr[data-open-door-id]");
+      if (!row || !wrap.contains(row)) return;
+      const enc = row.getAttribute("data-open-door-id");
+      if (enc == null || enc === "") return;
+      openOpenDoorModal(decodeURIComponent(enc));
+    });
+  }
+
+  setupOpenDoorTableDelegation();
+
   async function clearAllData() {
     if (!confirm(tAdmin("clear.confirm"))) return;
     allApplicants = [];
+    allOpenDoorRegs = [];
     localStorage.removeItem("ec_applicants");
     try {
       const { createClient } = await import("https://esm.sh/@supabase/supabase-js@2");
       const sb = createClient("https://jeipvqyetmcqsxvliwpp.supabase.co", "sb_publishable_xLw_44i9tOTEfWTGcDQ41Q_DLWbaC1o");
       await sb.from("applicants").delete().neq("id", "");
+      await sb.from("open_door_registrations").delete().neq("id", "");
     } catch(e) {}
     renderAll();
   }
@@ -997,6 +1479,7 @@
   const C = 2 * Math.PI * 38; // circumference for r=38
 
   function openModal(id) {
+    closeOpenDoorModal();
     const r = allApplicants.find(a => a.id === id);
     if (!r) return;
     currentRecord = r;
@@ -1118,7 +1601,15 @@
     if (e.target === document.getElementById("modal-overlay")) closeModal();
   }
 
-  document.addEventListener("keydown", e => { if (e.key === "Escape") closeModal(); });
+  document.addEventListener("keydown", e => {
+    if (e.key !== "Escape") return;
+    const od = document.getElementById("open-door-modal-overlay");
+    if (od && !od.classList.contains("hidden")) {
+      closeOpenDoorModal();
+      return;
+    }
+    closeModal();
+  });
 
   function deleteCurrentRecord() {
     if (!currentRecord) return;
@@ -1207,6 +1698,18 @@
       } else {
         allApplicants = (data || []).map(normalize);
       }
+
+      const od = await sb
+        .from("open_door_registrations")
+        .select("id, first_name, last_name, phone, grade, parent_phone, parent_name, attended, lang, registered_at")
+        .order("registered_at", { ascending: false });
+
+      if (od.error) {
+        console.warn("open_door_registrations:", od.error.message);
+        allOpenDoorRegs = [];
+      } else {
+        allOpenDoorRegs = (od.data || []).map(normalizeOpenDoorRow);
+      }
     } catch (err) {
       // Network/CSP issue
       const errEl = document.getElementById("alert-error");
@@ -1216,11 +1719,18 @@
       document.getElementById("alert-warn").textContent = "Showing cached data from this device instead.";
       document.getElementById("alert-warn").classList.add("visible");
       allApplicants = loadLocalData();
+      allOpenDoorRegs = [];
     }
 
     await loadPlacementSetting();
     renderAll();
   }
+
+  window.openOpenDoorModal = openOpenDoorModal;
+  window.closeOpenDoorModal = closeOpenDoorModal;
+  window.copyOpenDoorPhone = copyOpenDoorPhone;
+  window.deleteOpenDoorFromModal = deleteOpenDoorFromModal;
+  window.handleOpenDoorOverlayClick = handleOpenDoorOverlayClick;
 
   renderUI();
   init();

@@ -10,6 +10,7 @@ import {
 import { useLang } from '../context/LangContext'
 import { useFormState, useIsMobile } from '../hooks/examHooks'
 import {
+  OPEN_DOOR_EXTRA_FIELDS,
   PLACEMENT_EXTRA_FIELDS,
   REGISTRATION_FIELDS,
 } from '../data/questionsData'
@@ -29,9 +30,13 @@ export function Register({
   const { t } = useLang()
   const isMobile = useIsMobile()
   const isPlacement = examType === 'placement'
-  const allFields = isPlacement
-    ? [...REGISTRATION_FIELDS, ...PLACEMENT_EXTRA_FIELDS]
-    : REGISTRATION_FIELDS
+  const isOpenDoor = examType === 'openDoor'
+  const needsParentSection = isPlacement || isOpenDoor
+  const allFields = isOpenDoor
+    ? [...REGISTRATION_FIELDS, ...OPEN_DOOR_EXTRA_FIELDS]
+    : needsParentSection
+      ? [...REGISTRATION_FIELDS, ...PLACEMENT_EXTRA_FIELDS]
+      : REGISTRATION_FIELDS
   const { form, set } = useFormState(allFields)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [shakeKey, setShakeKey] = useState(0)
@@ -72,11 +77,22 @@ export function Register({
       <Breadcrumb
         items={[
           { text: 'college.edu.kg' },
-          { text: t('register.breadcrumb.exam'), highlight: true },
-          { text: t('register.breadcrumb.step') },
+          {
+            text: isOpenDoor
+              ? t('register.openDoor.breadcrumb')
+              : isPlacement
+                ? t('register.placement.breadcrumb')
+                : t('register.breadcrumb.exam'),
+            highlight: true,
+          },
+          {
+            text: isOpenDoor
+              ? t('register.openDoor.step')
+              : t('register.breadcrumb.step'),
+          },
         ]}
       />
-      <StepBar current="register" />
+      {!isOpenDoor && <StepBar current="register" />}
       <div style={{ ...Styles.card, overflow: 'hidden' }}>
         <div style={Styles.cardHeader}>
           <div
@@ -102,17 +118,43 @@ export function Register({
                 color: COLORS.white,
               }}
             >
-              {t('register.header')}
+              {isOpenDoor
+                ? t('register.openDoor.header')
+                : isPlacement
+                  ? t('register.placement.header')
+                  : t('register.header')}
             </div>
             <div style={{ color: '#8fa3c0', fontSize: 13, marginTop: 3 }}>
-              {t('register.subheader')}
+              {isOpenDoor
+                ? t('register.openDoor.subheader')
+                : isPlacement
+                  ? t('register.placement.subheader')
+                  : t('register.subheader')}
             </div>
+            {isOpenDoor && (
+              <div
+                style={{
+                  fontWeight: 600,
+                  fontSize: 13,
+                  color: COLORS.accent,
+                  marginTop: 8,
+                }}
+              >
+                {t('openDoor.event.when')}
+              </div>
+            )}
           </div>
         </div>
         <div style={{ padding: 28 }}>
           <InfoBanner
             icon="ℹ"
-            text={t('register.info')}
+            text={
+              isOpenDoor
+                ? `${t('register.openDoor.info')} ${t('openDoor.event.when')}`
+                : isPlacement
+                  ? t('register.placement.info')
+                  : t('register.info')
+            }
             bg="#f0f6ff"
             borderColor="#c5d9f5"
             color={COLORS.blue}
@@ -145,7 +187,7 @@ export function Register({
               })}
             </div>
           ))}
-          {isPlacement && (
+          {needsParentSection && (
             <div
               style={{
                 borderTop: `1px solid ${COLORS.border}`,
@@ -190,36 +232,38 @@ export function Register({
                   shakeKey={errors.parentName ? shakeKey : 0}
                 />
               </div>
-              <div style={{ marginBottom: 14 }}>
-                <label style={Styles.label}>{t('field.attended')}</label>
-                <select
-                  value={form.attended ?? ''}
-                  onChange={handleChange('attended')}
-                  style={{
-                    ...Styles.input,
-                    cursor: 'pointer',
-                    borderColor: errors.attended ? COLORS.danger : COLORS.border,
-                  }}
-                >
-                  <option value="">{t('field.select')}</option>
-                  {attendedOptions.map((o) => (
-                    <option key={o.value} value={o.value}>
-                      {o.label}
-                    </option>
-                  ))}
-                </select>
-                {errors.attended && (
-                  <div
+              {isPlacement && (
+                <div style={{ marginBottom: 14 }}>
+                  <label style={Styles.label}>{t('field.attended')}</label>
+                  <select
+                    value={form.attended ?? ''}
+                    onChange={handleChange('attended')}
                     style={{
-                      fontSize: 12,
-                      color: COLORS.danger,
-                      marginTop: 4,
+                      ...Styles.input,
+                      cursor: 'pointer',
+                      borderColor: errors.attended ? COLORS.danger : COLORS.border,
                     }}
                   >
-                    {t(errors.attended)}
-                  </div>
-                )}
-              </div>
+                    <option value="">{t('field.select')}</option>
+                    {attendedOptions.map((o) => (
+                      <option key={o.value} value={o.value}>
+                        {o.label}
+                      </option>
+                    ))}
+                  </select>
+                  {errors.attended && (
+                    <div
+                      style={{
+                        fontSize: 12,
+                        color: COLORS.danger,
+                        marginTop: 4,
+                      }}
+                    >
+                      {t(errors.attended)}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           )}
           <div
@@ -234,7 +278,9 @@ export function Register({
               {t('register.back')}
             </button>
             <button type="button" onClick={handleSubmit} style={Styles.btnPrimary()}>
-              {t('register.continue')}
+              {isOpenDoor
+                ? t('register.openDoor.submit')
+                : t('register.continue')}
             </button>
           </div>
           <div

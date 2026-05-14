@@ -106,11 +106,10 @@ export const ValidationService = {
       errs.phone = 'error.placementAlreadyTaken'
     }
     if (!form.grade) errs.grade = 'error.grade'
-    if (examType === 'placement') {
+    if (examType === 'placement' || examType === 'openDoor') {
       if (!/^\+996\d{9}$/.test(form.parentPhone ?? ''))
         errs.parentPhone = 'error.parentPhone'
       if (!form.parentName?.trim()) errs.parentName = 'error.parentName'
-      if (!form.attended) errs.attended = 'error.attended'
       const studentPhoneOk = /^\+996\d{9}$/.test(form.phone ?? '')
       const parentPhoneOk = /^\+996\d{9}$/.test(form.parentPhone ?? '')
       if (
@@ -121,6 +120,8 @@ export const ValidationService = {
         errs.parentPhone = 'error.parentPhoneMustDiffer'
       }
     }
+    if (examType === 'placement' && !form.attended)
+      errs.attended = 'error.attended'
     return errs
   },
   registration(form: RegistrationForm, examType: string) {

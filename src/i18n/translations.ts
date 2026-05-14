@@ -6,6 +6,7 @@ export const TRANSLATIONS = {
     "page.intro": "Step 2 — Instructions",
     "page.exam": "Step 3 — Trial Test",
     "page.report": "Results",
+    "page.openDoorThanks": "Open Doors",
 
     // Step bar
     "step.register": "Register",
@@ -47,6 +48,32 @@ export const TRANSLATIONS = {
     "register.secure": "🔒 Your data is securely recorded.",
     "register.validation": "Please fix the errors below.",
     "register.validation.phone": "Phone number must be in format +996XXXXXXXXX (13 characters total).",
+    "register.placement.breadcrumb": "Placement Test",
+    "register.placement.step": "Registration",
+    "register.placement.header": "Placement Test Registration",
+    "register.placement.subheader":
+      "Student and parent or guardian details for the placement exam",
+    "register.placement.info":
+      "Your information is stored securely for admissions and the placement test.",
+    "register.openDoor.breadcrumb": "Open Doors",
+    "register.openDoor.step": "Registration",
+    "register.openDoor.header": "Open Doors Registration",
+    "register.openDoor.subheader":
+      "Tell us about the student and a parent or guardian for our campus visit.",
+    "register.openDoor.info":
+      "We use these details only to welcome your family at Open Doors.",
+    "register.openDoor.submit": "Submit registration",
+    "register.openDoor.error":
+      "Could not save your registration. Please check your connection and try again.",
+
+    "openDoor.event.when": "24 May, from 10:30 to 13:30",
+
+    "openDoor.thanks.title": "You're registered!",
+    "openDoor.thanks.sub": "Open Doors — Engineering College",
+    "openDoor.thanks.body":
+      "Thank you. We saved your details and look forward to seeing you at Open Doors.",
+    "openDoor.thanks.home": "← Back to Home",
+
     "error.firstName": "First name is required",
     "error.lastName": "Last name (surname) is required",
         "error.phone": "Enter a valid phone: +996 followed by 9 digits",
@@ -163,6 +190,11 @@ export const TRANSLATIONS = {
     "landing.placement.cacheDisabled": "You have already completed the placement test from this device.",
     "landing.placement.cacheCta": "Already completed",
     "landing.card.attempts.val.placement": "ONE ATTEMPT",
+
+    "landing.openDoor.title": "Open Doors",
+    "landing.openDoor.desc":
+      "Register for our campus Open Doors — student and parent details only (no exam).",
+    "landing.openDoor.cta": "Register",
   },
 
   ru: {
@@ -172,6 +204,7 @@ export const TRANSLATIONS = {
     "page.intro": "Шаг 2 — Инструкции",
     "page.exam": "Шаг 3 — Пробный Экзамен",
     "page.report": "Результаты",
+    "page.openDoorThanks": "День открытых дверей",
 
     // Step bar
     "step.register": "Регистрация",
@@ -213,6 +246,32 @@ export const TRANSLATIONS = {
     "register.secure": "🔒 Ваши данные надёжно сохранены.",
     "register.validation": "Исправьте ошибки ниже.",
     "register.validation.phone": "Номер телефона должен быть в формате +996XXXXXXXXX (13 символов).",
+    "register.placement.breadcrumb": "Отборочный экзамен",
+    "register.placement.step": "Регистрация",
+    "register.placement.header": "Регистрация на отборочный экзамен",
+    "register.placement.subheader":
+      "Данные ученика и родителя для участия в отборочном экзамене",
+    "register.placement.info":
+      "Информация надёжно сохраняется для приёма и отборочного экзамена.",
+    "register.openDoor.breadcrumb": "День открытых дверей",
+    "register.openDoor.step": "Регистрация",
+    "register.openDoor.header": "Регистрация на день открытых дверей",
+    "register.openDoor.subheader":
+      "Укажите данные ученика и родителя для визита на открытые двери.",
+    "register.openDoor.info":
+      "Эти данные используются только для организации встречи на открытых дверях.",
+    "register.openDoor.submit": "Отправить регистрацию",
+    "register.openDoor.error":
+      "Не удалось сохранить регистрацию. Проверьте подключение и попробуйте снова.",
+
+    "openDoor.event.when": "24 мая, с 10:30 до 13:30",
+
+    "openDoor.thanks.title": "Вы зарегистрированы!",
+    "openDoor.thanks.sub": "День открытых дверей — Инженерный колледж",
+    "openDoor.thanks.body":
+      "Спасибо! Мы сохранили ваши данные и ждём вас на открытых дверях.",
+    "openDoor.thanks.home": "← На главную",
+
     "error.firstName": "Введите имя",
     "error.lastName": "Введите фамилию",
         "error.phone": "Введите телефон в формате +996 и 9 цифр",
@@ -329,5 +388,10 @@ export const TRANSLATIONS = {
     "landing.placement.cacheDisabled": "Вы уже прошли отборочный экзамен с этого устройства.",
     "landing.placement.cacheCta": "Уже пройдено",
     "landing.card.attempts.val.placement": "ОДНА ПОПЫТКА",
+
+    "landing.openDoor.title": "День открытых дверей",
+    "landing.openDoor.desc":
+      "Запись на открытые двери — только данные ученика и родителя, без экзамена.",
+    "landing.openDoor.cta": "Записаться",
   },
 };

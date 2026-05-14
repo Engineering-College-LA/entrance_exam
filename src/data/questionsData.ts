@@ -262,9 +262,13 @@ export const REGISTRATION_FIELDS = [
   { key: "grade", labelKey: "field.grade", required: true, type: "select", options: ["9", "10", "11"] },
 ];
 
-export const PLACEMENT_EXTRA_FIELDS = [
+export const OPEN_DOOR_EXTRA_FIELDS = [
   { key: "parentPhone", labelKey: "field.parentPhone", required: true, type: "phone", initialValue: "+996" },
   { key: "parentName", labelKey: "field.parentName", required: true, placeholderKey: "field.parentName.ph", type: "text" },
+];
+
+export const PLACEMENT_EXTRA_FIELDS = [
+  ...OPEN_DOOR_EXTRA_FIELDS,
   { key: "attended", labelKey: "field.attended", required: true, type: "select", options: ["attended", "not_attended"] },
 ];
 

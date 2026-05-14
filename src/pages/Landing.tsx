@@ -8,10 +8,12 @@ import { shouldDisablePlacementStart } from '../lib/placementCache'
 export function Landing({
   onStartTrial,
   onStartPlacement,
+  onRegisterOpenDoor,
   isPlacementActive,
 }: {
   onStartTrial: () => void
   onStartPlacement: () => void
+  onRegisterOpenDoor: () => void
   isPlacementActive: boolean | null
 }) {
   const { t } = useLang()
@@ -228,6 +230,81 @@ export function Landing({
               }
             />
           )}
+          <button
+            type="button"
+            onClick={onRegisterOpenDoor}
+            style={{
+              width: '100%',
+              textAlign: 'left',
+              cursor: 'pointer',
+              borderRadius: 10,
+              border: `1px solid rgba(27,140,94,.35)`,
+              background: `linear-gradient(145deg, rgba(27,140,94,.12) 0%, rgba(11,31,58,.4) 100%)`,
+              padding: isMobile ? '18px 18px' : '22px 22px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 14,
+              fontFamily: 'inherit',
+              transition: 'transform .15s, box-shadow .15s',
+            }}
+          >
+            <div
+              style={{
+                width: 42,
+                height: 42,
+                borderRadius: 8,
+                background: 'rgba(27,140,94,.2)',
+                border: '1px solid rgba(27,140,94,.35)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: 20,
+                flexShrink: 0,
+              }}
+            >
+              🚪
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div
+                style={{
+                  fontWeight: 700,
+                  fontSize: 14,
+                  color: COLORS.white,
+                  marginBottom: 4,
+                }}
+              >
+                {t('landing.openDoor.title')}
+              </div>
+              <div
+                style={{
+                  fontWeight: 600,
+                  fontSize: 13,
+                  color: COLORS.success,
+                  marginBottom: 6,
+                  letterSpacing: 0.2,
+                }}
+              >
+                {t('openDoor.event.when')}
+              </div>
+              <div style={{ fontSize: 12, color: '#6a85a8', lineHeight: 1.45 }}>
+                {t('landing.openDoor.desc')}
+              </div>
+            </div>
+            <span
+              style={{
+                flexShrink: 0,
+                fontWeight: 700,
+                fontSize: 12,
+                color: COLORS.success,
+                padding: '8px 14px',
+                borderRadius: 4,
+                background: 'rgba(27,140,94,.15)',
+                border: `1px solid rgba(27,140,94,.4)`,
+              }}
+            >
+              {t('landing.openDoor.cta')}
+            </span>
+          </button>
         </div>
       </div>
     </div>
