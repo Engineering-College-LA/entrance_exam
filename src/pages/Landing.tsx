@@ -3,6 +3,7 @@ import { COLORS } from '../constants'
 import { ExamCard } from '../components/ExamCard'
 import { useLang } from '../context/LangContext'
 import { useIsMobile } from '../hooks/examHooks'
+import { OPEN_DOORS_PATH } from '../lib/appRoutes'
 import { shouldDisablePlacementStart } from '../lib/placementCache'
 
 export function Landing({
@@ -230,9 +231,12 @@ export function Landing({
               }
             />
           )}
-          <button
-            type="button"
-            onClick={onRegisterOpenDoor}
+          <a
+            href={OPEN_DOORS_PATH}
+            onClick={(e) => {
+              e.preventDefault()
+              onRegisterOpenDoor()
+            }}
             style={{
               width: '100%',
               textAlign: 'left',
@@ -245,6 +249,9 @@ export function Landing({
               alignItems: 'center',
               gap: 14,
               fontFamily: 'inherit',
+              textDecoration: 'none',
+              color: 'inherit',
+              boxSizing: 'border-box',
               transition: 'transform .15s, box-shadow .15s',
             }}
           >
@@ -304,7 +311,7 @@ export function Landing({
             >
               {t('landing.openDoor.cta')}
             </span>
-          </button>
+          </a>
         </div>
       </div>
     </div>

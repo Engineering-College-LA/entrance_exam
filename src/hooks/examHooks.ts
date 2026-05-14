@@ -6,6 +6,11 @@ import {
   type ChangeEvent,
 } from 'react'
 import type { ExamQuestion, ExamResult, ExamType, PageId } from '../types/exam'
+import {
+  normalizeBrowserPath,
+  pathForPage,
+  resolveRoute,
+} from '../lib/appRoutes'
 import { TimeService } from '../services/examServices'
 import type { RegistrationField } from '../types/exam'
 
@@ -100,11 +105,56 @@ export function useFormState(fields: RegistrationField[]) {
 }
 
 export function usePageNav() {
-  const [page, setPage] = useState<PageId>('landing')
+  const initial =
+    typeof window !== 'undefined'
+      ? resolveRoute(window.location.pathname)
+      : resolveRoute('/')
+
+  const [page, setPage] = useState<PageId>(initial.page)
   const [student, setStudent] = useState<Record<string, string>>({})
   const [result, setResult] = useState<ExamResult | null>(null)
-  const [examType, setExamType] = useState<ExamType>('trial')
-  const go = useCallback((p: PageId) => setPage(p), [])
+  const [examType, setExamType] = useState<ExamType>(initial.examType)
+  const examTypeRef = useRef<ExamType>(initial.examType)
+
+  useEffect(() => {
+    examTypeRef.current = examType
+  }, [examType])
+
+  const syncUrlToState = useCallback((p: PageId, nextType: ExamType) => {
+    if (typeof window === 'undefined') return
+    const target = pathForPage(p, nextType)
+    const cur = normalizeBrowserPath(window.location.pathname)
+    if (normalizeBrowserPath(target) !== cur) {
+      window.history.pushState(null, '', target)
+    }
+  }, [])
+
+  const go = useCallback(
+    (target: PageId, opts?: { examType?: ExamType }) => {
+      let nextType = examTypeRef.current
+      if (opts?.examType !== undefined) {
+        nextType = opts.examType
+        examTypeRef.current = nextType
+        setExamType(nextType)
+      }
+      setPage(target)
+      syncUrlToState(target, nextType)
+    },
+    [syncUrlToState],
+  )
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const onPop = () => {
+      const { page: pg, examType: et } = resolveRoute(window.location.pathname)
+      examTypeRef.current = et
+      setPage(pg)
+      setExamType(et)
+    }
+    window.addEventListener('popstate', onPop)
+    return () => window.removeEventListener('popstate', onPop)
+  }, [])
+
   return {
     page,
     go,
@@ -113,6 +163,5 @@ export function usePageNav() {
     result,
     setResult,
     examType,
-    setExamType,
   }
 }

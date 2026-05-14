@@ -71,19 +71,16 @@ function AppInner() {
   const timeLimitSec = 3600
 
   const handleStartTrial = () => {
-    nav.setExamType('trial')
     setQuestions(QuestionService.shuffle(TRIAL_QUESTIONS_BASE))
-    nav.go('register')
+    nav.go('register', { examType: 'trial' })
   }
   const handleStartPlacement = () => {
     clearLastRegisteredPhone()
-    nav.setExamType('placement')
     setQuestions(QuestionService.shuffle(PLACEMENT_QUESTIONS_BASE))
-    nav.go('register')
+    nav.go('register', { examType: 'placement' })
   }
   const handleRegisterOpenDoor = () => {
-    nav.setExamType('openDoor')
-    nav.go('register')
+    nav.go('register', { examType: 'openDoor' })
   }
 
   const handleRegister = (form: Record<string, string>) => {
