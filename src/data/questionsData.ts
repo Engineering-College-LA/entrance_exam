@@ -8,7 +8,7 @@ export const BASE_QUESTIONS = [
   {
     topic: "FRACTIONS", topicKey: "topic.fractions",
     text: "5/6 − 1/3 =", textRu: "5/6 − 1/3 =",
-    opts: ["1/2", "2/3", "3/6", "4/6"], correct: 0
+    opts: ["1/2", "2/3", "1/3", "4/6"], correct: 0
   },
   {
     topic: "FRACTIONS", topicKey: "topic.fractions",
@@ -189,7 +189,7 @@ export const EXTRA_QUESTIONS = [
   {
     topic: "DECIMALS", topicKey: "topic.decimals",
     text: "0.35 as a fraction =", textRu: "0.35 в виде дроби =",
-    opts: ["7/20", "35/100", "3/5", "1/4"], correct: 0
+    opts: ["7/20", "7/10", "3/5", "1/4"], correct: 0
   },
   {
     topic: "PERCENTAGES", topicKey: "topic.percentages",
