@@ -37,7 +37,7 @@ export function Landing({
   return (
     <div
       style={{
-        background: COLORS.navy,
+        background: 'var(--t-bg)',
         minHeight: 'calc(100vh - 60px)',
         position: 'relative',
         overflow: 'hidden',
@@ -49,7 +49,7 @@ export function Landing({
           inset: 0,
           opacity: 0.04,
           backgroundImage:
-            'linear-gradient(#fff 1px,transparent 1px),linear-gradient(90deg,#fff 1px,transparent 1px)',
+            'linear-gradient(var(--t-navy-mix) 1px,transparent 1px),linear-gradient(90deg,var(--t-navy-mix) 1px,transparent 1px)',
           backgroundSize: '40px 40px',
           pointerEvents: 'none',
         }}
@@ -91,8 +91,8 @@ export function Landing({
               color: COLORS.accent,
               letterSpacing: 2,
               textTransform: 'uppercase',
-              background: 'rgba(232,160,32,.1)',
-              border: '1px solid rgba(232,160,32,.3)',
+              background: 'color-mix(in srgb, var(--c-accent) 10%, transparent)',
+              border: '1px solid color-mix(in srgb, var(--c-accent) 30%, transparent)',
               padding: '5px 14px',
               borderRadius: 2,
               marginBottom: 24,
@@ -114,7 +114,7 @@ export function Landing({
               fontWeight: 800,
               fontSize: isMobile ? 32 : 48,
               lineHeight: 1.05,
-              color: COLORS.white,
+              color: 'var(--t-text)',
               marginBottom: 18,
             }}
           >
@@ -127,7 +127,7 @@ export function Landing({
           <p
             style={{
               fontSize: isMobile ? 14 : 16,
-              color: '#8fa3c0',
+              color: 'var(--t-muted)',
               lineHeight: 1.7,
               maxWidth: 420,
               marginBottom: 40,
@@ -142,8 +142,8 @@ export function Landing({
                   width: 38,
                   height: 38,
                   borderRadius: 6,
-                  background: 'rgba(232,160,32,.12)',
-                  border: '1px solid rgba(232,160,32,.25)',
+                  background: 'color-mix(in srgb, var(--c-accent) 12%, transparent)',
+                  border: '1px solid color-mix(in srgb, var(--c-accent) 25%, transparent)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -158,12 +158,12 @@ export function Landing({
                   style={{
                     fontWeight: 700,
                     fontSize: 13,
-                    color: COLORS.white,
+                    color: 'var(--t-text)',
                   }}
                 >
                   {t('landing.trial.badge')}
                 </div>
-                <div style={{ fontSize: 12, color: '#6a85a8', marginTop: 2 }}>
+                <div style={{ fontSize: 12, color: 'var(--t-muted)', marginTop: 2 }}>
                   {t('landing.trial.questions')} · {t('landing.trial.time')}
                 </div>
               </div>
@@ -190,12 +190,12 @@ export function Landing({
                   style={{
                     fontWeight: 700,
                     fontSize: 13,
-                    color: COLORS.white,
+                    color: 'var(--t-text)',
                   }}
                 >
                   {t('landing.placement.badge')}
                 </div>
-                <div style={{ fontSize: 12, color: '#6a85a8', marginTop: 2 }}>
+                <div style={{ fontSize: 12, color: 'var(--t-muted)', marginTop: 2 }}>
                   {t('landing.placement.questions')} ·{' '}
                   {t('landing.placement.time')}
                 </div>
@@ -276,7 +276,7 @@ export function Landing({
                 style={{
                   fontWeight: 700,
                   fontSize: 14,
-                  color: COLORS.white,
+                  color: 'var(--t-text)',
                   marginBottom: 4,
                 }}
               >
@@ -293,7 +293,7 @@ export function Landing({
               >
                 {t('openDoor.event.when')}
               </div>
-              <div style={{ fontSize: 12, color: '#6a85a8', lineHeight: 1.45 }}>
+              <div style={{ fontSize: 12, color: 'var(--t-muted)', lineHeight: 1.45 }}>
                 {t('landing.openDoor.desc')}
               </div>
             </div>

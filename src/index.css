@@ -1,5 +1,45 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
+:root {
+  /* Core colors */
+  --c-navy: #0b1f3a;
+  --c-navy2: #122848;
+  --c-blue: #1565c0;
+  --c-blueLight: #1976d2;
+  --c-accent: #008b8b; /* dark turquoise / teal */
+  --c-white: #ffffff;
+  --c-off: #f4f6fa;
+  --c-success: #1b8c5e;
+  --c-danger: #c0392b;
+
+  /* Theme variables (Light Mode) */
+  --t-bg: #f0f3f9;
+  --t-card-bg: #ffffff;
+  --t-text: #1a2535;
+  --t-muted: #6b7a95;
+  --t-border: #dde3ed;
+  --t-navy-mix: #0b1f3a;
+  --t-logo-filter: invert(1);
+  --t-grid-opacity: 0.09;
+  --t-shadow: 0 12px 32px rgba(11, 31, 58, 0.08);
+}
+
+[data-theme="dark"] {
+  /* Theme variables (Dark Mode - based on Landing page navy colors) */
+  --t-bg: #0b1f3a;
+  --t-card-bg: #122848;
+  --t-text: #ffffff;
+  --t-muted: #8fa3c0;
+  --t-border: #233b5d;
+  --t-navy-mix: #ffffff;
+  --c-off: #162f52;
+  --t-logo-filter: none;
+  --c-accent: #00FFCC; /* neon cyan/teal for dark mode */
+  --t-grid-opacity: 0.04;
+  --t-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+}
+
+
 *,
 *::before,
 *::after {

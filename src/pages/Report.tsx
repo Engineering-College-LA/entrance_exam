@@ -181,9 +181,9 @@ export function Report({
         <div
           style={{
             display: 'inline-block',
-            background: `${gradeColor}22`,
+            background: `color-mix(in srgb, ${gradeColor} 13%, transparent)`,
             color: gradeColor,
-            border: `1px solid ${gradeColor}44`,
+            border: `1px solid color-mix(in srgb, ${gradeColor} 27%, transparent)`,
             borderRadius: 3,
             padding: '4px 14px',
             fontSize: 12,
@@ -275,9 +275,9 @@ export function Report({
                   fontWeight: 700,
                   padding: '3px 10px',
                   borderRadius: 3,
-                  background: student.attended === 'attended' ? `${COLORS.success}18` : `${COLORS.danger}18`,
+                  background: student.attended === 'attended' ? `color-mix(in srgb, ${COLORS.success} 9%, transparent)` : `color-mix(in srgb, ${COLORS.danger} 9%, transparent)`,
                   color: student.attended === 'attended' ? COLORS.success : COLORS.danger,
-                  border: `1px solid ${student.attended === 'attended' ? COLORS.success : COLORS.danger}44`,
+                  border: `1px solid color-mix(in srgb, ${student.attended === 'attended' ? COLORS.success : COLORS.danger} 27%, transparent)`,
                 }}
               >
                 {student.attended

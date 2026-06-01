@@ -21,12 +21,15 @@ import {
 } from './services/examServices'
 import { Styles } from './styles'
 import type { ExamQuestion, ExamResult } from './types/exam'
+import { ThemeProvider } from './context/ThemeContext'
 
 export default function App() {
   return (
-    <LangProvider>
-      <AppInner />
-    </LangProvider>
+    <ThemeProvider>
+      <LangProvider>
+        <AppInner />
+      </LangProvider>
+    </ThemeProvider>
   )
 }
 

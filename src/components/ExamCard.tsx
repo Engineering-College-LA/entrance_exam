@@ -37,8 +37,8 @@ export function ExamCard({
   return (
     <div
       style={{
-        background: disabled ? 'rgba(255,255,255,.02)' : 'rgba(255,255,255,.05)',
-        border: `1px solid ${disabled ? 'rgba(255,255,255,.08)' : accent + '44'}`,
+        background: disabled ? 'color-mix(in srgb, var(--t-text) 2%, transparent)' : 'color-mix(in srgb, var(--t-text) 5%, transparent)',
+        border: `1px solid ${disabled ? 'color-mix(in srgb, var(--t-text) 8%, transparent)' : `color-mix(in srgb, ${accent} 27%, transparent)`}`,
         borderRadius: 8,
         padding: 22,
         backdropFilter: 'blur(10px)',
@@ -61,7 +61,7 @@ export function ExamCard({
           style={{
             fontWeight: 700,
             fontSize: 14,
-            color: COLORS.white,
+            color: 'var(--t-text)',
             display: 'flex',
             alignItems: 'center',
             gap: 8,
@@ -82,9 +82,9 @@ export function ExamCard({
             style={{
               fontFamily: 'monospace',
               fontSize: 10,
-              background: 'rgba(255,255,255,.06)',
+              background: 'color-mix(in srgb, var(--t-text) 6%, transparent)',
               color: '#526a8a',
-              border: '1px solid rgba(255,255,255,.1)',
+              border: '1px solid color-mix(in srgb, var(--t-text) 10%, transparent)',
               padding: '2px 8px',
               borderRadius: 2,
               letterSpacing: 1,
@@ -97,9 +97,9 @@ export function ExamCard({
             style={{
               fontFamily: 'monospace',
               fontSize: 10,
-              background: `${accent}22`,
+              background: `color-mix(in srgb, ${accent} 13%, transparent)`,
               color: accent,
-              border: `1px solid ${accent}44`,
+              border: `1px solid color-mix(in srgb, ${accent} 27%, transparent)`,
               padding: '2px 8px',
               borderRadius: 2,
               letterSpacing: 1,
@@ -131,12 +131,12 @@ export function ExamCard({
             display: 'flex',
             justifyContent: 'space-between',
             padding: '9px 0',
-            borderBottom: '1px solid rgba(255,255,255,.06)',
+            borderBottom: '1px solid color-mix(in srgb, var(--t-text) 6%, transparent)',
             fontSize: 13,
           }}
         >
           <span style={{ color: '#8fa3c0' }}>{label}</span>
-          <span style={{ color: COLORS.white, fontWeight: 600 }}>{val}</span>
+          <span style={{ color: 'var(--t-text)', fontWeight: 600 }}>{val}</span>
         </div>
       ))}
       <div
@@ -172,7 +172,7 @@ export function ExamCard({
           alignItems: 'center',
           justifyContent: 'center',
           gap: 8,
-          background: disabled ? 'rgba(255,255,255,.06)' : accent,
+          background: disabled ? 'color-mix(in srgb, var(--t-text) 6%, transparent)' : accent,
           color: disabled ? '#526a8a' : COLORS.navy,
           fontWeight: 800,
           fontSize: 13,

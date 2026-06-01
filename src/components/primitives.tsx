@@ -63,8 +63,8 @@ export function StepBar({ current }: { current: keyof typeof PAGES }) {
                   i < active
                     ? COLORS.success
                     : i === active
-                      ? '#e8f0fb'
-                      : COLORS.white,
+                      ? 'color-mix(in srgb, var(--c-blue) 15%, transparent)'
+                      : 'var(--t-card-bg)',
                 color:
                   i < active
                     ? COLORS.white
@@ -259,7 +259,7 @@ export function OptionCard({
         padding: '13px 16px',
         borderRadius: 6,
         border: `1.5px solid ${selected ? COLORS.blue : COLORS.border}`,
-        background: selected ? '#e8f0fb' : COLORS.white,
+        background: selected ? 'color-mix(in srgb, var(--c-blue) 15%, transparent)' : 'var(--t-card-bg)',
         cursor: 'pointer',
         fontSize: 14,
         transition: 'all .12s',

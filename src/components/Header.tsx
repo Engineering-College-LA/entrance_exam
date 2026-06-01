@@ -1,5 +1,6 @@
 import { COLORS, PAGES } from '../constants'
 import { useLang } from '../context/LangContext'
+import { useTheme } from '../context/ThemeContext'
 import { useIsMobile } from '../hooks/examHooks'
 import { Styles } from '../styles'
 import type { PageId } from '../types/exam'
@@ -14,6 +15,7 @@ export function Header({
   onLogoClick: () => void
 }) {
   const { lang, setLang, t } = useLang()
+  const { theme, toggleTheme } = useTheme()
   const isMobile = useIsMobile()
   return (
     <div
@@ -41,10 +43,11 @@ export function Header({
             width: 'auto',
             marginRight: 8,
             alignSelf: 'flex-start',
+            filter: 'var(--t-logo-filter)',
           }}
         />
         {!isMobile && (
-          <span style={{ ...Styles.logoText, alignSelf: 'center' }}>
+          <span style={{ ...Styles.logoText, alignSelf: 'center', color: 'var(--t-muted)' }}>
             Engineering College
           </span>
         )}
@@ -69,11 +72,29 @@ export function Header({
         <div style={{ display: 'flex', gap: 3 }}>
           <button
             type="button"
+            onClick={toggleTheme}
+            style={{
+              ...Styles.langBtn,
+              background: 'color-mix(in srgb, var(--t-text) 8%, transparent)',
+              color: 'var(--t-muted)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: 28,
+              padding: 0,
+              fontSize: 14,
+            }}
+            title={theme === 'light' ? 'Dark Mode' : 'Light Mode'}
+          >
+            {theme === 'light' ? '🌙' : '☀️'}
+          </button>
+          <button
+            type="button"
             onClick={() => setLang('ru')}
             style={{
               ...Styles.langBtn,
-              background: lang === 'ru' ? COLORS.blue : 'rgba(255,255,255,.08)',
-              color: lang === 'ru' ? COLORS.white : '#8fa3c0',
+              background: lang === 'ru' ? COLORS.blue : 'color-mix(in srgb, var(--t-text) 8%, transparent)',
+              color: lang === 'ru' ? 'var(--c-white)' : 'var(--t-muted)',
             }}
           >
             RU
@@ -83,8 +104,8 @@ export function Header({
             onClick={() => setLang('en')}
             style={{
               ...Styles.langBtn,
-              background: lang === 'en' ? COLORS.blue : 'rgba(255,255,255,.08)',
-              color: lang === 'en' ? COLORS.white : '#8fa3c0',
+              background: lang === 'en' ? COLORS.blue : 'color-mix(in srgb, var(--t-text) 8%, transparent)',
+              color: lang === 'en' ? 'var(--c-white)' : 'var(--t-muted)',
             }}
           >
             EN
@@ -100,9 +121,9 @@ export function Header({
             width: 32,
             height: 32,
             borderRadius: '50%',
-            background: 'rgba(255,255,255,.08)',
-            border: '1px solid rgba(255,255,255,.12)',
-            color: '#8fa3c0',
+            background: 'color-mix(in srgb, var(--t-text) 8%, transparent)',
+            border: '1px solid color-mix(in srgb, var(--t-text) 12%, transparent)',
+            color: 'var(--t-muted)',
             textDecoration: 'none',
             flexShrink: 0,
             marginLeft: 4,
