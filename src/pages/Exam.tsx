@@ -151,7 +151,7 @@ export function Exam({
             style={{
               fontWeight: 700,
               fontSize: 17,
-              color: COLORS.navy,
+              color: COLORS.text,
               lineHeight: 1.5,
               marginBottom: 24,
             }}
@@ -209,7 +209,7 @@ export function Exam({
             style={{
               fontWeight: 700,
               fontSize: 13,
-              color: COLORS.navy,
+              color: COLORS.text,
               marginBottom: 12,
             }}
           >
@@ -235,10 +235,10 @@ export function Exam({
             }}
           >
             {[
-              ['exam.legend.answered', COLORS.navy],
-              ['exam.legend.current', COLORS.blue],
-              ['exam.legend.unanswered', COLORS.border],
-            ].map(([lk, c]) => (
+              ['exam.legend.answered', 'var(--c-navy2)', 'var(--c-blueLight)'],
+              ['exam.legend.current', COLORS.blue, 'transparent'],
+              ['exam.legend.unanswered', COLORS.off, COLORS.border],
+            ].map(([lk, bg, bc]) => (
               <div
                 key={lk}
                 style={{
@@ -254,7 +254,8 @@ export function Exam({
                     width: 12,
                     height: 12,
                     borderRadius: 2,
-                    background: c,
+                    background: bg,
+                    border: bc !== 'transparent' ? `1px solid ${bc}` : 'none',
                     flexShrink: 0,
                   }}
                 />
@@ -274,7 +275,7 @@ export function Exam({
             boxShadow: 'none',
           }}
         >
-          <span style={{ fontWeight: 700, color: COLORS.navy, fontSize: 15 }}>
+          <span style={{ fontWeight: 700, color: COLORS.text, fontSize: 15 }}>
             {exam.answeredCount}
           </span>{' '}
           / {questions.length} {t('exam.answered')}

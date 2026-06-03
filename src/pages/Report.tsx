@@ -212,7 +212,7 @@ export function Report({
           label={t('report.incorrect')}
           color={COLORS.danger}
         />
-        <StatBox value={result.total} label={t('report.total')} color={COLORS.navy} />
+        <StatBox value={result.total} label={t('report.total')} color="var(--t-text)" />
         <StatBox
           value={`${mm}:${ss}`}
           label={t('report.timeused')}
@@ -231,11 +231,11 @@ export function Report({
           <div
             style={{
               padding: '14px 22px',
-              background: '#f7f9fc',
+              background: 'var(--c-off)',
               borderBottom: `1px solid ${COLORS.border}`,
               fontWeight: 700,
               fontSize: 13,
-              color: COLORS.navy,
+              color: 'var(--t-text)',
             }}
           >
             {t('report.parentInfo')}
@@ -299,11 +299,11 @@ export function Report({
         <div
           style={{
             padding: '14px 22px',
-            background: '#f7f9fc',
+            background: 'var(--c-off)',
             borderBottom: `1px solid ${COLORS.border}`,
             fontWeight: 700,
             fontSize: 13,
-            color: COLORS.navy,
+            color: 'var(--t-text)',
             display: 'flex',
             justifyContent: 'space-between',
           }}

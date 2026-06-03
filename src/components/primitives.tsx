@@ -317,10 +317,10 @@ export function NavDot({
         fontSize: 11,
         cursor: 'pointer',
         fontWeight: isCurrent ? 700 : 400,
-        background: isCurrent ? COLORS.blue : isAnswered ? COLORS.navy : COLORS.off,
+        background: isCurrent ? COLORS.blue : isAnswered ? 'var(--c-navy2)' : COLORS.off,
         color: isCurrent || isAnswered ? COLORS.white : COLORS.muted,
         border: `1.5px solid ${
-          isCurrent ? COLORS.blue : isAnswered ? COLORS.navy : COLORS.border
+          isCurrent ? COLORS.blue : isAnswered ? 'var(--c-blueLight)' : COLORS.border
         }`,
       }}
     >

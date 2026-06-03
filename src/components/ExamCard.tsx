@@ -112,7 +112,7 @@ export function ExamCard({
       <p
         style={{
           fontSize: 12,
-          color: '#6a85a8',
+          color: 'var(--t-muted)',
           marginBottom: 14,
           lineHeight: 1.5,
         }}
@@ -135,7 +135,7 @@ export function ExamCard({
             fontSize: 13,
           }}
         >
-          <span style={{ color: '#8fa3c0' }}>{label}</span>
+          <span style={{ color: 'var(--t-muted)' }}>{label}</span>
           <span style={{ color: 'var(--t-text)', fontWeight: 600 }}>{val}</span>
         </div>
       ))}
@@ -148,15 +148,18 @@ export function ExamCard({
           fontSize: 13,
         }}
       >
-        <span style={{ color: '#8fa3c0' }}>{t('landing.card.attempts')}</span>
+        <span style={{ color: 'var(--t-muted)' }}>{t('landing.card.attempts')}</span>
         <span
           style={{
-            background: 'rgba(21,101,192,.3)',
-            color: '#7fb3ff',
+            background: `color-mix(in srgb, ${accent} 18%, transparent)`,
+            color: accent,
+            border: `1px solid color-mix(in srgb, ${accent} 40%, transparent)`,
             fontFamily: 'monospace',
             fontSize: 11,
+            fontWeight: 700,
             padding: '2px 8px',
             borderRadius: 2,
+            letterSpacing: 0.5,
           }}
         >
           {t('landing.card.attempts.val')}

@@ -102,7 +102,7 @@ export function Instructions({
           ['1×', 'intro.stat.attempts'],
         ].map(([v, lk]) => (
           <div key={lk} style={{ textAlign: 'center' }}>
-            <div style={{ fontWeight: 800, fontSize: 22, color: COLORS.navy }}>
+            <div style={{ fontWeight: 800, fontSize: 22, color: 'var(--t-text)' }}>
               {v}
             </div>
             <div style={{ fontSize: 11, color: COLORS.muted, marginTop: 2 }}>
@@ -155,7 +155,8 @@ export function Instructions({
           onClick={onStart}
           disabled={!agreed}
           style={{
-            ...Styles.btnPrimary(agreed ? COLORS.success : '#ccc'),
+            ...Styles.btnPrimary(agreed ? COLORS.success : 'color-mix(in srgb, var(--t-text) 8%, transparent)'),
+            color: agreed ? COLORS.white : 'var(--t-muted)',
             cursor: agreed ? 'pointer' : 'not-allowed',
             boxShadow: agreed ? '0 6px 20px rgba(27,140,94,.3)' : 'none',
             transition: 'all .2s',
