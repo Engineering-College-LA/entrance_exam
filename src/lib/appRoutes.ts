@@ -16,11 +16,13 @@ export function resolveRoute(pathname: string): { page: PageId; examType: ExamTy
   if (p === OPEN_DOORS_THANKS_PATH)
     return { page: 'openDoorThanks', examType: 'openDoor' }
   if (p === OPEN_DOORS_PATH) return { page: 'register', examType: 'openDoor' }
+  if (p === '/mathematics') return { page: 'subject', examType: 'trial' }
   return { page: 'landing', examType: 'trial' }
 }
 
 export function pathForPage(page: PageId, examType: ExamType): string {
   if (page === 'openDoorThanks' && examType === 'openDoor') return OPEN_DOORS_THANKS_PATH
   if (page === 'register' && examType === 'openDoor') return OPEN_DOORS_PATH
+  if (page === 'subject') return '/mathematics'
   return '/'
 }

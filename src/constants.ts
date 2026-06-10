@@ -1,17 +1,17 @@
 export const COLORS = {
-  navy: '#0b1f3a',
-  navy2: '#122848',
-  blue: '#1565c0',
-  blueLight: '#1976d2',
-  accent: '#e8a020',
-  white: '#ffffff',
-  off: '#f4f6fa',
-  border: '#dde3ed',
-  text: '#1a2535',
-  muted: '#6b7a95',
-  success: '#1b8c5e',
-  danger: '#c0392b',
-  bg: '#f0f3f9',
+  navy: 'var(--c-navy)',
+  navy2: 'var(--c-navy2)',
+  blue: 'var(--c-blue)',
+  blueLight: 'var(--c-blueLight)',
+  accent: 'var(--c-accent)',
+  white: 'var(--c-white)',
+  off: 'var(--c-off)',
+  border: 'var(--t-border)',
+  text: 'var(--t-text)',
+  muted: 'var(--t-muted)',
+  success: 'var(--c-success)',
+  danger: 'var(--c-danger)',
+  bg: 'var(--t-bg)',
 } as const
 
 export const EXAM_CONFIG = {
@@ -50,6 +50,7 @@ export const PAGES = {
   exam: { labelKey: 'page.exam', step: 2 },
   report: { labelKey: 'page.report', step: 3 },
   openDoorThanks: { labelKey: 'page.openDoorThanks', step: -1 },
+  subject: { labelKey: 'page.subject', step: -1 },
 } as const
 
 export const STEP_KEYS = [

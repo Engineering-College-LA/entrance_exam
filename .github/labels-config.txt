@@ -1,0 +1,9 @@
+Labels to create (reference):
+area:entrance-exam (red #D73A4A)
+area:webpage (blue #0075CA)
+type:design (light blue #BFD4F2)
+type:feature (cyan #A2EEEF)
+type:integration (light cyan #C5DEF5)
+type:backend (yellow #E4E669)
+priority:high (dark red #B60205)
+priority:medium (orange #FBCA04)
