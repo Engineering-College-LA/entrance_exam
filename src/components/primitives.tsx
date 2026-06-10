@@ -284,7 +284,7 @@ export function OptionCard({
       >
         {letter}
       </span>
-      {text}
+        {text}
     </div>
   )
 }
