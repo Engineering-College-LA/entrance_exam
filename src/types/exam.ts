@@ -25,6 +25,8 @@ export type ExamResult = {
   answers: Record<number, number>
 }
 
+
+
 export type PageId =
   | 'landing'
   | 'register'
@@ -32,5 +34,6 @@ export type PageId =
   | 'exam'
   | 'report'
   | 'openDoorThanks'
+  | 'subject'
 
 export type ExamType = 'trial' | 'placement' | 'openDoor'

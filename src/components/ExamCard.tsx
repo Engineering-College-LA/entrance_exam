@@ -12,11 +12,14 @@ export function ExamCard({
   disabled,
   disabledHint,
   disabledCta,
+  customRows,
+  showAttempts = true,
+  icon = '∑',
 }: {
   badge: string
   desc: string
-  questions: string
-  time: string
+  questions?: string
+  time?: string
   ctaLabel: string
   onStart: () => void
   accent: string
@@ -24,13 +27,16 @@ export function ExamCard({
   /** When set, replaces the default “admin closed” disabled copy */
   disabledHint?: string
   disabledCta?: string
+  customRows?: [string, string][]
+  showAttempts?: boolean
+  icon?: string
 }) {
   const { t } = useLang()
-  const rows = [
+  const rows = customRows ?? [
     [t('landing.card.subject'), t('landing.card.subject.val')],
     [t('landing.card.format'), t('landing.card.format.val')],
-    [t('landing.card.questions'), questions],
-    [t('landing.card.time'), time],
+    [t('landing.card.questions'), questions ?? ''],
+    [t('landing.card.time'), time ?? ''],
     [t('landing.card.results'), t('landing.card.results.val')],
   ]
   const isEn = t('landing.title1') === 'Mathematics'
@@ -73,7 +79,7 @@ export function ExamCard({
               fontSize: 16,
             }}
           >
-            ∑
+            {icon}
           </span>{' '}
           {badge}
         </div>
@@ -139,32 +145,34 @@ export function ExamCard({
           <span style={{ color: 'var(--t-text)', fontWeight: 600 }}>{val}</span>
         </div>
       ))}
-      <div
-        style={{
-          padding: '9px 0',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          fontSize: 13,
-        }}
-      >
-        <span style={{ color: 'var(--t-muted)' }}>{t('landing.card.attempts')}</span>
-        <span
+      {showAttempts && (
+        <div
           style={{
-            background: `color-mix(in srgb, ${accent} 18%, transparent)`,
-            color: accent,
-            border: `1px solid color-mix(in srgb, ${accent} 40%, transparent)`,
-            fontFamily: 'monospace',
-            fontSize: 11,
-            fontWeight: 700,
-            padding: '2px 8px',
-            borderRadius: 2,
-            letterSpacing: 0.5,
+            padding: '9px 0',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            fontSize: 13,
           }}
         >
-          {t('landing.card.attempts.val')}
-        </span>
-      </div>
+          <span style={{ color: 'var(--t-muted)' }}>{t('landing.card.attempts')}</span>
+          <span
+            style={{
+              background: `color-mix(in srgb, ${accent} 18%, transparent)`,
+              color: accent,
+              border: `1px solid color-mix(in srgb, ${accent} 40%, transparent)`,
+              fontFamily: 'monospace',
+              fontSize: 11,
+              fontWeight: 700,
+              padding: '2px 8px',
+              borderRadius: 2,
+              letterSpacing: 0.5,
+            }}
+          >
+            {t('landing.card.attempts.val')}
+          </span>
+        </div>
+      )}
       <button
         type="button"
         onClick={disabled ? undefined : onStart}
