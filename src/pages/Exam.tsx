@@ -1,3 +1,4 @@
+import { useCallback, useEffect, useRef, useState, type ClipboardEvent } from 'react'
 import { COLORS } from '../constants'
 import { LETTERS } from '../constants'
 import { NavDot, OptionCard } from '../components/primitives'
@@ -5,6 +6,7 @@ import { useLang } from '../context/LangContext'
 import { useExamState, useIsMobile, useTimer } from '../hooks/examHooks'
 import { GradingService } from '../services/examServices'
 import { Styles } from '../styles'
+import { useAntiCheat } from '../hooks/useAntiCheat'
 import type { ExamQuestion, ExamResult } from '../types/exam'
 
 export function Exam({
@@ -19,6 +21,44 @@ export function Exam({
   const { lang, t } = useLang()
   const isMobile = useIsMobile()
   const exam = useExamState(questions)
+  const finishGuardRef = useRef(false)
+  const [antiCheatWarning, setAntiCheatWarning] = useState<string | null>(null)
+
+  useEffect(() => {
+    localStorage.removeItem('tabSwitchCount')
+  }, [])
+
+  const finishExam = useCallback(() => {
+    if (finishGuardRef.current) return
+    finishGuardRef.current = true
+
+    const correct = GradingService.score(exam.answers, questions)
+
+    onFinish({
+      correct,
+      total: questions.length,
+      elapsed: exam.elapsed(),
+      answers: exam.answers,
+    })
+  }, [exam.answers, exam.elapsed, onFinish, questions])
+
+  useAntiCheat(finishExam, (count) => {
+    if (count === 1) {
+      setAntiCheatWarning('Предупреждение 1: не сворачивайте окно.')
+      return
+    }
+
+    if (count === 2) {
+      setAntiCheatWarning('Предупреждение 2: ещё одно нарушение и экзамен будет завершён.')
+      return
+    }
+
+    setAntiCheatWarning(null)
+  })
+
+  const handleCopy = useCallback((event: ClipboardEvent<HTMLDivElement>) => {
+    event.preventDefault()
+  }, [])
 
   function submitExam(auto = false) {
     if (!auto && exam.answeredCount < questions.length) {
@@ -27,13 +67,8 @@ export function Exam({
       })
       if (!window.confirm(msg)) return
     }
-    const correct = GradingService.score(exam.answers, questions)
-    onFinish({
-      correct,
-      total: questions.length,
-      elapsed: exam.elapsed(),
-      answers: exam.answers,
-    })
+
+    finishExam()
   }
 
   const timer = useTimer(timeLimitSec, () => submitExam(true))
@@ -46,6 +81,7 @@ export function Exam({
 
   return (
     <div
+      onCopy={handleCopy}
       style={{
         maxWidth: 1060,
         margin: '0 auto',
@@ -54,9 +90,28 @@ export function Exam({
         gridTemplateColumns: isMobile ? '1fr' : '1fr 280px',
         gap: 20,
         alignItems: 'start',
+        userSelect: 'none',
+        WebkitUserSelect: 'none',
+        MozUserSelect: 'none',
+        msUserSelect: 'none',
       }}
     >
       <div>
+        {antiCheatWarning ? (
+          <div
+            style={{
+              marginBottom: 20,
+              padding: '14px 16px',
+              borderRadius: 10,
+              background: '#f9f0c2',
+              color: '#5f4300',
+              fontWeight: 600,
+              border: '1px solid #f2d391',
+            }}
+          >
+            {antiCheatWarning}
+          </div>
+        ) : null}
         <div
           style={{
             background: COLORS.navy,
@@ -156,7 +211,7 @@ export function Exam({
               marginBottom: 24,
             }}
           >
-            {qText}
+              {qText}
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {qOpts.map((opt, i) => (
