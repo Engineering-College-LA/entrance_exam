@@ -181,9 +181,9 @@ export function Report({
         <div
           style={{
             display: 'inline-block',
-            background: `${gradeColor}22`,
+            background: `color-mix(in srgb, ${gradeColor} 13%, transparent)`,
             color: gradeColor,
-            border: `1px solid ${gradeColor}44`,
+            border: `1px solid color-mix(in srgb, ${gradeColor} 27%, transparent)`,
             borderRadius: 3,
             padding: '4px 14px',
             fontSize: 12,
@@ -212,7 +212,7 @@ export function Report({
           label={t('report.incorrect')}
           color={COLORS.danger}
         />
-        <StatBox value={result.total} label={t('report.total')} color={COLORS.navy} />
+        <StatBox value={result.total} label={t('report.total')} color="var(--t-text)" />
         <StatBox
           value={`${mm}:${ss}`}
           label={t('report.timeused')}
@@ -231,11 +231,11 @@ export function Report({
           <div
             style={{
               padding: '14px 22px',
-              background: '#f7f9fc',
+              background: 'var(--c-off)',
               borderBottom: `1px solid ${COLORS.border}`,
               fontWeight: 700,
               fontSize: 13,
-              color: COLORS.navy,
+              color: 'var(--t-text)',
             }}
           >
             {t('report.parentInfo')}
@@ -275,9 +275,9 @@ export function Report({
                   fontWeight: 700,
                   padding: '3px 10px',
                   borderRadius: 3,
-                  background: student.attended === 'attended' ? `${COLORS.success}18` : `${COLORS.danger}18`,
+                  background: student.attended === 'attended' ? `color-mix(in srgb, ${COLORS.success} 9%, transparent)` : `color-mix(in srgb, ${COLORS.danger} 9%, transparent)`,
                   color: student.attended === 'attended' ? COLORS.success : COLORS.danger,
-                  border: `1px solid ${student.attended === 'attended' ? COLORS.success : COLORS.danger}44`,
+                  border: `1px solid color-mix(in srgb, ${student.attended === 'attended' ? COLORS.success : COLORS.danger} 27%, transparent)`,
                 }}
               >
                 {student.attended
@@ -299,11 +299,11 @@ export function Report({
         <div
           style={{
             padding: '14px 22px',
-            background: '#f7f9fc',
+            background: 'var(--c-off)',
             borderBottom: `1px solid ${COLORS.border}`,
             fontWeight: 700,
             fontSize: 13,
-            color: COLORS.navy,
+            color: 'var(--t-text)',
             display: 'flex',
             justifyContent: 'space-between',
           }}

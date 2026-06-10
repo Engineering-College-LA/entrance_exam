@@ -7,6 +7,7 @@ import { supabase } from './lib/supabase'
 import { Exam } from './pages/Exam'
 import { Instructions } from './pages/Instructions'
 import { Landing } from './pages/Landing'
+import { SubjectLanding } from './pages/SubjectLanding'
 import { OpenDoorThanks } from './pages/OpenDoorThanks'
 import { Register } from './pages/Register'
 import { Report } from './pages/Report'
@@ -21,12 +22,15 @@ import {
 } from './services/examServices'
 import { Styles } from './styles'
 import type { ExamQuestion, ExamResult } from './types/exam'
+import { ThemeProvider } from './context/ThemeContext'
 
 export default function App() {
   return (
-    <LangProvider>
-      <AppInner />
-    </LangProvider>
+    <ThemeProvider>
+      <LangProvider>
+        <AppInner />
+      </LangProvider>
+    </ThemeProvider>
   )
 }
 
@@ -111,16 +115,24 @@ function AppInner() {
       <Header page={nav.page} onLogoClick={() => nav.go('landing')} />
       {nav.page === 'landing' && (
         <Landing
+          onSelectSubject={(pageId) => nav.go(pageId)}
+          onRegisterOpenDoor={handleRegisterOpenDoor}
+          isPlacementActive={isPlacementActive}
+        />
+      )}
+      {nav.page === 'subject' && (
+        <SubjectLanding
           onStartTrial={handleStartTrial}
           onStartPlacement={handleStartPlacement}
           onRegisterOpenDoor={handleRegisterOpenDoor}
           isPlacementActive={isPlacementActive}
+          onBack={() => nav.go('landing')}
         />
       )}
       {nav.page === 'register' && (
         <Register
           onSubmit={handleRegister}
-          onBack={() => nav.go('landing')}
+          onBack={() => nav.go(nav.examType === 'openDoor' ? 'landing' : 'subject')}
           examType={nav.examType}
         />
       )}

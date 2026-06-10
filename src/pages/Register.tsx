@@ -155,9 +155,9 @@ export function Register({
                   ? t('register.placement.info')
                   : t('register.info')
             }
-            bg="#f0f6ff"
-            borderColor="#c5d9f5"
-            color={COLORS.blue}
+            bg="color-mix(in srgb, var(--c-blue) 10%, transparent)"
+            borderColor="color-mix(in srgb, var(--c-blue) 30%, transparent)"
+            color="var(--c-blueLight)"
           />
           {[
             [0, 1],
