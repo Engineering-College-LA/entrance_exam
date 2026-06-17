@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { COLORS } from '../constants'
 import { useLang } from '../context/LangContext'
 
@@ -14,14 +15,17 @@ export function ExamCard({
   disabledCta,
   customRows,
   showAttempts = true,
-  icon = '∑',
+  icon,
+  variant = 'primary',
+  statusBadge,
+  tooltipText,
 }: {
   badge: string
   desc: string
   questions?: string
   time?: string
   ctaLabel: string
-  onStart: () => void
+  onStart?: () => void
   accent: string
   disabled?: boolean
   /** When set, replaces the default “admin closed” disabled copy */
@@ -29,9 +33,14 @@ export function ExamCard({
   disabledCta?: string
   customRows?: [string, string][]
   showAttempts?: boolean
-  icon?: string
+  icon?: React.ReactNode
+  variant?: 'primary' | 'secondary' | 'success'
+  statusBadge?: string
+  tooltipText?: string
 }) {
-  const { t } = useLang()
+  const { t, lang } = useLang()
+  const [hovered, setHovered] = useState(false)
+
   const rows = customRows ?? [
     [t('landing.card.subject'), t('landing.card.subject.val')],
     [t('landing.card.format'), t('landing.card.format.val')],
@@ -40,19 +49,101 @@ export function ExamCard({
     [t('landing.card.results'), t('landing.card.results.val')],
   ]
   const isEn = t('landing.title1') === 'Mathematics'
+
+  const buttonEl = (
+    <button
+      type="button"
+      onClick={disabled || variant === 'success' ? undefined : onStart}
+      disabled={disabled}
+      style={{
+        marginTop: 20,
+        width: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 8,
+        background: disabled
+          ? 'color-mix(in srgb, var(--t-text) 4%, transparent)'
+          : variant === 'success'
+          ? 'color-mix(in srgb, var(--c-success) 10%, transparent)'
+          : variant === 'secondary'
+          ? hovered
+            ? accent
+            : 'transparent'
+          : accent,
+        color: disabled
+          ? 'color-mix(in srgb, var(--t-text) 30%, transparent)'
+          : variant === 'success'
+          ? 'var(--c-success)'
+          : variant === 'secondary'
+          ? hovered
+            ? COLORS.white
+            : accent
+          : COLORS.navy,
+        border: disabled
+          ? '1px solid color-mix(in srgb, var(--t-text) 8%, transparent)'
+          : variant === 'success'
+          ? '1.5px solid color-mix(in srgb, var(--c-success) 25%, transparent)'
+          : variant === 'secondary'
+          ? `1.5px solid ${accent}`
+          : 'none',
+        fontWeight: 800,
+        fontSize: 13,
+        padding: '12px 20px',
+        borderRadius: 6,
+        cursor: disabled ? 'not-allowed' : variant === 'success' ? 'default' : 'pointer',
+        letterSpacing: 0.3,
+        boxShadow: hovered && !disabled && variant === 'primary'
+          ? `0 4px 14px color-mix(in srgb, ${accent} 35%, transparent)`
+          : 'none',
+        transition: 'all 0.2s ease',
+      }}
+    >
+      {disabled
+        ? disabledCta ?? (isEn ? 'Unavailable' : 'Недоступно')
+        : ctaLabel}{' '}
+      {!disabled && variant !== 'success' && (
+        <span
+          style={{
+            fontSize: 16,
+            transform: hovered ? 'translateX(4px)' : 'translateX(0)',
+            transition: 'transform 0.2s ease',
+            display: 'inline-block',
+            lineHeight: 1,
+          }}
+        >
+          →
+        </span>
+      )}
+    </button>
+  )
+
   return (
     <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       style={{
-        background: disabled ? 'color-mix(in srgb, var(--t-text) 2%, transparent)' : 'color-mix(in srgb, var(--t-text) 5%, transparent)',
-        border: `1px solid ${disabled ? 'color-mix(in srgb, var(--t-text) 8%, transparent)' : `color-mix(in srgb, ${accent} 27%, transparent)`}`,
-        borderRadius: 8,
-        padding: 22,
-        backdropFilter: 'blur(10px)',
+        background: disabled
+          ? 'color-mix(in srgb, var(--t-text) 3%, var(--t-card-bg))'
+          : 'var(--t-card-bg)',
+        border: `1.5px solid ${
+          disabled
+            ? 'color-mix(in srgb, var(--t-text) 10%, transparent)'
+            : hovered
+            ? accent
+            : `color-mix(in srgb, ${accent} 25%, transparent)`
+        }`,
+        borderRadius: 12,
+        padding: 24,
+        backdropFilter: 'blur(12px)',
         display: 'flex',
         flexDirection: 'column',
         gap: 0,
-        opacity: disabled ? 0.55 : 1,
-        transition: 'opacity .2s',
+        boxShadow: hovered && !disabled
+          ? '0 20px 40px rgba(11, 31, 58, 0.16)'
+          : 'var(--t-shadow)',
+        transform: hovered && !disabled ? 'translateY(-6px)' : 'translateY(0)',
+        transition: 'transform 0.25s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.25s ease, border-color 0.25s ease, background 0.25s ease',
       }}
     >
       <div
@@ -60,66 +151,98 @@ export function ExamCard({
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          marginBottom: 14,
+          marginBottom: 16,
         }}
       >
         <div
           style={{
             fontWeight: 700,
             fontSize: 14,
-            color: 'var(--t-text)',
+            color: disabled
+              ? 'color-mix(in srgb, var(--t-text) 55%, transparent)'
+              : 'var(--t-text)',
             display: 'flex',
             alignItems: 'center',
-            gap: 8,
+            gap: 10,
           }}
         >
-          <span
-            style={{
-              color: disabled ? '#526a8a' : accent,
-              fontSize: 16,
-            }}
-          >
-            {icon}
-          </span>{' '}
+          {icon && (
+            <span
+              style={{
+                color: disabled
+                  ? 'color-mix(in srgb, var(--t-text) 40%, transparent)'
+                  : accent,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              {icon}
+            </span>
+          )}
           {badge}
         </div>
-        {disabled ? (
-          <span
-            style={{
-              fontFamily: 'monospace',
-              fontSize: 10,
-              background: 'color-mix(in srgb, var(--t-text) 6%, transparent)',
-              color: '#526a8a',
-              border: '1px solid color-mix(in srgb, var(--t-text) 10%, transparent)',
-              padding: '2px 8px',
-              borderRadius: 2,
-              letterSpacing: 1,
-            }}
-          >
-            CLOSED
-          </span>
-        ) : (
-          <span
-            style={{
-              fontFamily: 'monospace',
-              fontSize: 10,
-              background: `color-mix(in srgb, ${accent} 13%, transparent)`,
-              color: accent,
-              border: `1px solid color-mix(in srgb, ${accent} 27%, transparent)`,
-              padding: '2px 8px',
-              borderRadius: 2,
-              letterSpacing: 1,
-            }}
-          >
-            MCQ
-          </span>
-        )}
+        
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          {statusBadge && (
+            <span
+              style={{
+                fontFamily: 'monospace',
+                fontSize: 10,
+                background: 'color-mix(in srgb, var(--c-success) 12%, transparent)',
+                color: 'var(--c-success)',
+                border: '1px solid color-mix(in srgb, var(--c-success) 25%, transparent)',
+                padding: '3px 8px',
+                borderRadius: 4,
+                letterSpacing: 1,
+                fontWeight: 600,
+              }}
+            >
+              {statusBadge}
+            </span>
+          )}
+          {disabled ? (
+            <span
+              style={{
+                fontFamily: 'monospace',
+                fontSize: 10,
+                background: 'color-mix(in srgb, var(--t-text) 6%, transparent)',
+                color: 'color-mix(in srgb, var(--t-text) 45%, transparent)',
+                border: '1px solid color-mix(in srgb, var(--t-text) 12%, transparent)',
+                padding: '3px 8px',
+                borderRadius: 4,
+                letterSpacing: 1,
+                fontWeight: 600,
+              }}
+            >
+              {lang === 'ru' ? 'СКОРО' : 'CLOSED'}
+            </span>
+          ) : (
+            <span
+              style={{
+                fontFamily: 'monospace',
+                fontSize: 10,
+                background: `color-mix(in srgb, ${accent} 13%, transparent)`,
+                color: accent,
+                border: `1px solid color-mix(in srgb, ${accent} 27%, transparent)`,
+                padding: '3px 8px',
+                borderRadius: 4,
+                letterSpacing: 1,
+                fontWeight: 600,
+              }}
+            >
+              MCQ
+            </span>
+          )}
+        </div>
       </div>
       <p
         style={{
           fontSize: 12,
-          color: 'var(--t-muted)',
-          marginBottom: 14,
+          color: disabled
+            ? 'color-mix(in srgb, var(--t-text) 40%, transparent)'
+            : 'var(--t-muted)',
+          marginBottom: 16,
           lineHeight: 1.5,
         }}
       >
@@ -136,36 +259,69 @@ export function ExamCard({
           style={{
             display: 'flex',
             justifyContent: 'space-between',
-            padding: '9px 0',
+            padding: '10px 0',
             borderBottom: '1px solid color-mix(in srgb, var(--t-text) 6%, transparent)',
             fontSize: 13,
           }}
         >
-          <span style={{ color: 'var(--t-muted)' }}>{label}</span>
-          <span style={{ color: 'var(--t-text)', fontWeight: 600 }}>{val}</span>
+          <span
+            style={{
+              color: disabled
+                ? 'color-mix(in srgb, var(--t-text) 35%, transparent)'
+                : 'var(--t-muted)',
+            }}
+          >
+            {label}
+          </span>
+          <span
+            style={{
+              color: disabled
+                ? 'color-mix(in srgb, var(--t-text) 50%, transparent)'
+                : 'var(--t-text)',
+              fontWeight: 600,
+            }}
+          >
+            {val}
+          </span>
         </div>
       ))}
       {showAttempts && (
         <div
           style={{
-            padding: '9px 0',
+            padding: '10px 0',
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
             fontSize: 13,
           }}
         >
-          <span style={{ color: 'var(--t-muted)' }}>{t('landing.card.attempts')}</span>
           <span
             style={{
-              background: `color-mix(in srgb, ${accent} 18%, transparent)`,
-              color: accent,
-              border: `1px solid color-mix(in srgb, ${accent} 40%, transparent)`,
+              color: disabled
+                ? 'color-mix(in srgb, var(--t-text) 35%, transparent)'
+                : 'var(--t-muted)',
+            }}
+          >
+            {t('landing.card.attempts')}
+          </span>
+          <span
+            style={{
+              background: disabled
+                ? 'color-mix(in srgb, var(--t-text) 4%, transparent)'
+                : `color-mix(in srgb, ${accent} 18%, transparent)`,
+              color: disabled
+                ? 'color-mix(in srgb, var(--t-text) 40%, transparent)'
+                : accent,
+              border: `1px solid ${
+                disabled
+                  ? 'color-mix(in srgb, var(--t-text) 10%, transparent)'
+                  : `color-mix(in srgb, ${accent} 40%, transparent)`
+              }`,
               fontFamily: 'monospace',
               fontSize: 11,
               fontWeight: 700,
               padding: '2px 8px',
-              borderRadius: 2,
+              borderRadius: 4,
               letterSpacing: 0.5,
             }}
           >
@@ -173,32 +329,15 @@ export function ExamCard({
           </span>
         </div>
       )}
-      <button
-        type="button"
-        onClick={disabled ? undefined : onStart}
-        disabled={disabled}
-        style={{
-          marginTop: 18,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: 8,
-          background: disabled ? 'color-mix(in srgb, var(--t-text) 6%, transparent)' : accent,
-          color: disabled ? '#526a8a' : COLORS.navy,
-          fontWeight: 800,
-          fontSize: 13,
-          padding: '12px 20px',
-          borderRadius: 3,
-          border: 'none',
-          cursor: disabled ? 'not-allowed' : 'pointer',
-          letterSpacing: 0.3,
-        }}
-      >
-        {disabled
-          ? disabledCta ?? (isEn ? 'Unavailable' : 'Недоступно')
-          : ctaLabel}{' '}
-        {!disabled && <span style={{ fontSize: 16 }}>→</span>}
-      </button>
+      {tooltipText ? (
+        <div className="tooltip-container" style={{ width: '100%' }}>
+          {buttonEl}
+          <span className="tooltip-content">{tooltipText}</span>
+        </div>
+      ) : (
+        buttonEl
+      )}
     </div>
   )
 }
+

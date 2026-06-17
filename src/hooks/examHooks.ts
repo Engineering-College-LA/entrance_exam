@@ -111,7 +111,21 @@ export function usePageNav() {
       : resolveRoute('/')
 
   const [page, setPage] = useState<PageId>(initial.page)
-  const [student, setStudent] = useState<Record<string, string>>({})
+  const [student, setStudentState] = useState<Record<string, string>>(() => {
+    if (typeof window === 'undefined') return {}
+    try {
+      const raw = localStorage.getItem('ec_current_student')
+      return raw ? JSON.parse(raw) : {}
+    } catch {
+      return {}
+    }
+  })
+  const setStudent = useCallback((s: Record<string, string>) => {
+    setStudentState(s)
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('ec_current_student', JSON.stringify(s))
+    }
+  }, [])
   const [result, setResult] = useState<ExamResult | null>(null)
   const [examType, setExamType] = useState<ExamType>(initial.examType)
   const examTypeRef = useRef<ExamType>(initial.examType)

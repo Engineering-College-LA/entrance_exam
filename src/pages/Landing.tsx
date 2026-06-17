@@ -2,15 +2,18 @@ import { COLORS } from '../constants'
 import { ExamCard } from '../components/ExamCard'
 import { useLang } from '../context/LangContext'
 import { useIsMobile } from '../hooks/examHooks'
+import { MathIcon, EnglishIcon, EventIcon } from '../components/Icons'
 
 export function Landing({
   onSelectSubject,
   onRegisterOpenDoor,
   isPlacementActive,
+  isRegisteredOpenDoor,
 }: {
   onSelectSubject: (pageId: 'subject') => void
   onRegisterOpenDoor: () => void
   isPlacementActive: boolean | null
+  isRegisteredOpenDoor: boolean
 }) {
   const { t } = useLang()
   const isMobile = useIsMobile()
@@ -91,6 +94,7 @@ export function Landing({
             }}
           >
             <span
+              className="live-pulse"
               style={{
                 width: 6,
                 height: 6,
@@ -142,7 +146,7 @@ export function Landing({
             ctaLabel={t('dashboard.subject.math.cta')}
             onStart={() => onSelectSubject('subject')}
             accent={COLORS.accent}
-            icon="∑"
+            icon={<MathIcon size={20} />}
             showAttempts={false}
             customRows={[
               [t('landing.card.format'), 'MCQ'],
@@ -161,11 +165,12 @@ export function Landing({
             ctaLabel={t('dashboard.subject.english.comingSoon')}
             onStart={() => {}}
             accent={COLORS.blue}
-            icon="🔤"
+            icon={<EnglishIcon size={20} />}
             disabled={true}
             disabledHint={t('dashboard.subject.english.comingSoon')}
             disabledCta={t('dashboard.subject.english.comingSoon')}
             showAttempts={false}
+            tooltipText={isEn ? 'Registration opens June 15' : 'Регистрация откроется 15 июня'}
             customRows={[
               [t('landing.card.format'), 'MCQ / Grammar'],
               [isEn ? 'Tests' : 'Тесты', isEn ? 'Coming Soon' : 'Скоро'],
@@ -177,11 +182,13 @@ export function Landing({
           <ExamCard
             badge={t('landing.openDoor.title')}
             desc={t('landing.openDoor.desc')}
-            ctaLabel={t('landing.openDoor.cta')}
-            onStart={onRegisterOpenDoor}
+            ctaLabel={isRegisteredOpenDoor ? (isEn ? 'Registered ✓' : 'Вы записаны ✓') : t('landing.openDoor.cta')}
+            onStart={isRegisteredOpenDoor ? undefined : onRegisterOpenDoor}
             accent={COLORS.success}
-            icon="🚪"
+            icon={<EventIcon size={20} />}
+            variant={isRegisteredOpenDoor ? 'success' : 'secondary'}
             showAttempts={false}
+            statusBadge={isRegisteredOpenDoor ? (isEn ? 'Active' : 'Вы участвуете') : undefined}
             customRows={[
               [t('landing.openDoor.date'), t('landing.openDoor.date.val')],
               [t('landing.openDoor.time'), t('landing.openDoor.time.val')],

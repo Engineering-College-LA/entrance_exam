@@ -39,6 +39,10 @@ function AppInner() {
   const nav = usePageNav()
   const [questions, setQuestions] = useState<ExamQuestion[]>([])
   const [isPlacementActive, setIsPlacementActive] = useState<boolean | null>(null)
+  const [isRegisteredOpenDoor, setIsRegisteredOpenDoor] = useState(() => {
+    if (typeof window === 'undefined') return false
+    return localStorage.getItem('project_fest_registered') === 'true'
+  })
 
   useEffect(() => {
     // Subscribe first, then fetch — so no realtime change can arrive
@@ -97,6 +101,8 @@ function AppInner() {
           )
           return
         }
+        localStorage.setItem('project_fest_registered', 'true')
+        setIsRegisteredOpenDoor(true)
         nav.go('openDoorThanks')
       })()
       return
@@ -110,14 +116,28 @@ function AppInner() {
     nav.go('report')
   }
 
+  const handleLogout = () => {
+    localStorage.removeItem('ec_current_student')
+    localStorage.removeItem('project_fest_registered')
+    nav.setStudent({})
+    setIsRegisteredOpenDoor(false)
+    nav.go('landing')
+  }
+
   return (
     <div style={Styles.page}>
-      <Header page={nav.page} onLogoClick={() => nav.go('landing')} />
+      <Header
+        page={nav.page}
+        onLogoClick={() => nav.go('landing')}
+        student={nav.student}
+        onLogout={handleLogout}
+      />
       {nav.page === 'landing' && (
         <Landing
           onSelectSubject={(pageId) => nav.go(pageId)}
           onRegisterOpenDoor={handleRegisterOpenDoor}
           isPlacementActive={isPlacementActive}
+          isRegisteredOpenDoor={isRegisteredOpenDoor}
         />
       )}
       {nav.page === 'subject' && (
@@ -127,6 +147,7 @@ function AppInner() {
           onRegisterOpenDoor={handleRegisterOpenDoor}
           isPlacementActive={isPlacementActive}
           onBack={() => nav.go('landing')}
+          isRegisteredOpenDoor={isRegisteredOpenDoor}
         />
       )}
       {nav.page === 'register' && (
