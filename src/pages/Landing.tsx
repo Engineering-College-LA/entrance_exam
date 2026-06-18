@@ -9,11 +9,15 @@ export function Landing({
   onRegisterOpenDoor,
   isPlacementActive,
   isRegisteredOpenDoor,
+  events = [],
+  registeredEventIds = [],
 }: {
   onSelectSubject: (pageId: 'subject') => void
-  onRegisterOpenDoor: () => void
+  onRegisterOpenDoor: (eventId?: string) => void
   isPlacementActive: boolean | null
   isRegisteredOpenDoor: boolean
+  events?: any[]
+  registeredEventIds?: string[]
 }) {
   const { t } = useLang()
   const isMobile = useIsMobile()
@@ -178,24 +182,58 @@ export function Landing({
             ]}
           />
 
-          {/* Card 3: Project Fest Event Card */}
-          <ExamCard
-            badge={t('landing.openDoor.title')}
-            desc={t('landing.openDoor.desc')}
-            ctaLabel={isRegisteredOpenDoor ? (isEn ? 'Registered ✓' : 'Вы записаны ✓') : t('landing.openDoor.cta')}
-            onStart={isRegisteredOpenDoor ? undefined : onRegisterOpenDoor}
-            accent={COLORS.success}
-            icon={<EventIcon size={20} />}
-            variant={isRegisteredOpenDoor ? 'success' : 'secondary'}
-            showAttempts={false}
-            statusBadge={isRegisteredOpenDoor ? (isEn ? 'Active' : 'Вы участвуете') : undefined}
-            customRows={[
-              [t('landing.openDoor.date'), t('landing.openDoor.date.val')],
-              [t('landing.openDoor.time'), t('landing.openDoor.time.val')],
-              [t('landing.card.format'), t('landing.openDoor.format.val')],
-              [t('landing.openDoor.req'), t('landing.openDoor.req.val')],
-            ]}
-          />
+          {/* Dynamic Events */}
+          {events.length > 0 ? (
+            events.map((event) => {
+              const title = isEn ? event.title_en : event.title_ru
+              const desc = isEn ? event.desc_en : event.desc_ru
+              const date = isEn ? event.date_en : event.date_ru
+              const time = isEn ? event.time_en : event.time_ru
+              const format = isEn ? event.format_en : event.format_ru
+              const req = isEn ? event.req_en : event.req_ru
+              const isRegistered = registeredEventIds.includes(event.id)
+
+              return (
+                <ExamCard
+                  key={event.id}
+                  badge={title}
+                  desc={desc}
+                  ctaLabel={isRegistered ? (isEn ? 'Registered ✓' : 'Вы записаны ✓') : (isEn ? 'Register' : 'Записаться')}
+                  onStart={isRegistered ? undefined : () => onRegisterOpenDoor(event.id)}
+                  accent={COLORS.success}
+                  icon={<EventIcon size={20} />}
+                  variant={isRegistered ? 'success' : 'secondary'}
+                  showAttempts={false}
+                  statusBadge={isRegistered ? (isEn ? 'Active' : 'Вы участвуете') : undefined}
+                  customRows={[
+                    [t('landing.openDoor.date'), date],
+                    [t('landing.openDoor.time'), time],
+                    [t('landing.card.format'), format],
+                    [t('landing.openDoor.req'), req],
+                  ]}
+                />
+              )
+            })
+          ) : (
+            /* Card 3: Project Fest Event Card (Fallback) */
+            <ExamCard
+              badge={t('landing.openDoor.title')}
+              desc={t('landing.openDoor.desc')}
+              ctaLabel={isRegisteredOpenDoor ? (isEn ? 'Registered ✓' : 'Вы записаны ✓') : t('landing.openDoor.cta')}
+              onStart={isRegisteredOpenDoor ? undefined : () => onRegisterOpenDoor()}
+              accent={COLORS.success}
+              icon={<EventIcon size={20} />}
+              variant={isRegisteredOpenDoor ? 'success' : 'secondary'}
+              showAttempts={false}
+              statusBadge={isRegisteredOpenDoor ? (isEn ? 'Active' : 'Вы участвуете') : undefined}
+              customRows={[
+                [t('landing.openDoor.date'), t('landing.openDoor.date.val')],
+                [t('landing.openDoor.time'), t('landing.openDoor.time.val')],
+                [t('landing.card.format'), t('landing.openDoor.format.val')],
+                [t('landing.openDoor.req'), t('landing.openDoor.req.val')],
+              ]}
+            />
+          )}
         </div>
       </div>
     </div>

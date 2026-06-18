@@ -43,6 +43,32 @@ function AppInner() {
     if (typeof window === 'undefined') return false
     return localStorage.getItem('project_fest_registered') === 'true'
   })
+  const [events, setEvents] = useState<any[]>([])
+  const [registeredEventIds, setRegisteredEventIds] = useState<string[]>(() => {
+    if (typeof window === 'undefined') return []
+    const ids: string[] = []
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i)
+      if (key && key.startsWith('registered_event_') && localStorage.getItem(key) === 'true') {
+        ids.push(key.replace('registered_event_', ''))
+      }
+    }
+    return ids
+  })
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      if (!supabase) return
+      const { data, error } = await supabase
+        .from('events')
+        .select('*')
+        .order('created_at', { ascending: false })
+      if (!error && data) {
+        setEvents(data)
+      }
+    }
+    void fetchEvents()
+  }, [])
 
   useEffect(() => {
     // Subscribe first, then fetch — so no realtime change can arrive
@@ -76,6 +102,12 @@ function AppInner() {
     }
   }, [])
 
+  useEffect(() => {
+    if (nav.selectedEventId && nav.page === 'landing') {
+      nav.go('register', { examType: 'openDoor', eventId: nav.selectedEventId })
+    }
+  }, [nav.selectedEventId, nav.page, nav.go])
+
   const timeLimitSec = 3600
 
   const handleStartTrial = () => {
@@ -87,22 +119,28 @@ function AppInner() {
     setQuestions(QuestionService.shuffle(PLACEMENT_QUESTIONS_BASE))
     nav.go('register', { examType: 'placement' })
   }
-  const handleRegisterOpenDoor = () => {
-    nav.go('register', { examType: 'openDoor' })
+  const handleRegisterOpenDoor = (eventId?: string) => {
+    nav.go('register', { examType: 'openDoor', eventId })
   }
 
   const handleRegister = (form: Record<string, string>) => {
     if (nav.examType === 'openDoor') {
       void (async () => {
-        const { error } = await insertOpenDoorRegistration(form, lang)
+        const { error } = await insertOpenDoorRegistration(form, lang, nav.selectedEventId || undefined)
         if (error) {
           window.alert(
             `${t('register.openDoor.error')}\n\n${error.message}`,
           )
           return
         }
-        localStorage.setItem('project_fest_registered', 'true')
-        setIsRegisteredOpenDoor(true)
+        if (nav.selectedEventId) {
+          localStorage.setItem(`registered_event_${nav.selectedEventId}`, 'true')
+          setRegisteredEventIds(prev => [...prev, nav.selectedEventId!])
+        } else {
+          localStorage.setItem('project_fest_registered', 'true')
+          setIsRegisteredOpenDoor(true)
+        }
+        nav.setStudent(form)
         nav.go('openDoorThanks')
       })()
       return
@@ -119,6 +157,13 @@ function AppInner() {
   const handleLogout = () => {
     localStorage.removeItem('ec_current_student')
     localStorage.removeItem('project_fest_registered')
+    for (let i = localStorage.length - 1; i >= 0; i--) {
+      const key = localStorage.key(i)
+      if (key && key.startsWith('registered_event_')) {
+        localStorage.removeItem(key)
+      }
+    }
+    setRegisteredEventIds([])
     nav.setStudent({})
     setIsRegisteredOpenDoor(false)
     nav.go('landing')
@@ -138,6 +183,8 @@ function AppInner() {
           onRegisterOpenDoor={handleRegisterOpenDoor}
           isPlacementActive={isPlacementActive}
           isRegisteredOpenDoor={isRegisteredOpenDoor}
+          events={events}
+          registeredEventIds={registeredEventIds}
         />
       )}
       {nav.page === 'subject' && (
@@ -148,6 +195,8 @@ function AppInner() {
           isPlacementActive={isPlacementActive}
           onBack={() => nav.go('landing')}
           isRegisteredOpenDoor={isRegisteredOpenDoor}
+          events={events}
+          registeredEventIds={registeredEventIds}
         />
       )}
       {nav.page === 'register' && (
@@ -155,6 +204,7 @@ function AppInner() {
           onSubmit={handleRegister}
           onBack={() => nav.go(nav.examType === 'openDoor' ? 'landing' : 'subject')}
           examType={nav.examType}
+          selectedEvent={events.find(e => e.id === nav.selectedEventId)}
         />
       )}
       {nav.page === 'intro' && (
@@ -182,7 +232,11 @@ function AppInner() {
         />
       )}
       {nav.page === 'openDoorThanks' && (
-        <OpenDoorThanks onHome={() => nav.go('landing')} />
+        <OpenDoorThanks
+          student={nav.student}
+          selectedEvent={events.find(e => e.id === nav.selectedEventId)}
+          onHome={() => nav.go('landing')}
+        />
       )}
     </div>
   )
