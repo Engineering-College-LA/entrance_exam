@@ -7,7 +7,6 @@ import {
 } from 'react'
 import type { ExamQuestion, ExamResult, ExamType, PageId } from '../types/exam'
 import {
-  normalizeBrowserPath,
   pathForPage,
   resolveRoute,
 } from '../lib/appRoutes'
@@ -111,7 +110,21 @@ export function usePageNav() {
       : resolveRoute('/')
 
   const [page, setPage] = useState<PageId>(initial.page)
-  const [student, setStudent] = useState<Record<string, string>>({})
+  const [student, setStudentState] = useState<Record<string, string>>(() => {
+    if (typeof window === 'undefined') return {}
+    try {
+      const raw = localStorage.getItem('ec_current_student')
+      return raw ? JSON.parse(raw) : {}
+    } catch {
+      return {}
+    }
+  })
+  const setStudent = useCallback((s: Record<string, string>) => {
+    setStudentState(s)
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('ec_current_student', JSON.stringify(s))
+    }
+  }, [])
   const [result, setResult] = useState<ExamResult | null>(null)
   const [examType, setExamType] = useState<ExamType>(initial.examType)
   const examTypeRef = useRef<ExamType>(initial.examType)
@@ -120,27 +133,41 @@ export function usePageNav() {
     examTypeRef.current = examType
   }, [examType])
 
-  const syncUrlToState = useCallback((p: PageId, nextType: ExamType) => {
+  const [selectedEventId, setSelectedEventId] = useState<string | null>(() => {
+    if (typeof window === 'undefined') return null
+    const params = new URLSearchParams(window.location.search)
+    return params.get('event') || params.get('eventId')
+  })
+
+  const syncUrlToState = useCallback((p: PageId, nextType: ExamType, eventId?: string | null) => {
     if (typeof window === 'undefined') return
-    const target = pathForPage(p, nextType)
-    const cur = normalizeBrowserPath(window.location.pathname)
-    if (normalizeBrowserPath(target) !== cur) {
+    const target = pathForPage(p, nextType, eventId)
+    const cur = window.location.pathname + window.location.search
+    if (target !== cur) {
       window.history.pushState(null, '', target)
     }
   }, [])
 
   const go = useCallback(
-    (target: PageId, opts?: { examType?: ExamType }) => {
+    (target: PageId, opts?: { examType?: ExamType; eventId?: string }) => {
       let nextType = examTypeRef.current
       if (opts?.examType !== undefined) {
         nextType = opts.examType
         examTypeRef.current = nextType
         setExamType(nextType)
       }
+      let nextEventId = selectedEventId
+      if (opts?.eventId !== undefined) {
+        nextEventId = opts.eventId
+        setSelectedEventId(opts.eventId)
+      } else if (target === 'landing' || target === 'subject') {
+        nextEventId = null
+        setSelectedEventId(null)
+      }
       setPage(target)
-      syncUrlToState(target, nextType)
+      syncUrlToState(target, nextType, nextEventId)
     },
-    [syncUrlToState],
+    [syncUrlToState, selectedEventId],
   )
 
   useEffect(() => {
@@ -163,5 +190,6 @@ export function usePageNav() {
     result,
     setResult,
     examType,
+    selectedEventId,
   }
 }

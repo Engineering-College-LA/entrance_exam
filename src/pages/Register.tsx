@@ -22,10 +22,12 @@ export function Register({
   onSubmit,
   onBack,
   examType,
+  selectedEvent,
 }: {
   onSubmit: (form: Record<string, string>) => void
   onBack: () => void
   examType: ExamType
+  selectedEvent?: any
 }) {
   const { t } = useLang()
   const isMobile = useIsMobile()
@@ -140,7 +142,9 @@ export function Register({
                   marginTop: 8,
                 }}
               >
-                {t('openDoor.event.when')}
+                {selectedEvent
+                  ? `${t('landing.title1') === 'Mathematics' ? selectedEvent.date_en : selectedEvent.date_ru}, ${t('landing.title1') === 'Mathematics' ? selectedEvent.time_en : selectedEvent.time_ru}`
+                  : t('openDoor.event.when')}
               </div>
             )}
           </div>
@@ -150,7 +154,7 @@ export function Register({
             icon="ℹ"
             text={
               isOpenDoor
-                ? `${t('register.openDoor.info')} ${t('openDoor.event.when')}`
+                ? `${t('register.openDoor.info')} ${selectedEvent ? `${t('landing.title1') === 'Mathematics' ? selectedEvent.date_en : selectedEvent.date_ru}, ${t('landing.title1') === 'Mathematics' ? selectedEvent.time_en : selectedEvent.time_ru}` : t('openDoor.event.when')}`
                 : isPlacement
                   ? t('register.placement.info')
                   : t('register.info')

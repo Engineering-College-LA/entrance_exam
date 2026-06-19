@@ -124,3 +124,209 @@ select {
 .field-shake {
   animation: shake 0.35s ease both;
 }
+
+/* Custom Header Hover Animations */
+
+/* 1. Website Badge Highlight & Arrow Slide */
+.site-badge {
+  position: relative;
+  overflow: hidden;
+}
+
+.site-badge:hover {
+  border-color: var(--c-accent) !important;
+  color: var(--t-text) !important;
+  box-shadow: 0 0 12px color-mix(in srgb, var(--c-accent) 30%, transparent);
+}
+
+.site-badge:hover .site-arrow {
+  opacity: 1 !important;
+  transform: translate(0, 0) !important;
+  width: 10px !important;
+}
+
+/* 2. Avatar Staggered Reveal on Hover */
+@keyframes avatarBodyReveal {
+  0% {
+    opacity: 0;
+    transform: translateY(4px) scale(0.8);
+  }
+  50% {
+    transform: translateY(-1px) scale(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes avatarHeadReveal {
+  0% {
+    opacity: 0;
+    transform: translateY(6px) scale(0.6);
+  }
+  50% {
+    transform: translateY(-2px) scale(1.1);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.avatar-btn:hover {
+  border-color: var(--c-accent) !important;
+  color: var(--t-text) !important;
+  box-shadow: 0 0 10px color-mix(in srgb, var(--c-accent) 25%, transparent);
+}
+
+.avatar-btn:hover .avatar-body {
+  animation: avatarBodyReveal 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+}
+
+.avatar-btn:hover .avatar-head {
+  animation: avatarHeadReveal 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) 0.08s forwards;
+}
+
+/* 3. Three-Dots Scramble & Snap Back on Hover */
+@keyframes dotTopScramble {
+  0% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(-3px, 2px) scale(0.8);
+  }
+  50% {
+    transform: translate(2px, -3px) scale(1.2);
+  }
+  75% {
+    transform: translate(-1px, 1px) scale(0.9);
+  }
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+}
+
+@keyframes dotMiddleScramble {
+  0% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(3px, -2px) scale(1.2);
+  }
+  50% {
+    transform: translate(-2px, 3px) scale(0.8);
+  }
+  75% {
+    transform: translate(1px, -1px) scale(1.1);
+  }
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+}
+
+@keyframes dotBottomScramble {
+  0% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(-2px, -3px) scale(0.9);
+  }
+  50% {
+    transform: translate(3px, 2px) scale(1.1);
+  }
+  75% {
+    transform: translate(-1px, -1px) scale(0.8);
+  }
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+}
+
+.dots-btn:hover {
+  border-color: var(--c-accent) !important;
+  color: var(--t-text) !important;
+  box-shadow: 0 0 10px color-mix(in srgb, var(--c-accent) 25%, transparent);
+}
+
+.dots-btn:hover .dot-top {
+  animation: dotTopScramble 0.7s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+}
+
+.dots-btn:hover .dot-middle {
+  animation: dotMiddleScramble 0.7s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+}
+
+.dots-btn:hover .dot-bottom {
+  animation: dotBottomScramble 0.7s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+}
+
+/* 4. Live Pulse Dot Animation */
+@keyframes pulse-ping {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--c-accent) 60%, transparent);
+    transform: scale(0.95);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba(0, 0, 0, 0);
+    transform: scale(1.1);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+    transform: scale(0.95);
+  }
+}
+
+.live-pulse {
+  animation: pulse-ping 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* 5. Tooltip Styling */
+.tooltip-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.tooltip-content {
+  position: absolute;
+  bottom: 120%;
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  background: var(--t-navy-mix);
+  color: var(--t-bg);
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.3;
+  white-space: normal;
+  width: max-content;
+  max-width: 220px;
+  text-align: center;
+  border: 1px solid color-mix(in srgb, var(--t-text) 15%, transparent);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s cubic-bezier(0.25, 0.8, 0.25, 1), transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  z-index: 100;
+  backdrop-filter: blur(8px);
+}
+
+.tooltip-container:hover .tooltip-content {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Tooltip caret */
+.tooltip-content::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 5px;
+  border-style: solid;
+  border-color: var(--t-navy-mix) transparent transparent transparent;
+}
+

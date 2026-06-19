@@ -4,6 +4,7 @@ import { ExamCard } from '../components/ExamCard'
 import { useLang } from '../context/LangContext'
 import { useIsMobile } from '../hooks/examHooks'
 import { shouldDisablePlacementStart } from '../lib/placementCache'
+import { MathIcon, EventIcon, FileTextIcon, TargetIcon } from '../components/Icons'
 
 export function SubjectLanding({
   onStartTrial,
@@ -11,15 +12,22 @@ export function SubjectLanding({
   onRegisterOpenDoor,
   isPlacementActive,
   onBack,
+  isRegisteredOpenDoor,
+  events = [],
+  registeredEventIds = [],
 }: {
   onStartTrial: () => void
   onStartPlacement: () => void
-  onRegisterOpenDoor: () => void
+  onRegisterOpenDoor: (eventId?: string) => void
   isPlacementActive: boolean | null
   onBack: () => void
+  isRegisteredOpenDoor: boolean
+  events?: any[]
+  registeredEventIds?: string[]
 }) {
   const { t } = useLang()
   const isMobile = useIsMobile()
+  const isEn = t('landing.title1') === 'Mathematics'
   const [placementCachedOut, setPlacementCachedOut] = useState(
     shouldDisablePlacementStart,
   )
@@ -44,6 +52,7 @@ export function SubjectLanding({
         overflow: 'hidden',
       }}
     >
+      {/* Background patterns */}
       <div
         style={{
           position: 'absolute',
@@ -138,6 +147,7 @@ export function SubjectLanding({
               }}
             >
               <span
+                className="live-pulse"
                 style={{
                   width: 6,
                   height: 6,
@@ -186,11 +196,11 @@ export function SubjectLanding({
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: 18,
+                    color: COLORS.accent,
                     flexShrink: 0,
                   }}
                 >
-                  📝
+                  <FileTextIcon size={20} />
                 </div>
                 <div>
                   <div
@@ -218,11 +228,11 @@ export function SubjectLanding({
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: 18,
+                    color: COLORS.blue,
                     flexShrink: 0,
                   }}
                 >
-                  🎯
+                  <TargetIcon size={20} />
                 </div>
                 <div>
                   <div
@@ -242,7 +252,9 @@ export function SubjectLanding({
               </div>
             </div>
           </div>
+
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            {/* Trial Test Card */}
             <ExamCard
               badge={t('landing.trial.badge')}
               desc={t('landing.trial.desc')}
@@ -251,7 +263,11 @@ export function SubjectLanding({
               ctaLabel={t('landing.trial.cta')}
               onStart={onStartTrial}
               accent={COLORS.accent}
+              icon={<MathIcon size={20} />}
+              variant="primary"
             />
+
+            {/* Placement Test Card */}
             {isPlacementActive && (
               <ExamCard
                 badge={t('landing.placement.badge')}
@@ -268,88 +284,64 @@ export function SubjectLanding({
                 disabledCta={
                   placementCachedOut ? t('landing.placement.cacheCta') : undefined
                 }
+                tooltipText={placementCachedOut ? t('landing.placement.cacheDisabled') : undefined}
+                icon={<TargetIcon size={20} />}
+                variant="primary"
               />
             )}
-            <a
-              onClick={(e) => {
-                e.preventDefault()
-                onRegisterOpenDoor()
-              }}
-              style={{
-                width: '100%',
-                textAlign: 'left',
-                cursor: 'pointer',
-                borderRadius: 10,
-                border: `1px solid rgba(27,140,94,.35)`,
-                background: `linear-gradient(145deg, rgba(27,140,94,.12) 0%, rgba(11,31,58,.4) 100%)`,
-                padding: isMobile ? '18px 18px' : '22px 22px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 14,
-                fontFamily: 'inherit',
-                textDecoration: 'none',
-                color: 'inherit',
-                boxSizing: 'border-box',
-                transition: 'transform .15s, box-shadow .15s',
-              }}
-            >
-              <div
-                style={{
-                  width: 42,
-                  height: 42,
-                  borderRadius: 8,
-                  background: 'rgba(27,140,94,.2)',
-                  border: '1px solid rgba(27,140,94,.35)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: 20,
-                  flexShrink: 0,
-                }}
-              >
-                🚪
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div
-                  style={{
-                    fontWeight: 700,
-                    fontSize: 14,
-                    color: 'var(--t-text)',
-                    marginBottom: 4,
-                  }}
-                >
-                  {t('landing.openDoor.title')}
-                </div>
-                <div
-                  style={{
-                    fontWeight: 600,
-                    fontSize: 13,
-                    color: COLORS.success,
-                    marginBottom: 6,
-                    letterSpacing: 0.2,
-                  }}
-                >
-                  {t('openDoor.event.when')}
-                </div>
-                <div style={{ fontSize: 12, color: 'var(--t-muted)', lineHeight: 1.45 }}>
-                  {t('landing.openDoor.desc')}
-                </div>
-              </div>
-              <span
-                style={{
-                  flexShrink: 0,
-                  fontWeight: 700,
-                  fontSize: 12,
-                  color: COLORS.success,
-                  padding: '8px 14px',
-                  borderRadius: 4,
-                  background: 'rgba(27,140,94,.15)',
-                  border: `1px solid rgba(27,140,94,.4)`,
-                }}
-              >
-                {t('landing.openDoor.cta')}
-              </span>
-            </a>
+
+            {/* Dynamic Events */}
+            {events.length > 0 ? (
+              events.map((event) => {
+                const title = isEn ? event.title_en : event.title_ru
+                const desc = isEn ? event.desc_en : event.desc_ru
+                const date = isEn ? event.date_en : event.date_ru
+                const time = isEn ? event.time_en : event.time_ru
+                const format = isEn ? event.format_en : event.format_ru
+                const req = isEn ? event.req_en : event.req_ru
+                const isRegistered = registeredEventIds.includes(event.id)
+
+                return (
+                  <ExamCard
+                    key={event.id}
+                    badge={title}
+                    desc={desc}
+                    ctaLabel={isRegistered ? (isEn ? 'Registered ✓' : 'Вы записаны ✓') : (isEn ? 'Register' : 'Записаться')}
+                    onStart={isRegistered ? undefined : () => onRegisterOpenDoor(event.id)}
+                    accent={COLORS.success}
+                    icon={<EventIcon size={20} />}
+                    variant={isRegistered ? 'success' : 'secondary'}
+                    showAttempts={false}
+                    statusBadge={isRegistered ? (isEn ? 'Active' : 'Вы участвуете') : undefined}
+                    customRows={[
+                      [t('landing.openDoor.date'), date],
+                      [t('landing.openDoor.time'), time],
+                      [t('landing.card.format'), format],
+                      [t('landing.openDoor.req'), req],
+                    ]}
+                  />
+                )
+              })
+            ) : (
+              /* Project Fest Secondary Card (Fallback) */
+              <ExamCard
+                badge={t('landing.openDoor.title')}
+                desc={t('landing.openDoor.desc')}
+                ctaLabel={isRegisteredOpenDoor ? (isEn ? 'Registered ✓' : 'Вы записаны ✓') : t('landing.openDoor.cta')}
+                onStart={isRegisteredOpenDoor ? undefined : () => onRegisterOpenDoor()}
+                accent={COLORS.success}
+                icon={<EventIcon size={20} />}
+                variant={isRegisteredOpenDoor ? 'success' : 'secondary'}
+                showAttempts={false}
+                statusBadge={isRegisteredOpenDoor ? (isEn ? 'Active' : 'Вы участвуете') : undefined}
+                customRows={[
+                  [t('landing.openDoor.date'), t('landing.openDoor.date.val')],
+                  [t('landing.openDoor.time'), t('landing.openDoor.time.val')],
+                  [t('landing.card.format'), t('landing.openDoor.format.val')],
+                  [t('landing.openDoor.req'), t('landing.openDoor.req.val')],
+                ]}
+              />
+            )}
           </div>
         </div>
       </div>

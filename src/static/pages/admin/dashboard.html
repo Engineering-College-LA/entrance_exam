@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="icon" type="image/png" href="../../assets/app_logo.png" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Inter', system-ui, sans-serif; background: #f0f3f9; color: #1a2535; min-height: 100vh; display: flex; }
@@ -344,6 +345,10 @@
       <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 19V5c0-1.1-.9-2-2-2H7c-1.1 0-2 .9-2 2v14H3v2h18v-2h-2zm-2 0H7V5h10v14zm-8-8h2v6H9v-6zm4 0h2v6h-2v-6zM7 3h10v1H7V3z"/></svg>
       <span id="lbl-nav-open-doors">Project Fest</span>
     </button>
+    <button type="button" class="nav-item" id="nav-tab-events" onclick="setAdminTab('events')" title="Events">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2zm-7 5h5v5h-5z"/></svg>
+      <span id="lbl-nav-events">Events</span>
+    </button>
     <div class="nav-section-label" id="lbl-nav-settings">Settings</div>
     <div class="toggle-row">
       <div class="toggle-label">
@@ -455,6 +460,30 @@
         </div>
       </div>
     </div>
+    </div>
+
+    <!-- Events management (separate tab) -->
+    <div id="panel-events" class="content-panel">
+      <div class="section">
+        <div class="section-header">
+          <div>
+            <span class="section-title" id="lbl-events-section-title">Events</span>
+            <span class="section-count" id="events-count"></span>
+          </div>
+          <div>
+            <button type="button" class="filter-btn active-all" id="btn-add-event" onclick="openEventModal(null)" style="background:#1565c0;color:#fff;border-color:#1565c0;display:inline-flex;align-items:center;gap:6px">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+              <span id="lbl-add-event-btn">Add Event</span>
+            </button>
+          </div>
+        </div>
+        <div id="events-table-container">
+          <div class="spinner-wrap">
+            <div class="spinner"></div>
+            <div style="font-size:13px;color:#6b7a95" id="lbl-loading-events">Loading events…</div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -596,6 +625,125 @@
     </div>
   </div>
 </div>
+
+<!-- Event details/edit/add modal -->
+<div class="modal-overlay hidden" id="event-modal-overlay" onclick="handleEventOverlayClick(event)">
+  <div class="open-door-detail-card" style="max-width: 600px; margin: 0 auto;" role="dialog" aria-modal="true" aria-labelledby="event-modal-title" onclick="event.stopPropagation()">
+    <div class="od-modal-hero">
+      <button type="button" class="od-modal-close" onclick="closeEventModal()" title="Close">✕</button>
+      <div class="od-modal-title" id="event-modal-title">Event</div>
+      <div class="od-modal-sub" id="event-modal-sub">Create or edit event</div>
+    </div>
+    <form id="event-form" onsubmit="saveEvent(event)" style="display:flex; flex-direction:column; gap:12px; padding:20px 22px;">
+      <div style="display:flex; flex-direction:column; gap:12px; max-height: 60vh; overflow-y: auto; padding-right: 6px;">
+        <!-- ID Field -->
+        <div style="display:flex; flex-direction:column; gap:4px;">
+          <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;" id="lbl-ev-id">Event ID / Slug</label>
+          <input type="text" id="ev-id" class="search-input" style="width:100%; height:38px;" required placeholder="e.g. career-guidance-2026" />
+        </div>
+        
+        <!-- Bilingual Title -->
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;" id="lbl-ev-title-ru">Title (RU)</label>
+            <input type="text" id="ev-title-ru" class="search-input" style="width:100%; height:38px;" required />
+          </div>
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;" id="lbl-ev-title-en">Title (EN)</label>
+            <input type="text" id="ev-title-en" class="search-input" style="width:100%; height:38px;" required />
+          </div>
+        </div>
+
+        <!-- Bilingual Description -->
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;" id="lbl-ev-desc-ru">Description (RU)</label>
+            <textarea id="ev-desc-ru" class="search-input" style="width:100%; height:80px; resize:vertical; font-family:inherit; padding:8px 12px;" required></textarea>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;" id="lbl-ev-desc-en">Description (EN)</label>
+            <textarea id="ev-desc-en" class="search-input" style="width:100%; height:80px; resize:vertical; font-family:inherit; padding:8px 12px;" required></textarea>
+          </div>
+        </div>
+
+        <!-- Bilingual Date & Time -->
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+          <!-- Date -->
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;" id="lbl-ev-date-ru">Date (RU)</label>
+            <input type="text" id="ev-date-ru" class="search-input" style="width:100%; height:38px;" required placeholder="e.g. 24 мая" />
+          </div>
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;" id="lbl-ev-date-en">Date (EN)</label>
+            <input type="text" id="ev-date-en" class="search-input" style="width:100%; height:38px;" required placeholder="e.g. 24 May" />
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+          <!-- Time -->
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;" id="lbl-ev-time-ru">Time (RU)</label>
+            <input type="text" id="ev-time-ru" class="search-input" style="width:100%; height:38px;" required placeholder="e.g. 10:30 - 13:30" />
+          </div>
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;" id="lbl-ev-time-en">Time (EN)</label>
+            <input type="text" id="ev-time-en" class="search-input" style="width:100%; height:38px;" required placeholder="e.g. 10:30 - 13:30" />
+          </div>
+        </div>
+
+        <!-- Bilingual Format & Requirements -->
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+          <!-- Format -->
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;" id="lbl-ev-format-ru">Format (RU)</label>
+            <input type="text" id="ev-format-ru" class="search-input" style="width:100%; height:38px;" required placeholder="e.g. Ярмарка проектов" />
+          </div>
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;" id="lbl-ev-format-en">Format (EN)</label>
+            <input type="text" id="ev-format-en" class="search-input" style="width:100%; height:38px;" required placeholder="e.g. Projects Fair" />
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+          <!-- Requirements -->
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;" id="lbl-ev-req-ru">Requirements (RU)</label>
+            <input type="text" id="ev-req-ru" class="search-input" style="width:100%; height:38px;" required placeholder="e.g. Ученик и родитель" />
+          </div>
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;" id="lbl-ev-req-en">Requirements (EN)</label>
+            <input type="text" id="ev-req-en" class="search-input" style="width:100%; height:38px;" required placeholder="e.g. Student & Parent" />
+          </div>
+        </div>
+      </div>
+      
+      <div style="margin-top:16px; border-top:1px solid #f0f3f9; padding-top:14px; display:flex; gap:10px; justify-content:flex-end;">
+        <button type="button" class="od-btn-secondary" onclick="closeEventModal()" id="btn-ev-cancel">Cancel</button>
+        <button type="submit" class="od-btn-secondary" style="background:#1565c0; color:#fff; border-color:#1565c0;" id="btn-ev-submit">Save Event</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Event QR Code Modal -->
+<div class="modal-overlay hidden" id="qr-modal-overlay" onclick="handleQrOverlayClick(event)">
+  <div class="open-door-detail-card" style="max-width: 420px; margin: 0 auto; text-align: center;" role="dialog" aria-modal="true" aria-labelledby="qr-modal-title" onclick="event.stopPropagation()">
+    <div class="od-modal-hero" style="background: linear-gradient(135deg, #1b8c5e 0%, #1565c0 100%); padding: 18px 22px;">
+      <button type="button" class="od-modal-close" onclick="closeQrModal()" title="Close">✕</button>
+      <div class="od-modal-title" id="qr-modal-title">QR Code</div>
+      <div class="od-modal-sub" id="qr-modal-sub">Scan to register for this event</div>
+    </div>
+    <div style="padding: 24px 20px; display: flex; flex-direction: column; align-items: center; gap: 16px;">
+      <div id="qr-code-container" style="background: #ffffff; padding: 16px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); display: inline-block;"></div>
+      <div id="qr-url-text" style="font-family: monospace; font-size: 11px; color: #526a8a; word-break: break-all; width: 100%; padding: 8px; background: #f0f3f9; border-radius: 4px; border: 1px solid #dde3ed; text-align: center;"></div>
+      <div style="display: flex; gap: 8px; width: 100%; justify-content: center; margin-top: 8px;">
+        <button type="button" class="od-btn-secondary" id="btn-qr-download" onclick="downloadQrCode()" style="padding: 10px 20px; font-weight: 600; background: #1565c0; color: #fff; border-color: #1565c0;">Download PNG</button>
+        <button type="button" class="od-btn-secondary" onclick="closeQrModal()" style="padding: 10px 20px;">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="od-copy-toast" id="od-copy-toast" role="status"></div>
 
 <script>
@@ -642,6 +790,31 @@
       "col.correct":        "Correct",
       "col.time":           "Time",
       "col.date":           "Date",
+      "nav.events":         "Events",
+      "events.section.title": "All Events",
+      "events.btn.add":     "Add Event",
+      "events.loading":     "Loading events…",
+      "events.empty.title": "No events yet",
+      "events.empty.desc":  "Create events to show them in the landing page and registration form.",
+      "events.delete.confirm": "Are you sure you want to delete this event? This will not delete registrations associated with it, but their event link will be cleared.",
+      "events.modal.addTitle": "Create New Event",
+      "events.modal.editTitle": "Edit Event",
+      "events.modal.save":  "Save Event",
+      "events.modal.id":    "Event ID / Slug (unique)",
+      "events.modal.titleRu": "Title (RU)",
+      "events.modal.titleEn": "Title (EN)",
+      "events.modal.descRu":  "Description (RU)",
+      "events.modal.descEn":  "Description (EN)",
+      "events.modal.dateRu":  "Date Label (RU)",
+      "events.modal.dateEn":  "Date Label (EN)",
+      "events.modal.timeRu":  "Time Label (RU)",
+      "events.modal.timeEn":  "Time Label (EN)",
+      "events.modal.formatRu": "Format Label (RU)",
+      "events.modal.formatEn": "Format Label (EN)",
+      "events.modal.reqRu":    "Requirements Label (RU)",
+      "events.modal.reqEn":    "Requirements Label (EN)",
+      "col.format":         "Format",
+      "col.req":            "Requirements",
       "type.trial":         "Trial",
       "type.placement":     "Placement",
       "empty.title":        "No applicants yet",
@@ -704,6 +877,31 @@
       "col.correct":        "Верно",
       "col.time":           "Время",
       "col.date":           "Дата",
+      "nav.events":         "Ивенты",
+      "events.section.title": "Все мероприятия",
+      "events.btn.add":     "Добавить ивент",
+      "events.loading":     "Загрузка мероприятий…",
+      "events.empty.title": "Ивентов пока нет",
+      "events.empty.desc":  "Создайте ивенты, чтобы они отображались на главной странице и в форме регистрации.",
+      "events.delete.confirm": "Вы уверены, что хотите удалить этот ивент? Это не удалит регистрации, но связь с этим ивентом сотрется.",
+      "events.modal.addTitle": "Создать новый ивент",
+      "events.modal.editTitle": "Редактировать ивент",
+      "events.modal.save":  "Сохранить",
+      "events.modal.id":    "ID / Код ивента (уникальный)",
+      "events.modal.titleRu": "Название (RU)",
+      "events.modal.titleEn": "Название (EN)",
+      "events.modal.descRu":  "Описание (RU)",
+      "events.modal.descEn":  "Описание (EN)",
+      "events.modal.dateRu":  "Дата (RU)",
+      "events.modal.dateEn":  "Дата (EN)",
+      "events.modal.timeRu":  "Время (RU)",
+      "events.modal.timeEn":  "Время (EN)",
+      "events.modal.formatRu": "Формат (RU)",
+      "events.modal.formatEn": "Формат (EN)",
+      "events.modal.reqRu":    "Требования (RU)",
+      "events.modal.reqEn":    "Требования (EN)",
+      "col.format":         "Формат",
+      "col.req":            "Требования",
       "type.trial":         "Пробный",
       "type.placement":     "Отборочный",
       "empty.title":        "Нет абитуриентов",
@@ -753,21 +951,27 @@
   }
 
   function syncTopbarForActiveTab() {
-    document.getElementById("topbar-title").textContent =
-      activeAdminTab === "openDoors"
-        ? tAdmin("nav.openDoorsParticipants")
-        : tAdmin("topbar.title");
+    let title = tAdmin("topbar.title");
+    if (activeAdminTab === "openDoors") {
+      title = tAdmin("nav.openDoorsParticipants");
+    } else if (activeAdminTab === "events") {
+      title = tAdmin("nav.events");
+    }
+    document.getElementById("topbar-title").textContent = title;
   }
 
   function setAdminTab(tab) {
     activeAdminTab = tab;
     document.getElementById("nav-tab-applicants").classList.toggle("active", tab === "applicants");
     document.getElementById("nav-tab-open-doors").classList.toggle("active", tab === "openDoors");
+    document.getElementById("nav-tab-events").classList.toggle("active", tab === "events");
     document.getElementById("panel-applicants").classList.toggle("visible", tab === "applicants");
     document.getElementById("panel-open-doors").classList.toggle("visible", tab === "openDoors");
+    document.getElementById("panel-events").classList.toggle("visible", tab === "events");
     syncTopbarForActiveTab();
     closeModal();
     closeOpenDoorModal();
+    closeEventModal();
   }
 
   function setAdminLang(lang) {
@@ -790,9 +994,18 @@
     document.getElementById("lbl-nav-main").textContent       = tAdmin("nav.main");
     document.getElementById("lbl-nav-applicants").textContent = tAdmin("nav.applicants");
     document.getElementById("lbl-nav-open-doors").textContent = tAdmin("nav.openDoorsParticipants");
+    const lblNavEvents = document.getElementById("lbl-nav-events");
+    if (lblNavEvents) lblNavEvents.textContent = tAdmin("nav.events");
     document.getElementById("lbl-nav-settings").textContent   = tAdmin("nav.settings");
     document.getElementById("lbl-nav-placement").textContent  = tAdmin("nav.placement");
     document.getElementById("lbl-logout").textContent         = tAdmin("nav.logout");
+    // Events elements
+    const lblEventsSecTitle = document.getElementById("lbl-events-section-title");
+    if (lblEventsSecTitle) lblEventsSecTitle.textContent = tAdmin("events.section.title");
+    const lblAddEventBtn = document.getElementById("lbl-add-event-btn");
+    if (lblAddEventBtn) lblAddEventBtn.textContent = tAdmin("events.btn.add");
+    const lblLoadingEvents = document.getElementById("lbl-loading-events");
+    if (lblLoadingEvents) lblLoadingEvents.textContent = tAdmin("events.loading");
     // Stat labels
     document.getElementById("lbl-stat-total").textContent     = tAdmin("stat.total");
     document.getElementById("lbl-stat-avg").textContent       = tAdmin("stat.avg");
@@ -1037,6 +1250,7 @@
   // ── State ───────────────────────────────────────────────────────────────────
   let allApplicants = [];
   let allOpenDoorRegs = [];
+  let allEvents = [];
   let currentRecord = null;
   let currentOpenDoorRecord = null;
   let activeFilter  = "all";
@@ -1405,6 +1619,7 @@
   function renderAll() {
     renderTable();
     renderOpenDoorSection();
+    renderEventsSection();
   }
 
   // ── Delete ──────────────────────────────────────────────────────────────────
@@ -1608,6 +1823,16 @@
       closeOpenDoorModal();
       return;
     }
+    const ev = document.getElementById("event-modal-overlay");
+    if (ev && !ev.classList.contains("hidden")) {
+      closeEventModal();
+      return;
+    }
+    const qr = document.getElementById("qr-modal-overlay");
+    if (qr && !qr.classList.contains("hidden")) {
+      closeQrModal();
+      return;
+    }
     closeModal();
   });
 
@@ -1710,6 +1935,18 @@
       } else {
         allOpenDoorRegs = (od.data || []).map(normalizeOpenDoorRow);
       }
+
+      const ev = await sb
+        .from("events")
+        .select("id, title_ru, title_en, desc_ru, desc_en, date_ru, date_en, time_ru, time_en, format_ru, format_en, req_ru, req_en, created_at")
+        .order("created_at", { ascending: false });
+
+      if (ev.error) {
+        console.warn("events fetch error:", ev.error.message);
+        allEvents = [];
+      } else {
+        allEvents = ev.data || [];
+      }
     } catch (err) {
       // Network/CSP issue
       const errEl = document.getElementById("alert-error");
@@ -1720,10 +1957,291 @@
       document.getElementById("alert-warn").classList.add("visible");
       allApplicants = loadLocalData();
       allOpenDoorRegs = [];
+      allEvents = [];
     }
 
     await loadPlacementSetting();
     renderAll();
+  }
+
+  // ── Events section logic ───────────────────────────────────────────────────
+  function renderEventsSection() {
+    const container = document.getElementById("events-table-container");
+    const titleEl = document.getElementById("lbl-events-section-title");
+    const countEl = document.getElementById("events-count");
+    if (!container || !titleEl || !countEl) return;
+
+    titleEl.textContent = tAdmin("events.section.title");
+    countEl.textContent = allEvents.length ? (" — " + tAdminFn("records", allEvents.length)) : "";
+
+    if (!allEvents.length) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon">📅</div>
+          <div class="empty-state-title">${tAdmin("events.empty.title")}</div>
+          <div class="empty-state-desc">${tAdmin("events.empty.desc")}</div>
+        </div>`;
+      return;
+    }
+
+    const rows = allEvents.map((r, i) => {
+      const title = adminLang === "ru" ? r.title_ru : r.title_en;
+      const date = adminLang === "ru" ? r.date_ru : r.date_en;
+      const time = adminLang === "ru" ? r.time_ru : r.time_en;
+      const format = adminLang === "ru" ? r.format_ru : r.format_en;
+      const req = adminLang === "ru" ? r.req_ru : r.req_en;
+      const idEnc = encodeURIComponent(r.id);
+      const qrLabel = adminLang === "ru" ? "📱 QR-код" : "📱 QR Code";
+
+      return `
+        <tr class="data-row">
+          <td style="color:#6b7a95;font-weight:600">${i + 1}</td>
+          <td style="font-family:monospace;font-weight:600">${r.id}</td>
+          <td><span style="font-weight:600">${title}</span></td>
+          <td>${date} (${time})</td>
+          <td>${format}</td>
+          <td>${req}</td>
+          <td>
+            <div style="display:flex;gap:6px;justify-content:flex-end">
+              <button type="button" class="od-btn-secondary" style="padding:4px 8px;font-size:11px;background:#e3f2fd;color:#0d47a1;border-color:#bbdefb" onclick="showEventQr('${idEnc}')">${qrLabel}</button>
+              <button type="button" class="od-btn-secondary" style="padding:4px 8px;font-size:11px" onclick="openEventModal('${idEnc}')">✏ Edit</button>
+              <button type="button" class="delete-btn" style="opacity:1;padding:4px 8px;" onclick="deleteEvent('${idEnc}')" title="Delete">✕</button>
+            </div>
+          </td>
+        </tr>`;
+    }).join("");
+
+    container.innerHTML = `
+      <table>
+        <thead><tr>
+          <th>#</th>
+          <th>ID</th>
+          <th>${tAdmin("col.name")}</th>
+          <th>${tAdmin("col.date")}</th>
+          <th>${tAdmin("col.format")}</th>
+          <th>${tAdmin("col.req")}</th>
+          <th></th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+  }
+
+  let editingEventId = null;
+
+  function openEventModal(encodedId) {
+    const id = encodedId ? decodeURIComponent(encodedId) : null;
+    editingEventId = id;
+    
+    // Set bilingual labels
+    document.getElementById("event-modal-title").textContent = id ? tAdmin("events.modal.editTitle") : tAdmin("events.modal.addTitle");
+    document.getElementById("btn-ev-submit").textContent = tAdmin("events.modal.save");
+    
+    // Labels translations
+    document.getElementById("lbl-ev-id").textContent = tAdmin("events.modal.id");
+    document.getElementById("lbl-ev-title-ru").textContent = tAdmin("events.modal.titleRu");
+    document.getElementById("lbl-ev-title-en").textContent = tAdmin("events.modal.titleEn");
+    document.getElementById("lbl-ev-desc-ru").textContent = tAdmin("events.modal.descRu");
+    document.getElementById("lbl-ev-desc-en").textContent = tAdmin("events.modal.descEn");
+    document.getElementById("lbl-ev-date-ru").textContent = tAdmin("events.modal.dateRu");
+    document.getElementById("lbl-ev-date-en").textContent = tAdmin("events.modal.dateEn");
+    document.getElementById("lbl-ev-time-ru").textContent = tAdmin("events.modal.timeRu");
+    document.getElementById("lbl-ev-time-en").textContent = tAdmin("events.modal.timeEn");
+    document.getElementById("lbl-ev-format-ru").textContent = tAdmin("events.modal.formatRu");
+    document.getElementById("lbl-ev-format-en").textContent = tAdmin("events.modal.formatEn");
+    document.getElementById("lbl-ev-req-ru").textContent = tAdmin("events.modal.reqRu");
+    document.getElementById("lbl-ev-req-en").textContent = tAdmin("events.modal.reqEn");
+    document.getElementById("btn-ev-cancel").textContent = adminLang === "ru" ? "Отмена" : "Cancel";
+
+    const idInput = document.getElementById("ev-id");
+
+    if (id) {
+      // Edit mode: find event
+      const ev = allEvents.find(x => x.id === id);
+      if (!ev) return;
+      
+      idInput.value = ev.id;
+      idInput.disabled = true; // cannot change primary key ID
+
+      document.getElementById("ev-title-ru").value = ev.title_ru || "";
+      document.getElementById("ev-title-en").value = ev.title_en || "";
+      document.getElementById("ev-desc-ru").value = ev.desc_ru || "";
+      document.getElementById("ev-desc-en").value = ev.desc_en || "";
+      document.getElementById("ev-date-ru").value = ev.date_ru || "";
+      document.getElementById("ev-date-en").value = ev.date_en || "";
+      document.getElementById("ev-time-ru").value = ev.time_ru || "";
+      document.getElementById("ev-time-en").value = ev.time_en || "";
+      document.getElementById("ev-format-ru").value = ev.format_ru || "";
+      document.getElementById("ev-format-en").value = ev.format_en || "";
+      document.getElementById("ev-req-ru").value = ev.req_ru || "";
+      document.getElementById("ev-req-en").value = ev.req_en || "";
+    } else {
+      // Add mode: reset form
+      idInput.value = "";
+      idInput.disabled = false;
+      
+      document.getElementById("event-form").reset();
+    }
+
+    document.getElementById("event-modal-overlay").classList.remove("hidden");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeEventModal() {
+    document.getElementById("event-modal-overlay").classList.add("hidden");
+    editingEventId = null;
+    const otherOpen = !document.getElementById("modal-overlay").classList.contains("hidden") ||
+                      !document.getElementById("open-door-modal-overlay").classList.contains("hidden");
+    if (!otherOpen) document.body.style.overflow = "";
+  }
+
+  function handleEventOverlayClick(e) {
+    if (e.target.id === "event-modal-overlay") closeEventModal();
+  }
+
+  async function saveEvent(e) {
+    e.preventDefault();
+    
+    // Gather form values
+    const idVal = document.getElementById("ev-id").value.trim();
+    const titleRu = document.getElementById("ev-title-ru").value.trim();
+    const titleEn = document.getElementById("ev-title-en").value.trim();
+    const descRu = document.getElementById("ev-desc-ru").value.trim();
+    const descEn = document.getElementById("ev-desc-en").value.trim();
+    const dateRu = document.getElementById("ev-date-ru").value.trim();
+    const dateEn = document.getElementById("ev-date-en").value.trim();
+    const timeRu = document.getElementById("ev-time-ru").value.trim();
+    const timeEn = document.getElementById("ev-time-en").value.trim();
+    const formatRu = document.getElementById("ev-format-ru").value.trim();
+    const formatEn = document.getElementById("ev-format-en").value.trim();
+    const reqRu = document.getElementById("ev-req-ru").value.trim();
+    const reqEn = document.getElementById("ev-req-en").value.trim();
+
+    if (!idVal) {
+      alert("ID is required");
+      return;
+    }
+
+    const payload = {
+      id: idVal,
+      title_ru: titleRu,
+      title_en: titleEn,
+      desc_ru: descRu,
+      desc_en: descEn,
+      date_ru: dateRu,
+      date_en: dateEn,
+      time_ru: timeRu,
+      time_en: timeEn,
+      format_ru: formatRu,
+      format_en: formatEn,
+      req_ru: reqRu,
+      req_en: reqEn
+    };
+
+    try {
+      const sb = await getSB();
+      const { error } = await sb.from("events").upsert(payload);
+
+      if (error) {
+        alert("Error saving event: " + error.message);
+        return;
+      }
+
+      // Close modal
+      closeEventModal();
+      
+      // Reload from Supabase
+      const { data, error: fetchErr } = await sb
+        .from("events")
+        .select("id, title_ru, title_en, desc_ru, desc_en, date_ru, date_en, time_ru, time_en, format_ru, format_en, req_ru, req_en, created_at")
+        .order("created_at", { ascending: false });
+      
+      if (!fetchErr) {
+        allEvents = data || [];
+        renderAll();
+      }
+    } catch (err) {
+      alert("Exception occurred: " + (err.message || err));
+    }
+  }
+
+  async function deleteEvent(encodedId) {
+    const id = decodeURIComponent(encodedId);
+    if (!confirm(tAdmin("events.delete.confirm"))) return;
+
+    try {
+      const sb = await getSB();
+      const { error } = await sb.from("events").delete().eq("id", id);
+
+      if (error) {
+        alert("Error deleting event: " + error.message);
+        return;
+      }
+
+      allEvents = allEvents.filter(x => x.id !== id);
+      renderAll();
+    } catch (err) {
+      alert("Exception: " + (err.message || err));
+    }
+  }
+
+  let qrGenerator = null;
+  let currentQrEventId = "";
+
+  function showEventQr(encodedId) {
+    const id = decodeURIComponent(encodedId);
+    currentQrEventId = id;
+    
+    // Determine target registration URL
+    const origin = window.location.origin;
+    const targetUrl = `${origin}/open_doors?event=${encodeURIComponent(id)}`;
+
+    // Set modal title and details
+    const ev = allEvents.find(x => x.id === id);
+    const title = ev ? (adminLang === "ru" ? ev.title_ru : ev.title_en) : id;
+    
+    document.getElementById("qr-modal-title").textContent = adminLang === "ru" ? "QR-код регистрации" : "Registration QR Code";
+    document.getElementById("qr-modal-sub").textContent = title;
+    document.getElementById("qr-url-text").textContent = targetUrl;
+    document.getElementById("btn-qr-download").textContent = adminLang === "ru" ? "Скачать PNG" : "Download PNG";
+
+    // Clear previous QR code
+    const qrContainer = document.getElementById("qr-code-container");
+    qrContainer.innerHTML = "";
+
+    // Generate new QR code using qrcodejs
+    qrGenerator = new QRCode(qrContainer, {
+      text: targetUrl,
+      width: 200,
+      height: 200,
+      colorDark : "#0b1f3a",
+      colorLight : "#ffffff",
+      correctLevel : QRCode.CorrectLevel.H
+    });
+
+    document.getElementById("qr-modal-overlay").classList.remove("hidden");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeQrModal() {
+    document.getElementById("qr-modal-overlay").classList.add("hidden");
+    const otherOpen = !document.getElementById("modal-overlay").classList.contains("hidden") ||
+                      !document.getElementById("open-door-modal-overlay").classList.contains("hidden") ||
+                      !document.getElementById("event-modal-overlay").classList.contains("hidden");
+    if (!otherOpen) document.body.style.overflow = "";
+    qrGenerator = null;
+  }
+
+  function handleQrOverlayClick(e) {
+    if (e.target.id === "qr-modal-overlay") closeQrModal();
+  }
+
+  function downloadQrCode() {
+    const img = document.querySelector("#qr-code-container img");
+    if (!img || !img.src) return;
+    const link = document.createElement("a");
+    link.download = `event_${currentQrEventId}_qr.png`;
+    link.href = img.src;
+    link.click();
   }
 
   window.openOpenDoorModal = openOpenDoorModal;
@@ -1731,6 +2249,15 @@
   window.copyOpenDoorPhone = copyOpenDoorPhone;
   window.deleteOpenDoorFromModal = deleteOpenDoorFromModal;
   window.handleOpenDoorOverlayClick = handleOpenDoorOverlayClick;
+  window.openEventModal = openEventModal;
+  window.closeEventModal = closeEventModal;
+  window.saveEvent = saveEvent;
+  window.deleteEvent = deleteEvent;
+  window.handleEventOverlayClick = handleEventOverlayClick;
+  window.showEventQr = showEventQr;
+  window.closeQrModal = closeQrModal;
+  window.handleQrOverlayClick = handleQrOverlayClick;
+  window.downloadQrCode = downloadQrCode;
 
   renderUI();
   init();
