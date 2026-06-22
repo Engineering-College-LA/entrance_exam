@@ -345,10 +345,7 @@
       <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 19V5c0-1.1-.9-2-2-2H7c-1.1 0-2 .9-2 2v14H3v2h18v-2h-2zm-2 0H7V5h10v14zm-8-8h2v6H9v-6zm4 0h2v6h-2v-6zM7 3h10v1H7V3z"/></svg>
       <span id="lbl-nav-open-doors">Project Fest</span>
     </button>
-    <button type="button" class="nav-item" id="nav-tab-events" onclick="setAdminTab('events')" title="Events">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2zm-7 5h5v5h-5z"/></svg>
-      <span id="lbl-nav-events">Events</span>
-    </button>
+
     <div class="nav-section-label" id="lbl-nav-settings">Settings</div>
     <div class="toggle-row">
       <div class="toggle-label">
@@ -445,26 +442,10 @@
     </div>
 
     <!-- Open doors participants (separate tab) -->
+    <!-- Open doors participants (Project Fest merged tab) -->
     <div id="panel-open-doors" class="content-panel">
-    <div class="section">
-      <div class="section-header">
-        <div>
-          <span class="section-title" id="lbl-open-door-section-title">Project Fest registrations</span>
-          <span class="section-count" id="open-door-count"></span>
-        </div>
-      </div>
-      <div id="open-door-table-container">
-        <div class="spinner-wrap">
-          <div class="spinner"></div>
-          <div style="font-size:13px;color:#6b7a95">Loading…</div>
-        </div>
-      </div>
-    </div>
-    </div>
-
-    <!-- Events management (separate tab) -->
-    <div id="panel-events" class="content-panel">
-      <div class="section">
+      <!-- Events Section -->
+      <div class="section" style="margin-bottom: 24px;">
         <div class="section-header">
           <div>
             <span class="section-title" id="lbl-events-section-title">Events</span>
@@ -713,7 +694,11 @@
           <div style="display:flex; flex-direction:column; gap:4px;">
             <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;" id="lbl-ev-req-en">Requirements (EN)</label>
             <input type="text" id="ev-req-en" class="search-input" style="width:100%; height:38px;" required placeholder="e.g. Student & Parent" />
-          </div>
+        </div>
+        <!-- Hide Event Checkbox -->
+        <div style="display:flex; align-items:center; gap:8px; margin-top:8px;">
+          <input type="checkbox" id="ev-hidden" style="width:16px; height:16px; cursor:pointer;" />
+          <label for="ev-hidden" style="font-size:12px; font-weight:600; color:#1a2535; cursor:pointer;" id="lbl-ev-hidden">Hide from main page</label>
         </div>
       </div>
       
@@ -740,6 +725,25 @@
         <button type="button" class="od-btn-secondary" id="btn-qr-download" onclick="downloadQrCode()" style="padding: 10px 20px; font-weight: 600; background: #1565c0; color: #fff; border-color: #1565c0;">Download PNG</button>
         <button type="button" class="od-btn-secondary" onclick="closeQrModal()" style="padding: 10px 20px;">Close</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Event Registrations List Modal -->
+<div class="modal-overlay hidden" id="event-regs-modal-overlay" onclick="handleEventRegsOverlayClick(event)">
+  <div class="open-door-detail-card" style="max-width: 680px; margin: 0 auto;" role="dialog" aria-modal="true" aria-labelledby="event-regs-modal-title" onclick="event.stopPropagation()">
+    <div class="od-modal-hero">
+      <button type="button" class="od-modal-close" onclick="closeEventRegsModal()" title="Close">✕</button>
+      <div class="od-modal-title" id="event-regs-modal-title">Event Registrations</div>
+      <div class="od-modal-sub" id="event-regs-modal-sub">List of registered participants</div>
+    </div>
+    <div class="od-detail-body" style="padding: 20px 22px; max-height: 60vh; overflow-y: auto;">
+      <div id="event-regs-table-container">
+        <!-- Rendered list of participants will go here -->
+      </div>
+    </div>
+    <div class="od-modal-footer">
+      <button type="button" class="od-btn-secondary" onclick="closeEventRegsModal()">Close</button>
     </div>
   </div>
 </div>
@@ -813,6 +817,7 @@
       "events.modal.formatEn": "Format Label (EN)",
       "events.modal.reqRu":    "Requirements Label (RU)",
       "events.modal.reqEn":    "Requirements Label (EN)",
+      "events.modal.hidden":   "Hide from main page",
       "col.format":         "Format",
       "col.req":            "Requirements",
       "type.trial":         "Trial",
@@ -900,6 +905,7 @@
       "events.modal.formatEn": "Формат (EN)",
       "events.modal.reqRu":    "Требования (RU)",
       "events.modal.reqEn":    "Требования (EN)",
+      "events.modal.hidden":   "Скрыть с главной страницы",
       "col.format":         "Формат",
       "col.req":            "Требования",
       "type.trial":         "Пробный",
@@ -954,8 +960,6 @@
     let title = tAdmin("topbar.title");
     if (activeAdminTab === "openDoors") {
       title = tAdmin("nav.openDoorsParticipants");
-    } else if (activeAdminTab === "events") {
-      title = tAdmin("nav.events");
     }
     document.getElementById("topbar-title").textContent = title;
   }
@@ -964,10 +968,8 @@
     activeAdminTab = tab;
     document.getElementById("nav-tab-applicants").classList.toggle("active", tab === "applicants");
     document.getElementById("nav-tab-open-doors").classList.toggle("active", tab === "openDoors");
-    document.getElementById("nav-tab-events").classList.toggle("active", tab === "events");
     document.getElementById("panel-applicants").classList.toggle("visible", tab === "applicants");
     document.getElementById("panel-open-doors").classList.toggle("visible", tab === "openDoors");
-    document.getElementById("panel-events").classList.toggle("visible", tab === "events");
     syncTopbarForActiveTab();
     closeModal();
     closeOpenDoorModal();
@@ -1048,6 +1050,14 @@
     currentOpenDoorRecord = r;
     closeModal();
 
+    const evRegs = document.getElementById("event-regs-modal-overlay");
+    if (evRegs && !evRegs.classList.contains("hidden")) {
+      evRegs.classList.add("hidden");
+      wasEventRegsOpen = true;
+    } else {
+      wasEventRegsOpen = false;
+    }
+
     document.getElementById("od-modal-title").textContent = tAdmin("openDoor.modal.title");
     document.getElementById("od-modal-sub").textContent = tAdmin("openDoor.modal.sub");
     document.getElementById("od-lbl-student").textContent = tAdmin("openDoor.modal.student");
@@ -1085,8 +1095,14 @@
   function closeOpenDoorModal() {
     document.getElementById("open-door-modal-overlay").classList.add("hidden");
     currentOpenDoorRecord = null;
-    const examOpen = !document.getElementById("modal-overlay").classList.contains("hidden");
-    if (!examOpen) document.body.style.overflow = "";
+    if (wasEventRegsOpen) {
+      document.getElementById("event-regs-modal-overlay").classList.remove("hidden");
+      wasEventRegsOpen = false;
+      document.body.style.overflow = "hidden";
+    } else {
+      const examOpen = !document.getElementById("modal-overlay").classList.contains("hidden");
+      if (!examOpen) document.body.style.overflow = "";
+    }
   }
 
   function handleOpenDoorOverlayClick(e) {
@@ -1254,6 +1270,8 @@
   let currentRecord = null;
   let currentOpenDoorRecord = null;
   let activeFilter  = "all";
+  let activeEventRegsId = null;
+  let wasEventRegsOpen = false;
   /** null = keep source order (e.g. by date); "desc" = highest score first; "asc" = lowest first */
   let scoreSortOrder = null;
   /** null = show all dates; "YYYY-MM-DD" = specific day */
@@ -1444,6 +1462,7 @@
       attended: r.attended || "",
       lang: r.lang || "ru",
       registeredAt: r.registered_at || "",
+      eventId: r.event_id || null,
     };
   }
 
@@ -1567,58 +1586,8 @@
       </table>`;
   }
 
-  function renderOpenDoorSection() {
-    const container = document.getElementById("open-door-table-container");
-    const titleEl = document.getElementById("lbl-open-door-section-title");
-    const countEl = document.getElementById("open-door-count");
-    if (!container || !titleEl || !countEl) return;
-    titleEl.textContent = tAdmin("section.openDoorTitle");
-    countEl.textContent = allOpenDoorRegs.length ? (" — " + tAdminFn("records", allOpenDoorRegs.length)) : "";
-
-    if (!allOpenDoorRegs.length) {
-      container.innerHTML = `
-        <div class="empty-state">
-          <div class="empty-state-icon">🚪</div>
-          <div class="empty-state-title">${tAdmin("openDoor.empty.title")}</div>
-          <div class="empty-state-desc">${tAdmin("openDoor.empty.desc")}</div>
-        </div>`;
-      return;
-    }
-
-    const rows = allOpenDoorRegs.map((r, i) => {
-      const idEnc = encodeURIComponent(String(r.id));
-      return `
-        <tr class="data-row data-row-od" data-open-door-id="${idEnc}">
-          <td style="color:#6b7a95;font-weight:600">${i + 1}</td>
-          <td><span style="font-weight:600">${r.firstName} ${r.lastName}</span></td>
-          <td style="color:#526a8a">${r.phone || "—"}</td>
-          <td style="font-weight:600;color:#0b1f3a">${r.grade || "—"}</td>
-          <td>${r.parentName || "—"}</td>
-          <td style="color:#526a8a">${r.parentPhone || "—"}</td>
-          <td style="color:#6b7a95;font-size:12px">${formatDate(r.registeredAt)}</td>
-          <td><button type="button" class="delete-btn" style="opacity:1" data-od-delete-id="${idEnc}" title="Delete">✕</button></td>
-        </tr>`;
-    }).join("");
-
-    container.innerHTML = `
-      <table>
-        <thead><tr>
-          <th>#</th>
-          <th>${tAdmin("col.name")}</th>
-          <th>${tAdmin("col.phone")}</th>
-          <th>${tAdmin("col.grade")}</th>
-          <th>${tAdmin("openDoor.col.parent")}</th>
-          <th>${tAdmin("openDoor.col.parentPhone")}</th>
-          <th>${tAdmin("openDoor.col.date")}</th>
-          <th></th>
-        </tr></thead>
-        <tbody>${rows}</tbody>
-      </table>`;
-  }
-
   function renderAll() {
     renderTable();
-    renderOpenDoorSection();
     renderEventsSection();
   }
 
@@ -1650,31 +1619,12 @@
       await sb.from("open_door_registrations").delete().eq("id", sid);
     } catch(e) {}
     renderAll();
+    if (activeEventRegsId) {
+      showEventRegistrations(activeEventRegsId);
+    }
   }
 
-  function setupOpenDoorTableDelegation() {
-    const wrap = document.getElementById("open-door-table-container");
-    if (!wrap || wrap.dataset.odDelegated === "1") return;
-    wrap.dataset.odDelegated = "1";
-    wrap.addEventListener("click", (ev) => {
-      const delBtn = ev.target.closest("button[data-od-delete-id]");
-      if (delBtn) {
-        ev.preventDefault();
-        ev.stopPropagation();
-        const enc = delBtn.getAttribute("data-od-delete-id");
-        if (enc == null) return;
-        void deleteOpenDoorRecord(decodeURIComponent(enc));
-        return;
-      }
-      const row = ev.target.closest("tr[data-open-door-id]");
-      if (!row || !wrap.contains(row)) return;
-      const enc = row.getAttribute("data-open-door-id");
-      if (enc == null || enc === "") return;
-      openOpenDoorModal(decodeURIComponent(enc));
-    });
-  }
 
-  setupOpenDoorTableDelegation();
 
   async function clearAllData() {
     if (!confirm(tAdmin("clear.confirm"))) return;
@@ -1833,6 +1783,11 @@
       closeQrModal();
       return;
     }
+    const evRegs = document.getElementById("event-regs-modal-overlay");
+    if (evRegs && !evRegs.classList.contains("hidden")) {
+      closeEventRegsModal();
+      return;
+    }
     closeModal();
   });
 
@@ -1926,7 +1881,7 @@
 
       const od = await sb
         .from("open_door_registrations")
-        .select("id, first_name, last_name, phone, grade, parent_phone, parent_name, attended, lang, registered_at")
+        .select("id, first_name, last_name, phone, grade, parent_phone, parent_name, attended, lang, registered_at, event_id")
         .order("registered_at", { ascending: false });
 
       if (od.error) {
@@ -1972,40 +1927,43 @@
     if (!container || !titleEl || !countEl) return;
 
     titleEl.textContent = tAdmin("events.section.title");
-    countEl.textContent = allEvents.length ? (" — " + tAdminFn("records", allEvents.length)) : "";
+    countEl.textContent = " — " + tAdminFn("records", allEvents.length);
 
-    if (!allEvents.length) {
-      container.innerHTML = `
-        <div class="empty-state">
-          <div class="empty-state-icon">📅</div>
-          <div class="empty-state-title">${tAdmin("events.empty.title")}</div>
-          <div class="empty-state-desc">${tAdmin("events.empty.desc")}</div>
-        </div>`;
-      return;
-    }
+    const qrLabel = adminLang === "ru" ? "📱 QR-код" : "📱 QR Code";
 
     const rows = allEvents.map((r, i) => {
+      const isHidden = r.format_en && r.format_en.endsWith("__hidden");
       const title = adminLang === "ru" ? r.title_ru : r.title_en;
       const date = adminLang === "ru" ? r.date_ru : r.date_en;
       const time = adminLang === "ru" ? r.time_ru : r.time_en;
-      const format = adminLang === "ru" ? r.format_ru : r.format_en;
+      let format = adminLang === "ru" ? r.format_ru : r.format_en;
+      if (isHidden) {
+        format = format.replace(/__hidden$/, "");
+      }
       const req = adminLang === "ru" ? r.req_ru : r.req_en;
       const idEnc = encodeURIComponent(r.id);
-      const qrLabel = adminLang === "ru" ? "📱 QR-код" : "📱 QR Code";
+
+      const badgeText = adminLang === "ru" ? "Скрыто" : "Hidden";
+      const hiddenBadge = isHidden ? ` <span class="badge" style="background:#fdecea;color:#c0392b;border:1px solid #f5c6c2;font-size:10px;padding:1px 5px;margin-left:5px;">${badgeText}</span>` : "";
+
+      // Special highlight/QR generation target for project-fest (which is now regular DB event)
+      const qrBtn = r.id === 'project-fest' 
+        ? `<button type="button" class="od-btn-secondary" style="padding:4px 8px;font-size:11px;background:#e8f5e9;color:#2e7d32;border-color:#c8e6c9" onclick="event.stopPropagation(); showProjectFestQr()">${qrLabel}</button>`
+        : `<button type="button" class="od-btn-secondary" style="padding:4px 8px;font-size:11px;background:#e3f2fd;color:#0d47a1;border-color:#bbdefb" onclick="event.stopPropagation(); showEventQr('${idEnc}')">${qrLabel}</button>`;
 
       return `
-        <tr class="data-row">
+        <tr class="data-row" style="cursor: pointer; ${r.id === 'project-fest' ? 'background: rgba(27, 140, 94, 0.02);' : ''}" onclick="showEventRegistrations('${idEnc}')">
           <td style="color:#6b7a95;font-weight:600">${i + 1}</td>
           <td style="font-family:monospace;font-weight:600">${r.id}</td>
-          <td><span style="font-weight:600">${title}</span></td>
+          <td><span style="font-weight:600">${title}</span>${hiddenBadge}</td>
           <td>${date} (${time})</td>
           <td>${format}</td>
           <td>${req}</td>
           <td>
             <div style="display:flex;gap:6px;justify-content:flex-end">
-              <button type="button" class="od-btn-secondary" style="padding:4px 8px;font-size:11px;background:#e3f2fd;color:#0d47a1;border-color:#bbdefb" onclick="showEventQr('${idEnc}')">${qrLabel}</button>
-              <button type="button" class="od-btn-secondary" style="padding:4px 8px;font-size:11px" onclick="openEventModal('${idEnc}')">✏ Edit</button>
-              <button type="button" class="delete-btn" style="opacity:1;padding:4px 8px;" onclick="deleteEvent('${idEnc}')" title="Delete">✕</button>
+              ${qrBtn}
+              <button type="button" class="od-btn-secondary" style="padding:4px 8px;font-size:11px" onclick="event.stopPropagation(); openEventModal('${idEnc}')">✏ Edit</button>
+              <button type="button" class="delete-btn" style="opacity:1;padding:4px 8px;" onclick="event.stopPropagation(); deleteEvent('${idEnc}')" title="Delete">✕</button>
             </div>
           </td>
         </tr>`;
@@ -2050,6 +2008,7 @@
     document.getElementById("lbl-ev-format-en").textContent = tAdmin("events.modal.formatEn");
     document.getElementById("lbl-ev-req-ru").textContent = tAdmin("events.modal.reqRu");
     document.getElementById("lbl-ev-req-en").textContent = tAdmin("events.modal.reqEn");
+    document.getElementById("lbl-ev-hidden").textContent = tAdmin("events.modal.hidden");
     document.getElementById("btn-ev-cancel").textContent = adminLang === "ru" ? "Отмена" : "Cancel";
 
     const idInput = document.getElementById("ev-id");
@@ -2070,16 +2029,28 @@
       document.getElementById("ev-date-en").value = ev.date_en || "";
       document.getElementById("ev-time-ru").value = ev.time_ru || "";
       document.getElementById("ev-time-en").value = ev.time_en || "";
-      document.getElementById("ev-format-ru").value = ev.format_ru || "";
-      document.getElementById("ev-format-en").value = ev.format_en || "";
       document.getElementById("ev-req-ru").value = ev.req_ru || "";
       document.getElementById("ev-req-en").value = ev.req_en || "";
+
+      // Check for hidden flag inside format_en
+      const isHidden = ev.format_en && ev.format_en.endsWith("__hidden");
+      document.getElementById("ev-hidden").checked = isHidden;
+
+      let fmtRu = ev.format_ru || "";
+      let fmtEn = ev.format_en || "";
+      if (isHidden) {
+        fmtRu = fmtRu.replace(/__hidden$/, "");
+        fmtEn = fmtEn.replace(/__hidden$/, "");
+      }
+      document.getElementById("ev-format-ru").value = fmtRu;
+      document.getElementById("ev-format-en").value = fmtEn;
     } else {
       // Add mode: reset form
       idInput.value = "";
       idInput.disabled = false;
       
       document.getElementById("event-form").reset();
+      document.getElementById("ev-hidden").checked = false;
     }
 
     document.getElementById("event-modal-overlay").classList.remove("hidden");
@@ -2111,14 +2082,23 @@
     const dateEn = document.getElementById("ev-date-en").value.trim();
     const timeRu = document.getElementById("ev-time-ru").value.trim();
     const timeEn = document.getElementById("ev-time-en").value.trim();
-    const formatRu = document.getElementById("ev-format-ru").value.trim();
-    const formatEn = document.getElementById("ev-format-en").value.trim();
+    let formatRu = document.getElementById("ev-format-ru").value.trim();
+    let formatEn = document.getElementById("ev-format-en").value.trim();
     const reqRu = document.getElementById("ev-req-ru").value.trim();
     const reqEn = document.getElementById("ev-req-en").value.trim();
 
     if (!idVal) {
       alert("ID is required");
       return;
+    }
+
+    const isHidden = document.getElementById("ev-hidden").checked;
+    if (isHidden) {
+      if (!formatRu.endsWith("__hidden")) formatRu += "__hidden";
+      if (!formatEn.endsWith("__hidden")) formatEn += "__hidden";
+    } else {
+      formatRu = formatRu.replace(/__hidden$/, "");
+      formatEn = formatEn.replace(/__hidden$/, "");
     }
 
     const payload = {
@@ -2222,6 +2202,32 @@
     document.body.style.overflow = "hidden";
   }
 
+  function showProjectFestQr() {
+    currentQrEventId = "project-fest";
+    const origin = window.location.origin;
+    const targetUrl = `${origin}/open_doors`;
+
+    document.getElementById("qr-modal-title").textContent = adminLang === "ru" ? "QR-код регистрации" : "Registration QR Code";
+    document.getElementById("qr-modal-sub").textContent = "Project Fest";
+    document.getElementById("qr-url-text").textContent = targetUrl;
+    document.getElementById("btn-qr-download").textContent = adminLang === "ru" ? "Скачать PNG" : "Download PNG";
+
+    const qrContainer = document.getElementById("qr-code-container");
+    qrContainer.innerHTML = "";
+
+    qrGenerator = new QRCode(qrContainer, {
+      text: targetUrl,
+      width: 200,
+      height: 200,
+      colorDark : "#0b1f3a",
+      colorLight : "#ffffff",
+      correctLevel : QRCode.CorrectLevel.H
+    });
+
+    document.getElementById("qr-modal-overlay").classList.remove("hidden");
+    document.body.style.overflow = "hidden";
+  }
+
   function closeQrModal() {
     document.getElementById("qr-modal-overlay").classList.add("hidden");
     const otherOpen = !document.getElementById("modal-overlay").classList.contains("hidden") ||
@@ -2233,6 +2239,69 @@
 
   function handleQrOverlayClick(e) {
     if (e.target.id === "qr-modal-overlay") closeQrModal();
+  }
+
+  function showEventRegistrations(encodedId) {
+    const id = encodedId ? decodeURIComponent(encodedId) : null;
+    activeEventRegsId = id;
+    const isPF = id === "project-fest" || !id;
+    
+    // Filter registrations
+    const filtered = allOpenDoorRegs.filter(r => isPF ? !r.eventId : r.eventId === id);
+    
+    // Set modal text
+    const lang = adminLang;
+    const title = isPF 
+      ? (lang === "ru" ? "Зарегистрированные на Project Fest" : "Registered for Project Fest")
+      : (lang === "ru" ? "Зарегистрированные на мероприятие" : "Registered for event");
+      
+    const ev = isPF ? null : allEvents.find(x => x.id === id);
+    const sub = ev ? (lang === "ru" ? ev.title_ru : ev.title_en) : (isPF ? "Project Fest" : id);
+    
+    document.getElementById("event-regs-modal-title").textContent = title;
+    document.getElementById("event-regs-modal-sub").textContent = sub;
+    
+    const container = document.getElementById("event-regs-table-container");
+    if (filtered.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state" style="padding: 24px 0;">
+          <div class="empty-state-title">${lang === "ru" ? "Нет регистраций" : "No registrations yet"}</div>
+        </div>`;
+    } else {
+      const rows = filtered.map((r, i) => {
+        return `
+          <tr class="data-row data-row-od" style="cursor: pointer;" onclick="openOpenDoorModal('${r.id}')">
+            <td style="color:#6b7a95;font-weight:600;width:50px;">${i + 1}</td>
+            <td><span style="font-weight:600">${r.firstName} ${r.lastName}</span></td>
+          </tr>`;
+      }).join("");
+      
+      container.innerHTML = `
+        <table>
+          <thead><tr>
+            <th style="width:50px;">#</th>
+            <th>${tAdmin("col.name")}</th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>`;
+    }
+    
+    document.getElementById("event-regs-modal-overlay").classList.remove("hidden");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeEventRegsModal() {
+    document.getElementById("event-regs-modal-overlay").classList.add("hidden");
+    activeEventRegsId = null;
+    const otherOpen = !document.getElementById("modal-overlay").classList.contains("hidden") ||
+                      !document.getElementById("open-door-modal-overlay").classList.contains("hidden") ||
+                      !document.getElementById("event-modal-overlay").classList.contains("hidden") ||
+                      !document.getElementById("qr-modal-overlay").classList.contains("hidden");
+    if (!otherOpen) document.body.style.overflow = "";
+  }
+
+  function handleEventRegsOverlayClick(e) {
+    if (e.target.id === "event-regs-modal-overlay") closeEventRegsModal();
   }
 
   function downloadQrCode() {
@@ -2255,9 +2324,13 @@
   window.deleteEvent = deleteEvent;
   window.handleEventOverlayClick = handleEventOverlayClick;
   window.showEventQr = showEventQr;
+  window.showProjectFestQr = showProjectFestQr;
   window.closeQrModal = closeQrModal;
   window.handleQrOverlayClick = handleQrOverlayClick;
   window.downloadQrCode = downloadQrCode;
+  window.showEventRegistrations = showEventRegistrations;
+  window.closeEventRegsModal = closeEventRegsModal;
+  window.handleEventRegsOverlayClick = handleEventRegsOverlayClick;
 
   renderUI();
   init();

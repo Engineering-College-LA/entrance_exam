@@ -41,7 +41,7 @@ function AppInner() {
   const [isPlacementActive, setIsPlacementActive] = useState<boolean | null>(null)
   const [isRegisteredOpenDoor, setIsRegisteredOpenDoor] = useState(() => {
     if (typeof window === 'undefined') return false
-    return localStorage.getItem('project_fest_registered') === 'true'
+    return localStorage.getItem('project_fest_registered') === 'true' || localStorage.getItem('registered_event_project-fest') === 'true'
   })
   const [events, setEvents] = useState<any[]>([])
   const [registeredEventIds, setRegisteredEventIds] = useState<string[]>(() => {
@@ -136,6 +136,10 @@ function AppInner() {
         if (nav.selectedEventId) {
           localStorage.setItem(`registered_event_${nav.selectedEventId}`, 'true')
           setRegisteredEventIds(prev => [...prev, nav.selectedEventId!])
+          if (nav.selectedEventId === 'project-fest') {
+            localStorage.setItem('project_fest_registered', 'true')
+            setIsRegisteredOpenDoor(true)
+          }
         } else {
           localStorage.setItem('project_fest_registered', 'true')
           setIsRegisteredOpenDoor(true)
