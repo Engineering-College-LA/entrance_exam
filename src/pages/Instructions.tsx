@@ -122,6 +122,32 @@ export function Instructions({
         {EXAM_RULES.map((r) => (
           <RuleCard key={r.titleKey} {...r} />
         ))}
+        <div
+          style={{
+            ...Styles.card,
+            border: '1px solid #ef4444',
+            background: 'rgba(254,226,226,0.8)',
+            color: '#991b1b',
+            padding: 18,
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: 12,
+            boxShadow: 'none',
+          }}
+        >
+          <div
+            style={{
+              fontSize: 18,
+              lineHeight: 1,
+              marginTop: 2,
+            }}
+          >
+            ⚠️
+          </div>
+          <div style={{ fontSize: 13, fontWeight: 700, lineHeight: 1.6 }}>
+            Запрещено сворачивать окно или переключаться между вкладками браузера. Это приведёт к автоматическому завершению экзамена.
+          </div>
+        </div>
       </div>
       <div
         style={{
