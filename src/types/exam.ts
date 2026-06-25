@@ -6,6 +6,7 @@ export type ExamQuestion = {
   opts: string[]
   optsRu?: string[]
   correct: number
+  exam_type?: string
 }
 
 export type RegistrationField = {
@@ -36,4 +37,4 @@ export type PageId =
   | 'openDoorThanks'
   | 'subject'
 
-export type ExamType = 'trial' | 'placement' | 'openDoor'
+export type ExamType = string

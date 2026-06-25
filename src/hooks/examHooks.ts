@@ -129,6 +129,10 @@ export function usePageNav() {
   const [examType, setExamType] = useState<ExamType>(initial.examType)
   const examTypeRef = useRef<ExamType>(initial.examType)
 
+  const [subject, setSubject] = useState<string | null>(() => {
+    return initial.subject || 'math'
+  })
+
   useEffect(() => {
     examTypeRef.current = examType
   }, [examType])
@@ -139,9 +143,9 @@ export function usePageNav() {
     return params.get('event') || params.get('eventId')
   })
 
-  const syncUrlToState = useCallback((p: PageId, nextType: ExamType, eventId?: string | null) => {
+  const syncUrlToState = useCallback((p: PageId, nextType: ExamType, eventId?: string | null, nextSubject?: string | null) => {
     if (typeof window === 'undefined') return
-    const target = pathForPage(p, nextType, eventId)
+    const target = pathForPage(p, nextType, eventId, nextSubject)
     const cur = window.location.pathname + window.location.search
     if (target !== cur) {
       window.history.pushState(null, '', target)
@@ -149,7 +153,7 @@ export function usePageNav() {
   }, [])
 
   const go = useCallback(
-    (target: PageId, opts?: { examType?: ExamType; eventId?: string }) => {
+    (target: PageId, opts?: { examType?: ExamType; eventId?: string; subject?: string }) => {
       let nextType = examTypeRef.current
       if (opts?.examType !== undefined) {
         nextType = opts.examType
@@ -164,19 +168,25 @@ export function usePageNav() {
         nextEventId = null
         setSelectedEventId(null)
       }
+      let nextSubject = subject
+      if (opts?.subject !== undefined) {
+        nextSubject = opts.subject
+        setSubject(opts.subject)
+      }
       setPage(target)
-      syncUrlToState(target, nextType, nextEventId)
+      syncUrlToState(target, nextType, nextEventId, nextSubject)
     },
-    [syncUrlToState, selectedEventId],
+    [syncUrlToState, selectedEventId, subject],
   )
 
   useEffect(() => {
     if (typeof window === 'undefined') return
     const onPop = () => {
-      const { page: pg, examType: et } = resolveRoute(window.location.pathname)
-      examTypeRef.current = et
-      setPage(pg)
-      setExamType(et)
+      const resolved = resolveRoute(window.location.pathname)
+      examTypeRef.current = resolved.examType
+      setPage(resolved.page)
+      setExamType(resolved.examType)
+      setSubject(resolved.subject || 'math')
     }
     window.addEventListener('popstate', onPop)
     return () => window.removeEventListener('popstate', onPop)
@@ -191,5 +201,6 @@ export function usePageNav() {
     setResult,
     examType,
     selectedEventId,
+    subject,
   }
 }

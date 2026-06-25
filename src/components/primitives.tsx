@@ -188,9 +188,16 @@ export function ScoreRing({ pct, color }: { pct: number; color: string }) {
 }
 
 export function TopicBar({ nameKey, pct }: { nameKey: string; pct: number }) {
-  const { t } = useLang()
+  const { lang, t } = useLang()
   const c =
     pct >= 70 ? COLORS.success : pct >= 50 ? COLORS.accent : COLORS.danger
+
+  let displayName = t(nameKey)
+  if (nameKey.includes('|')) {
+    const parts = nameKey.split('|')
+    displayName = lang === 'ru' ? (parts[1] || parts[0] || '') : (parts[0] || '')
+  }
+
   return (
     <div
       style={{
@@ -201,7 +208,7 @@ export function TopicBar({ nameKey, pct }: { nameKey: string; pct: number }) {
         borderBottom: `1px solid ${COLORS.border}`,
       }}
     >
-      <div style={{ flex: 1, fontSize: 13, fontWeight: 500 }}>{t(nameKey)}</div>
+      <div style={{ flex: 1, fontSize: 13, fontWeight: 500 }}>{displayName}</div>
       <div
         style={{
           flex: 2,

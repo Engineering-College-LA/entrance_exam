@@ -33,6 +33,30 @@ export default function App() {
     </ThemeProvider>
   )
 }
+const DEFAULT_EXAMS = [
+  {
+    id: 'math-trial',
+    title_en: 'Mathematics Trial Test',
+    title_ru: 'Пробный экзамен по математике',
+    description_en: 'Practice math test to prepare for the main exam.',
+    description_ru: 'Пробный тест по математике для подготовки к основному экзамену.',
+    subject: 'math',
+    time_limit_sec: 3600,
+    is_active: true,
+    require_parent_info: false
+  },
+  {
+    id: 'math-placement',
+    title_en: 'Mathematics Placement Test',
+    title_ru: 'Отборочный экзамен по математике',
+    description_en: 'Official placement test for engineering college admissions.',
+    description_ru: 'Официальный отборочный тест для поступления в инженерный колледж.',
+    subject: 'math',
+    time_limit_sec: 3600,
+    is_active: true,
+    require_parent_info: true
+  }
+]
 
 function AppInner() {
   const { lang, t } = useLang()
@@ -41,7 +65,7 @@ function AppInner() {
   const [isPlacementActive, setIsPlacementActive] = useState<boolean | null>(null)
   const [isRegisteredOpenDoor, setIsRegisteredOpenDoor] = useState(() => {
     if (typeof window === 'undefined') return false
-    return localStorage.getItem('project_fest_registered') === 'true'
+    return localStorage.getItem('project_fest_registered') === 'true' || localStorage.getItem('registered_event_project-fest') === 'true'
   })
   const [events, setEvents] = useState<any[]>([])
   const [registeredEventIds, setRegisteredEventIds] = useState<string[]>(() => {
@@ -55,6 +79,66 @@ function AppInner() {
     }
     return ids
   })
+
+  const [dbQuestions, setDbQuestions] = useState<ExamQuestion[] | null>(null)
+  const [dbExams, setDbExams] = useState<any[] | null>(null)
+  const [activeExam, setActiveExam] = useState<any | null>(null)
+
+  useEffect(() => {
+    const fetchQuestions = async () => {
+      if (!supabase) return
+      try {
+        const { data, error } = await supabase
+          .from('questions')
+          .select('*')
+        if (!error && data && data.length > 0) {
+          const mapped: ExamQuestion[] = data.map((q: any) => ({
+            id: q.id,
+            topic: q.topic,
+            topicKey: q.topic_key,
+            text: q.text,
+            textRu: q.text_ru,
+            opts: q.opts,
+            optsRu: q.opts_ru,
+            correct: q.correct,
+            exam_type: q.exam_id || q.exam_type
+          }))
+          setDbQuestions(mapped)
+        } else {
+          setDbQuestions([])
+        }
+      } catch (e) {
+        console.error('Failed to load questions from Supabase:', e)
+        setDbQuestions([])
+      }
+    }
+    void fetchQuestions()
+  }, [])
+
+  useEffect(() => {
+    const fetchExams = async () => {
+      if (!supabase) {
+        setDbExams(DEFAULT_EXAMS)
+        return
+      }
+      try {
+        const { data, error } = await supabase
+          .from('exams')
+          .select('*')
+          .eq('is_active', true)
+          .order('created_at', { ascending: true })
+        if (!error && data && data.length > 0) {
+          setDbExams(data)
+        } else {
+          setDbExams(DEFAULT_EXAMS)
+        }
+      } catch (e) {
+        console.error('Failed to load exams from Supabase:', e)
+        setDbExams(DEFAULT_EXAMS)
+      }
+    }
+    void fetchExams()
+  }, [])
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -71,8 +155,6 @@ function AppInner() {
   }, [])
 
   useEffect(() => {
-    // Subscribe first, then fetch — so no realtime change can arrive
-    // between fetch completion and subscription setup and be missed.
     const channel = supabase
       ?.channel('settings-changes')
       .on(
@@ -86,7 +168,6 @@ function AppInner() {
         },
       )
       .subscribe(async () => {
-        // Fetch initial value only after subscription is active
         if (!supabase) { setIsPlacementActive(false); return }
         const { data, error } = await supabase
           .from('settings')
@@ -108,17 +189,42 @@ function AppInner() {
     }
   }, [nav.selectedEventId, nav.page, nav.go])
 
-  const timeLimitSec = 3600
+  // Find resolved active exam from URL
+  const resolvedActiveExam = activeExam || (dbExams || []).find(e => e.id === nav.examType) || DEFAULT_EXAMS.find(e => e.id === nav.examType)
+  const timeLimitSec = resolvedActiveExam ? resolvedActiveExam.time_limit_sec : 3600
 
-  const handleStartTrial = () => {
-    setQuestions(QuestionService.shuffle(TRIAL_QUESTIONS_BASE))
-    nav.go('register', { examType: 'trial' })
+  const handleStartExam = async (exam: any) => {
+    setActiveExam(exam)
+    if (exam.id === 'math-placement' || exam.require_parent_info) {
+      clearLastRegisteredPhone()
+    }
+    let baseQuestions: ExamQuestion[] = []
+    if (dbQuestions && dbQuestions.length > 0) {
+      baseQuestions = dbQuestions.filter(
+        q => q.exam_type === exam.id || 
+             (exam.id === 'math-trial' && q.exam_type === 'trial') || 
+             (exam.id === 'math-placement' && q.exam_type === 'placement') || 
+             q.exam_type === 'all'
+      )
+    }
+    
+    if (baseQuestions.length === 0) {
+      if (exam.id === 'math-trial') {
+        baseQuestions = TRIAL_QUESTIONS_BASE
+      } else if (exam.id === 'math-placement') {
+        baseQuestions = PLACEMENT_QUESTIONS_BASE
+      } else {
+        baseQuestions = QuestionService.build([], 30)
+      }
+    } else {
+      if (exam.id === 'math-trial') {
+        baseQuestions = QuestionService.build(baseQuestions, 30)
+      }
+    }
+    setQuestions(QuestionService.shuffle(baseQuestions))
+    nav.go('register', { examType: exam.id })
   }
-  const handleStartPlacement = () => {
-    clearLastRegisteredPhone()
-    setQuestions(QuestionService.shuffle(PLACEMENT_QUESTIONS_BASE))
-    nav.go('register', { examType: 'placement' })
-  }
+
   const handleRegisterOpenDoor = (eventId?: string) => {
     nav.go('register', { examType: 'openDoor', eventId })
   }
@@ -136,6 +242,10 @@ function AppInner() {
         if (nav.selectedEventId) {
           localStorage.setItem(`registered_event_${nav.selectedEventId}`, 'true')
           setRegisteredEventIds(prev => [...prev, nav.selectedEventId!])
+          if (nav.selectedEventId === 'project-fest') {
+            localStorage.setItem('project_fest_registered', 'true')
+            setIsRegisteredOpenDoor(true)
+          }
         } else {
           localStorage.setItem('project_fest_registered', 'true')
           setIsRegisteredOpenDoor(true)
@@ -145,15 +255,17 @@ function AppInner() {
       })()
       return
     }
-    setLastRegisteredPhone(form.phone ?? '')
+    if (nav.examType === 'placement' || resolvedActiveExam?.require_parent_info) {
+      setLastRegisteredPhone(form.phone ?? '')
+    }
     nav.setStudent(form)
     nav.go('intro')
   }
+
   const handleFinish = (res: ExamResult) => {
     nav.setResult(res)
     nav.go('report')
   }
-
   const handleLogout = () => {
     localStorage.removeItem('ec_current_student')
     localStorage.removeItem('project_fest_registered')
@@ -179,24 +291,26 @@ function AppInner() {
       />
       {nav.page === 'landing' && (
         <Landing
-          onSelectSubject={(pageId) => nav.go(pageId)}
+          onSelectSubject={(subject) => nav.go('subject', { subject })}
           onRegisterOpenDoor={handleRegisterOpenDoor}
-          isPlacementActive={isPlacementActive}
           isRegisteredOpenDoor={isRegisteredOpenDoor}
           events={events}
           registeredEventIds={registeredEventIds}
+          exams={dbExams || []}
         />
       )}
       {nav.page === 'subject' && (
         <SubjectLanding
-          onStartTrial={handleStartTrial}
-          onStartPlacement={handleStartPlacement}
+          onStartExam={handleStartExam}
           onRegisterOpenDoor={handleRegisterOpenDoor}
           isPlacementActive={isPlacementActive}
           onBack={() => nav.go('landing')}
           isRegisteredOpenDoor={isRegisteredOpenDoor}
           events={events}
           registeredEventIds={registeredEventIds}
+          exams={dbExams || []}
+          subject={(nav as any).subject || 'math'}
+          dbQuestions={dbQuestions}
         />
       )}
       {nav.page === 'register' && (
@@ -205,6 +319,7 @@ function AppInner() {
           onBack={() => nav.go(nav.examType === 'openDoor' ? 'landing' : 'subject')}
           examType={nav.examType}
           selectedEvent={events.find(e => e.id === nav.selectedEventId)}
+          requireParentInfo={resolvedActiveExam?.require_parent_info}
         />
       )}
       {nav.page === 'intro' && (

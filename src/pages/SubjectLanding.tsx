@@ -7,23 +7,27 @@ import { shouldDisablePlacementStart } from '../lib/placementCache'
 import { MathIcon, EventIcon, FileTextIcon, TargetIcon } from '../components/Icons'
 
 export function SubjectLanding({
-  onStartTrial,
-  onStartPlacement,
+  onStartExam,
   onRegisterOpenDoor,
   isPlacementActive,
   onBack,
   isRegisteredOpenDoor,
   events = [],
   registeredEventIds = [],
+  exams = [],
+  subject = 'math',
+  dbQuestions = null,
 }: {
-  onStartTrial: () => void
-  onStartPlacement: () => void
+  onStartExam: (exam: any) => void
   onRegisterOpenDoor: (eventId?: string) => void
   isPlacementActive: boolean | null
   onBack: () => void
   isRegisteredOpenDoor: boolean
   events?: any[]
   registeredEventIds?: string[]
+  exams?: any[]
+  subject?: string
+  dbQuestions?: any[] | null
 }) {
   const { t } = useLang()
   const isMobile = useIsMobile()
@@ -42,6 +46,37 @@ export function SubjectLanding({
       window.removeEventListener('focus', refresh)
     }
   }, [])
+
+  const getSubjectTitle = (subject: string) => {
+    if (subject && subject.includes('|')) {
+      const parts = subject.split('|')
+      return isEn ? parts[0] : (parts[1] || parts[0])
+    }
+    const key = `dashboard.subject.${subject}.title`
+    const val = t(key)
+    if (val !== key) return val
+    if (subject === 'math') return isEn ? 'Mathematics' : 'Математика'
+    if (subject === 'english') return isEn ? 'English Language' : 'Английский язык'
+    if (subject === 'physics') return isEn ? 'Physics' : 'Физика'
+    return subject.charAt(0).toUpperCase() + subject.slice(1)
+  }
+
+  const getSubjectDesc = (subject: string) => {
+    if (subject && subject.includes('|')) {
+      const title = getSubjectTitle(subject)
+      return isEn ? `Demonstrate your aptitude in ${title} for admission to E|C Engineering College.` : `Продемонстрируйте свои способности по предмету ${title} для поступления в ИТ-Колледж E|C.`
+    }
+    const key = `dashboard.subject.${subject}.desc`
+    const val = t(key)
+    if (val !== key) return val
+    if (subject === 'math') return isEn ? 'Demonstrate your mathematical aptitude for admission to E|C Engineering College.' : 'Продемонстрируйте свои математические способности для поступления в ИТ-Колледж E|C.'
+    if (subject === 'english') return isEn ? 'Admissions test in English. Grammar, reading, and vocabulary.' : 'Вступительный экзамен по английскому. Грамматика, чтение и лексика.'
+    if (subject === 'physics') return isEn ? 'Admissions test in Physics.' : 'Вступительный экзамен по физике.'
+    return isEn ? `Tests in ${subject}.` : `Тесты по предмету ${subject}.`
+  }
+
+  const activeExams = exams || []
+  const subjExams = activeExams.filter((e) => e.subject === subject)
 
   return (
     <div
@@ -167,10 +202,10 @@ export function SubjectLanding({
                 marginBottom: 18,
               }}
             >
-              {t('landing.title1')}
+              {getSubjectTitle(subject)}
               <br />
               <span style={{ color: COLORS.accent }}>
-                {t('landing.title1') === 'Mathematics' ? 'Exams' : 'Экзамены'}
+                {isEn ? 'Exams' : 'Экзамены'}
               </span>
             </h1>
             <p
@@ -182,131 +217,161 @@ export function SubjectLanding({
                 marginBottom: 40,
               }}
             >
-              {t('landing.desc')}
+              {getSubjectDesc(subject)}
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-                <div
-                  style={{
-                    width: 38,
-                    height: 38,
-                    borderRadius: 6,
-                    background: 'color-mix(in srgb, var(--c-accent) 12%, transparent)',
-                    border: '1px solid color-mix(in srgb, var(--c-accent) 25%, transparent)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: COLORS.accent,
-                    flexShrink: 0,
-                  }}
-                >
-                  <FileTextIcon size={20} />
-                </div>
-                <div>
-                  <div
-                    style={{
-                      fontWeight: 700,
-                      fontSize: 13,
-                      color: 'var(--t-text)',
-                    }}
-                  >
-                    {t('landing.trial.badge')}
+              {subjExams.map((exam) => {
+                if (exam.id === 'math-placement' && !isPlacementActive) return null
+                const isPlacement = exam.id === 'math-placement' || exam.require_parent_info
+
+                const examTitle = isEn ? exam.title_en : exam.title_ru
+                const minutes = Math.round(exam.time_limit_sec / 60)
+
+                // Count questions
+                let qCount = 30
+                if (exam.id === 'math-placement') qCount = 45
+                if (dbQuestions) {
+                  const count = dbQuestions.filter((q) => q.exam_type === exam.id).length
+                  if (count > 0) qCount = count
+                }
+
+                const questionsLabel = isEn ? `${qCount} questions` : `${qCount} вопросов`
+                const timeLabel = isEn ? `${minutes} minutes` : `${minutes} минут`
+
+                return (
+                  <div key={exam.id} style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                    <div
+                      style={{
+                        width: 38,
+                        height: 38,
+                        borderRadius: 6,
+                        background: isPlacement
+                          ? 'rgba(21,101,192,.15)'
+                          : 'color-mix(in srgb, var(--c-accent) 12%, transparent)',
+                        border: isPlacement
+                          ? '1px solid rgba(21,101,192,.3)'
+                          : '1px solid color-mix(in srgb, var(--c-accent) 25%, transparent)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: isPlacement ? COLORS.blue : COLORS.accent,
+                        flexShrink: 0,
+                      }}
+                    >
+                      {isPlacement ? <TargetIcon size={20} /> : <FileTextIcon size={20} />}
+                    </div>
+                    <div>
+                      <div
+                        style={{
+                          fontWeight: 700,
+                          fontSize: 13,
+                          color: 'var(--t-text)',
+                        }}
+                      >
+                        {examTitle}
+                      </div>
+                      <div style={{ fontSize: 12, color: 'var(--t-muted)', marginTop: 2 }}>
+                        {questionsLabel} · {timeLabel}
+                      </div>
+                    </div>
                   </div>
-                  <div style={{ fontSize: 12, color: 'var(--t-muted)', marginTop: 2 }}>
-                    {t('landing.trial.questions')} · {t('landing.trial.time')}
-                  </div>
-                </div>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-                <div
-                  style={{
-                    width: 38,
-                    height: 38,
-                    borderRadius: 6,
-                    background: 'rgba(21,101,192,.15)',
-                    border: '1px solid rgba(21,101,192,.3)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: COLORS.blue,
-                    flexShrink: 0,
-                  }}
-                >
-                  <TargetIcon size={20} />
-                </div>
-                <div>
-                  <div
-                    style={{
-                      fontWeight: 700,
-                      fontSize: 13,
-                      color: 'var(--t-text)',
-                    }}
-                  >
-                    {t('landing.placement.badge')}
-                  </div>
-                  <div style={{ fontSize: 12, color: 'var(--t-muted)', marginTop: 2 }}>
-                    {t('landing.placement.questions')} ·{' '}
-                    {t('landing.placement.time')}
-                  </div>
-                </div>
-              </div>
+                )
+              })}
             </div>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            {/* Trial Test Card */}
-            <ExamCard
-              badge={t('landing.trial.badge')}
-              desc={t('landing.trial.desc')}
-              questions={t('landing.trial.questions')}
-              time={t('landing.trial.time')}
-              ctaLabel={t('landing.trial.cta')}
-              onStart={onStartTrial}
-              accent={COLORS.accent}
-              icon={<MathIcon size={20} />}
-              variant="primary"
-            />
+            {subjExams.map((exam) => {
+              if (exam.id === 'math-placement' && !isPlacementActive) return null
+              const isPlacement = exam.id === 'math-placement' || exam.require_parent_info
+              const isCachedOut = isPlacement && placementCachedOut
 
-            {/* Placement Test Card */}
-            {isPlacementActive && (
-              <ExamCard
-                badge={t('landing.placement.badge')}
-                desc={t('landing.placement.desc')}
-                questions={t('landing.placement.questions')}
-                time={t('landing.placement.time')}
-                ctaLabel={t('landing.placement.cta')}
-                onStart={onStartPlacement}
-                accent={COLORS.blue}
-                disabled={placementCachedOut}
-                disabledHint={
-                  placementCachedOut ? t('landing.placement.cacheDisabled') : undefined
-                }
-                disabledCta={
-                  placementCachedOut ? t('landing.placement.cacheCta') : undefined
-                }
-                tooltipText={placementCachedOut ? t('landing.placement.cacheDisabled') : undefined}
-                icon={<TargetIcon size={20} />}
-                variant="primary"
-              />
-            )}
+              const examTitle = isEn ? exam.title_en : exam.title_ru
+              const examDesc = isEn ? exam.description_en : exam.description_ru
+              const minutes = Math.round(exam.time_limit_sec / 60)
+
+              // Count questions
+              let qCount = 30
+              if (exam.id === 'math-placement') qCount = 45
+              if (dbQuestions) {
+                const count = dbQuestions.filter((q) => q.exam_type === exam.id).length
+                if (count > 0) qCount = count
+              }
+
+              const questionsLabel = isEn ? `${qCount} questions` : `${qCount} вопросов`
+              const timeLabel = isEn ? `${minutes} minutes` : `${minutes} минут`
+
+              return (
+                <ExamCard
+                  key={exam.id}
+                  badge={examTitle}
+                  desc={examDesc}
+                  questions={questionsLabel}
+                  time={timeLabel}
+                  ctaLabel={
+                    isPlacement
+                      ? isEn
+                        ? 'Start Placement Test'
+                        : 'Пройти Отборочный Экзамен'
+                      : isEn
+                        ? 'Start Trial Test'
+                        : 'Пройти Пробный Экзамен'
+                  }
+                  onStart={() => onStartExam(exam)}
+                  accent={isPlacement ? COLORS.blue : COLORS.accent}
+                  disabled={isPlacement && isCachedOut}
+                  disabledHint={
+                    isPlacement && isCachedOut ? t('landing.placement.cacheDisabled') : undefined
+                  }
+                  disabledCta={
+                    isPlacement && isCachedOut ? t('landing.placement.cacheCta') : undefined
+                  }
+                  tooltipText={
+                    isPlacement && isCachedOut ? t('landing.placement.cacheDisabled') : undefined
+                  }
+                  icon={isPlacement ? <TargetIcon size={20} /> : <MathIcon size={20} />}
+                  variant="primary"
+                />
+              )
+            })}
 
             {/* Dynamic Events */}
-            {events.length > 0 ? (
-              events.map((event) => {
+            {(() => {
+              const visibleEvents = events.filter((e) => !(e.format_en && e.format_en.endsWith('__hidden')))
+              const sortedEvents = [...visibleEvents].sort((a, b) => {
+                if (a.id === 'project-fest') return -1
+                if (b.id === 'project-fest') return 1
+                return 0
+              })
+
+              return sortedEvents.map((event) => {
                 const title = isEn ? event.title_en : event.title_ru
                 const desc = isEn ? event.desc_en : event.desc_ru
                 const date = isEn ? event.date_en : event.date_ru
                 const time = isEn ? event.time_en : event.time_ru
-                const format = isEn ? event.format_en : event.format_ru
+
+                let format = isEn ? event.format_en : event.format_ru
+                if (format) format = format.replace(/__hidden$/, '')
+
                 const req = isEn ? event.req_en : event.req_ru
-                const isRegistered = registeredEventIds.includes(event.id)
+                const isRegistered =
+                  registeredEventIds.includes(event.id) ||
+                  (event.id === 'project-fest' && isRegisteredOpenDoor)
 
                 return (
                   <ExamCard
                     key={event.id}
                     badge={title}
                     desc={desc}
-                    ctaLabel={isRegistered ? (isEn ? 'Registered ✓' : 'Вы записаны ✓') : (isEn ? 'Register' : 'Записаться')}
+                    ctaLabel={
+                      isRegistered
+                        ? isEn
+                          ? 'Registered ✓'
+                          : 'Вы записаны ✓'
+                        : isEn
+                          ? 'Register'
+                          : 'Записаться'
+                    }
                     onStart={isRegistered ? undefined : () => onRegisterOpenDoor(event.id)}
                     accent={COLORS.success}
                     icon={<EventIcon size={20} />}
@@ -322,26 +387,7 @@ export function SubjectLanding({
                   />
                 )
               })
-            ) : (
-              /* Project Fest Secondary Card (Fallback) */
-              <ExamCard
-                badge={t('landing.openDoor.title')}
-                desc={t('landing.openDoor.desc')}
-                ctaLabel={isRegisteredOpenDoor ? (isEn ? 'Registered ✓' : 'Вы записаны ✓') : t('landing.openDoor.cta')}
-                onStart={isRegisteredOpenDoor ? undefined : () => onRegisterOpenDoor()}
-                accent={COLORS.success}
-                icon={<EventIcon size={20} />}
-                variant={isRegisteredOpenDoor ? 'success' : 'secondary'}
-                showAttempts={false}
-                statusBadge={isRegisteredOpenDoor ? (isEn ? 'Active' : 'Вы участвуете') : undefined}
-                customRows={[
-                  [t('landing.openDoor.date'), t('landing.openDoor.date.val')],
-                  [t('landing.openDoor.time'), t('landing.openDoor.time.val')],
-                  [t('landing.card.format'), t('landing.openDoor.format.val')],
-                  [t('landing.openDoor.req'), t('landing.openDoor.req.val')],
-                ]}
-              />
-            )}
+            })()}
           </div>
         </div>
       </div>

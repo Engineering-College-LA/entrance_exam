@@ -23,15 +23,17 @@ export function Register({
   onBack,
   examType,
   selectedEvent,
+  requireParentInfo,
 }: {
   onSubmit: (form: Record<string, string>) => void
   onBack: () => void
   examType: ExamType
   selectedEvent?: any
+  requireParentInfo?: boolean
 }) {
   const { t } = useLang()
   const isMobile = useIsMobile()
-  const isPlacement = examType === 'placement'
+  const isPlacement = examType === 'placement' || !!requireParentInfo
   const isOpenDoor = examType === 'openDoor'
   const needsParentSection = isPlacement || isOpenDoor
   const allFields = isOpenDoor
@@ -58,7 +60,7 @@ export function Register({
   }
 
   const handleSubmit = () => {
-    const { valid, errs } = ValidationService.registration(form, examType)
+    const { valid, errs } = ValidationService.registration(form, examType, requireParentInfo)
     if (!valid) {
       setErrors(errs)
       setShakeKey((k) => k + 1)

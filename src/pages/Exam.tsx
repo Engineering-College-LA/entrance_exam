@@ -77,7 +77,15 @@ export function Exam({
   if (!q) return null
   const qText = lang === 'ru' && q.textRu ? q.textRu : q.text
   const qOpts = lang === 'ru' && q.optsRu ? q.optsRu : q.opts
-  const topicLabel = t(q.topicKey ?? 'topic.algebra')
+  const getTopicLabel = (question: ExamQuestion) => {
+    const key = question.topicKey ?? 'topic.algebra'
+    if (key.includes('|')) {
+      const parts = key.split('|')
+      return lang === 'ru' ? (parts[1] || parts[0] || '') : (parts[0] || '')
+    }
+    return t(key)
+  }
+  const topicLabel = getTopicLabel(q)
 
   return (
     <div

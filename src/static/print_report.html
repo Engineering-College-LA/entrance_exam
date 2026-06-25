@@ -438,8 +438,17 @@
       "Number Theory":        "Теория чисел",
     };
 
-    function topicRu(tp) {
-      return TOPIC_RU[tp.key] || TOPIC_RU[tp.name] || tp.name;
+    function translateTopic(tp, isRu) {
+      const key = tp.key || tp.name || "";
+      if (key.includes('|')) {
+        const parts = key.split('|');
+        return isRu ? (parts[1] || parts[0] || "") : (parts[0] || "");
+      }
+      if (isRu) {
+        return TOPIC_RU[key] || key;
+      }
+      // English default fallback, remove "topic." prefix
+      return key.startsWith("topic.") ? key.replace(/^topic\./, "") : key;
     }
 
     function topicColor(pct) {
@@ -501,7 +510,7 @@
 
       const topicsHTML = topics.map(tp => `
       <div class="topic-row">
-        <div class="topic-name">${topicRu(tp)}</div>
+        <div class="topic-name">${translateTopic(tp, isRu)}</div>
         <div class="topic-bar-wrap">
           <div class="topic-bar" style="width:${tp.pct}%;background:${topicColor(tp.pct)}"></div>
         </div>

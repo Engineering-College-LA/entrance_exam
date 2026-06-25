@@ -33,6 +33,7 @@ export function Report({
   const { mm, ss } = TimeService.format(result.elapsed)
   const { labelKey, color: gradeColor } = GradingService.grade(pct)
   const topics = GradingService.topicBreakdown(result.answers, questions)
+  const isPlacement = examType === 'placement' || examType.includes('placement') || !!student.parentPhone
 
   useEffect(() => {
     try {
@@ -56,7 +57,7 @@ export function Report({
       existing.push(record)
       localStorage.setItem('ec_applicants', JSON.stringify(existing))
 
-      if (examType === 'placement') {
+      if (isPlacement) {
         recordPlacementCompletion(student, result)
       }
 
@@ -149,7 +150,7 @@ export function Report({
           }}
         />
         <div style={{ fontSize: 36, marginBottom: 12 }}>
-          {examType === 'placement' ? '📋' : '🎓'}
+          {isPlacement ? '📋' : '🎓'}
         </div>
         <h2
           style={{
@@ -159,7 +160,7 @@ export function Report({
             marginBottom: 6,
           }}
         >
-          {examType === 'placement'
+          {isPlacement
             ? t('report.completed.placement')
             : t('report.completed')}
         </h2>
@@ -219,7 +220,7 @@ export function Report({
           color={COLORS.blue}
         />
       </div>
-      {examType === 'placement' && (
+      {isPlacement && (
         <div
           style={{
             ...Styles.card,
