@@ -345,6 +345,10 @@
       <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 19V5c0-1.1-.9-2-2-2H7c-1.1 0-2 .9-2 2v14H3v2h18v-2h-2zm-2 0H7V5h10v14zm-8-8h2v6H9v-6zm4 0h2v6h-2v-6zM7 3h10v1H7V3z"/></svg>
       <span id="lbl-nav-open-doors">Project Fest</span>
     </button>
+    <button type="button" class="nav-item" id="nav-tab-quizzes" onclick="setAdminTab('quizzes')" title="Exams">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 16h-2v-2h2v2zm1.07-7.75l-.9.92C12.45 11.9 12 12.5 12 14h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H7c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.04-.42 1.99-1.07 2.75z"/></svg>
+      <span id="lbl-nav-quizzes">Exams</span>
+    </button>
 
     <div class="nav-section-label" id="lbl-nav-settings">Settings</div>
     <div class="toggle-row">
@@ -462,6 +466,110 @@
           <div class="spinner-wrap">
             <div class="spinner"></div>
             <div style="font-size:13px;color:#6b7a95" id="lbl-loading-events">Loading events…</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quizzes Panel -->
+    <div id="panel-quizzes" class="content-panel">
+      <!-- Sub-view 1: Exams List -->
+      <div id="quizzes-exams-subview">
+        <!-- Stats row for exams -->
+        <div class="stats-row" style="margin-bottom: 24px;">
+          <div class="stat-card">
+            <div class="stat-card-label" id="lbl-exam-stat-total">Total Exams</div>
+            <div class="stat-card-val" id="exam-stat-total" style="color:#0b1f3a">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-label" id="lbl-exam-stat-active">Active Exams</div>
+            <div class="stat-card-val" id="exam-stat-active" style="color:#1b8c5e">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-label" id="lbl-exam-stat-questions">Total Questions</div>
+            <div class="stat-card-val" id="exam-stat-questions" style="color:#1565c0">—</div>
+          </div>
+        </div>
+
+        <!-- Exams list table section -->
+        <div class="section">
+          <div class="section-header">
+            <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+              <div>
+                <span class="section-title" id="lbl-exams-section-title">All Dynamic Exams</span>
+                <span class="section-count" id="exams-count"></span>
+              </div>
+              <div style="display:flex;gap:6px">
+                <button class="filter-btn active-all" id="filter-exam-all"       onclick="setExamFilter('all')"       >All</button>
+                <button class="filter-btn"            id="filter-exam-trial"     onclick="setExamFilter('trial')"     >Trial</button>
+                <button class="filter-btn"            id="filter-exam-placement" onclick="setExamFilter('placement')" >Placement</button>
+              </div>
+            </div>
+            <div>
+              <button type="button" class="filter-btn" id="btn-add-exam" onclick="openExamModal(null)" style="background:#1565c0;color:#fff;border-color:#1565c0;display:inline-flex;align-items:center;gap:6px">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                <span id="lbl-add-exam-btn">Add Exam</span>
+              </button>
+            </div>
+          </div>
+          <div id="exams-table-container">
+            <!-- Spinner -->
+            <div class="spinner-wrap">
+              <div class="spinner"></div>
+              <div style="font-size:13px;color:#6b7a95">Loading exams…</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sub-view 2: Questions Manager -->
+      <div id="quizzes-questions-subview" style="display:none;">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
+          <button type="button" class="od-btn-secondary" onclick="backToExamsList()" style="padding:6px 12px; display:inline-flex; align-items:center; gap:6px;">
+            <span>⬅</span> <span id="lbl-back-to-exams">Back to Exams</span>
+          </button>
+          <div style="font-size:14px; font-weight:700; color:#0b1f3a;" id="lbl-active-exam-title">Questions for Math Test</div>
+        </div>
+
+        <!-- Stats row for specific exam questions -->
+        <div class="stats-row" style="margin-bottom: 24px;">
+          <div class="stat-card">
+            <div class="stat-card-label" id="lbl-quiz-stat-total">Total Questions</div>
+            <div class="stat-card-val" id="quiz-stat-total" style="color:#0b1f3a">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-label" id="lbl-quiz-stat-topics">Unique Topics</div>
+            <div class="stat-card-val" id="quiz-stat-topics" style="color:#1b8c5e">—</div>
+          </div>
+        </div>
+
+        <!-- Quizzes List Section -->
+        <div class="section">
+          <div class="section-header">
+            <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+              <div>
+                <span class="section-title" id="lbl-quizzes-section-title">Exam Questions</span>
+                <span class="section-count" id="quizzes-count"></span>
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <button type="button" class="filter-btn" id="btn-add-quiz" onclick="openManualQuestionModal(null)" style="background:#1565c0;color:#fff;border-color:#1565c0;display:inline-flex;align-items:center;gap:6px">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                <span id="lbl-add-quiz-btn">Add Question</span>
+              </button>
+              <button type="button" class="filter-btn" id="btn-import-aiken" onclick="openAikenImportModal()" style="background:#e8a02018;color:#b07010;border-color:#e8a020;display:inline-flex;align-items:center;gap:6px">
+                <span id="lbl-aiken-import-btn">Import Text (Aiken)</span>
+              </button>
+              <button type="button" class="filter-btn" id="btn-import-csv" onclick="openCsvImportModal()" style="background:#1b8c5e18;color:#106040;border-color:#1b8c5e;display:inline-flex;align-items:center;gap:6px">
+                <span id="lbl-csv-import-btn">Upload CSV</span>
+              </button>
+            </div>
+          </div>
+          <div id="quizzes-table-container">
+            <div class="spinner-wrap">
+              <div class="spinner"></div>
+              <div style="font-size:13px;color:#6b7a95" id="lbl-loading-quizzes">Loading questions…</div>
+            </div>
           </div>
         </div>
       </div>
@@ -694,6 +802,7 @@
           <div style="display:flex; flex-direction:column; gap:4px;">
             <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;" id="lbl-ev-req-en">Requirements (EN)</label>
             <input type="text" id="ev-req-en" class="search-input" style="width:100%; height:38px;" required placeholder="e.g. Student & Parent" />
+          </div>
         </div>
         <!-- Hide Event Checkbox -->
         <div style="display:flex; align-items:center; gap:8px; margin-top:8px;">
@@ -748,6 +857,269 @@
   </div>
 </div>
 
+<!-- Add/Edit Exam Modal -->
+<div class="modal-overlay hidden" id="exam-modal-overlay" onclick="handleExamOverlayClick(event)">
+  <div class="open-door-detail-card" style="max-width: 600px; margin: 0 auto;" role="dialog" aria-modal="true" aria-labelledby="exam-modal-title" onclick="event.stopPropagation()">
+    <div class="od-modal-hero" style="background: linear-gradient(135deg, #1565c0 0%, #0d2444 100%);">
+      <button type="button" class="od-modal-close" onclick="closeExamModal()" title="Close">✕</button>
+      <div class="od-modal-title" id="exam-modal-title">Create Exam</div>
+      <div class="od-modal-sub" id="exam-modal-sub">Add a new dynamic exam</div>
+    </div>
+    <form id="exam-form" onsubmit="saveExamRecord(event)" style="display:flex; flex-direction:column; gap:12px; padding:20px 22px;">
+      <div style="display:flex; flex-direction:column; gap:12px; max-height: 60vh; overflow-y: auto; padding-right: 6px;">
+        <div style="display:flex; flex-direction:column; gap:4px;">
+          <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;">Exam ID / Slug (Unique)</label>
+          <input type="text" id="ex-id" class="search-input" style="width:100%; height:38px;" required placeholder="e.g. physics-mock-2026" />
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;">Title (EN)</label>
+            <input type="text" id="ex-title-en" class="search-input" style="width:100%; height:38px;" required />
+          </div>
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;">Title (RU)</label>
+            <input type="text" id="ex-title-ru" class="search-input" style="width:100%; height:38px;" required />
+          </div>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;">Description (EN)</label>
+            <textarea id="ex-desc-en" class="search-input" style="width:100%; height:60px; resize:vertical; font-family:inherit; padding:8px 12px;"></textarea>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;">Description (RU)</label>
+            <textarea id="ex-desc-ru" class="search-input" style="width:100%; height:60px; resize:vertical; font-family:inherit; padding:8px 12px;"></textarea>
+          </div>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;">Subject (EN) / Предмет (англ)</label>
+            <input type="text" id="ex-subject-en" class="search-input" style="width:100%; height:38px;" required placeholder="e.g. Mathematics" />
+          </div>
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;">Subject (RU) / Предмет (рус)</label>
+            <input type="text" id="ex-subject-ru" class="search-input" style="width:100%; height:38px;" required placeholder="e.g. Математика" />
+          </div>
+          <div style="display:none;">
+            <select id="ex-subject">
+              <option value="math">math</option>
+            </select>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;">Time Limit (Minutes)</label>
+            <input type="number" id="ex-time-limit" class="search-input" style="width:100%; height:38px;" value="60" required />
+          </div>
+        </div>
+        <div style="display:flex; gap:20px; align-items:center; margin-top:8px;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <input type="checkbox" id="ex-require-parent" style="width:16px; height:16px; cursor:pointer;" />
+            <label for="ex-require-parent" style="font-size:12px; font-weight:600; color:#1a2535; cursor:pointer;">Require Parent Info</label>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <input type="checkbox" id="ex-active" style="width:16px; height:16px; cursor:pointer;" checked />
+            <label for="ex-active" style="font-size:12px; font-weight:600; color:#1a2535; cursor:pointer;">Is Active</label>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:16px; border-top:1px solid #f0f3f9; padding-top:14px; display:flex; gap:10px; justify-content:flex-end;">
+        <button type="button" class="od-btn-secondary" onclick="closeExamModal()">Cancel</button>
+        <button type="submit" class="od-btn-secondary" style="background:#1565c0; color:#fff; border-color:#1565c0;">Save Exam</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Manual Quiz Add/Edit Modal -->
+<div class="modal-overlay hidden" id="manual-quiz-modal-overlay" onclick="handleManualQuizOverlayClick(event)">
+  <div class="open-door-detail-card" style="max-width: 600px; margin: 0 auto;" role="dialog" aria-modal="true" aria-labelledby="manual-quiz-modal-title" onclick="event.stopPropagation()">
+    <div class="od-modal-hero">
+      <button type="button" class="od-modal-close" onclick="closeManualQuizModal()" title="Close">✕</button>
+      <div class="od-modal-title" id="manual-quiz-modal-title">Create Question</div>
+      <div class="od-modal-sub" id="manual-quiz-modal-sub">Add a single question manually</div>
+    </div>
+    <form id="manual-quiz-form" onsubmit="saveManualQuiz(event)" style="display:flex; flex-direction:column; gap:12px; padding:20px 22px;">
+      <div style="display:flex; flex-direction:column; gap:12px; max-height: 60vh; overflow-y: auto; padding-right: 6px;">
+        
+        <!-- Topic Inputs (EN & RU separate) -->
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;" id="mq-topic-row-container">
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;">Topic (EN) / Тема (англ)</label>
+            <input type="text" id="mq-topic-en" class="search-input" style="width:100%; height:38px;" required placeholder="e.g. Fractions" />
+          </div>
+          <div style="display:flex; flex-direction:column; gap:4px;" id="wrapper-mq-topic-ru">
+            <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;">Topic (RU) / Тема (рус)</label>
+            <input type="text" id="mq-topic-ru" class="search-input" style="width:100%; height:38px;" required placeholder="e.g. Дроби" />
+          </div>
+        </div>
+        <!-- Hidden select field to keep original code happy -->
+        <div style="display:none;">
+          <select id="mq-topic">
+            <option value="all">all</option>
+          </select>
+          <select id="mq-exam-type">
+            <option value="all">all</option>
+          </select>
+        </div>
+
+        <!-- Question Text (EN & RU) -->
+        <div style="display:flex; flex-direction:column; gap:4px;">
+          <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;">Question Text (EN)</label>
+          <input type="text" id="mq-text" class="search-input" style="width:100%; height:38px;" required placeholder="e.g. Solve: 3/4 + 1/4 =" />
+        </div>
+        <div style="display:flex; flex-direction:column; gap:4px;" id="wrapper-mq-text-ru">
+          <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;">Question Text (RU)</label>
+          <input type="text" id="mq-text-ru" class="search-input" style="width:100%; height:38px;" required placeholder="e.g. Решите: 3/4 + 1/4 =" />
+        </div>
+
+        <!-- Options (EN) -->
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;">Option A (EN)</label>
+            <input type="text" id="mq-opt-0" class="search-input" style="width:100%; height:38px;" required />
+          </div>
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;">Option B (EN)</label>
+            <input type="text" id="mq-opt-1" class="search-input" style="width:100%; height:38px;" required />
+          </div>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;">Option C (EN)</label>
+            <input type="text" id="mq-opt-2" class="search-input" style="width:100%; height:38px;" required />
+          </div>
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;">Option D (EN)</label>
+            <input type="text" id="mq-opt-3" class="search-input" style="width:100%; height:38px;" required />
+          </div>
+        </div>
+
+        <!-- Options (RU) -->
+        <div id="wrapper-mq-opts-ru">
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:12px;">
+            <div style="display:flex; flex-direction:column; gap:4px;">
+              <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;">Option A (RU)</label>
+              <input type="text" id="mq-opt-ru-0" class="search-input" style="width:100%; height:38px;" required />
+            </div>
+            <div style="display:flex; flex-direction:column; gap:4px;">
+              <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;">Option B (RU)</label>
+              <input type="text" id="mq-opt-ru-1" class="search-input" style="width:100%; height:38px;" required />
+            </div>
+          </div>
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+            <div style="display:flex; flex-direction:column; gap:4px;">
+              <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;">Option C (RU)</label>
+              <input type="text" id="mq-opt-ru-2" class="search-input" style="width:100%; height:38px;" required />
+            </div>
+            <div style="display:flex; flex-direction:column; gap:4px;">
+              <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;">Option D (RU)</label>
+              <input type="text" id="mq-opt-ru-3" class="search-input" style="width:100%; height:38px;" required />
+            </div>
+          </div>
+        </div>
+
+        <!-- Correct Option -->
+        <div style="display:flex; flex-direction:column; gap:4px;">
+          <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;">Correct Option</label>
+          <select id="mq-correct" class="search-input" style="width:100%; height:38px;">
+            <option value="0">Option A</option>
+            <option value="1">Option B</option>
+            <option value="2">Option C</option>
+            <option value="3">Option D</option>
+          </select>
+        </div>
+
+      </div>
+      <div style="margin-top:16px; border-top:1px solid #f0f3f9; padding-top:14px; display:flex; gap:10px; justify-content:flex-end;">
+        <button type="button" class="od-btn-secondary" onclick="closeManualQuizModal()" id="btn-mq-cancel">Cancel</button>
+        <button type="submit" class="od-btn-secondary" style="background:#1565c0; color:#fff; border-color:#1565c0;" id="btn-mq-submit">Save Question</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Aiken Plain Text Import Modal -->
+<div class="modal-overlay hidden" id="aiken-import-modal-overlay" onclick="handleAikenOverlayClick(event)">
+  <div class="open-door-detail-card" style="max-width: 680px; margin: 0 auto;" role="dialog" aria-modal="true" aria-labelledby="aiken-modal-title" onclick="event.stopPropagation()">
+    <div class="od-modal-hero" style="background: linear-gradient(135deg, #e8a020 0%, #d48a10 100%);">
+      <button type="button" class="od-modal-close" onclick="closeAikenImportModal()" title="Close">✕</button>
+      <div class="od-modal-title" id="aiken-modal-title">Import Plain Text (Aiken Format)</div>
+      <div class="od-modal-sub" id="aiken-modal-sub">Paste questions matching Moodle Aiken guidelines</div>
+    </div>
+    <div style="padding:20px 22px; display:flex; flex-direction:column; gap:12px;">
+      <div style="font-size:11px; color:#6b7a95; background:#fcf8f2; border:1px solid #faebcc; padding:10px; border-radius:6px; line-height:1.5;">
+        <strong>Aiken Format Rules:</strong><br/>
+        1. Write the question on a single line.<br/>
+        2. Write options starting with a letter and a period/parenthesis (e.g., A. or A) ).<br/>
+        3. Write the correct answer as: <strong>ANSWER: B</strong> (or <strong>ОТВЕТ: B</strong>).<br/>
+        4. Leave an empty line between questions.
+      </div>
+      
+      <!-- Topic for Import -->
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom: 6px;" id="aiken-topic-row-container">
+        <div style="display:flex; flex-direction:column; gap:4px;">
+          <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;">Topic (EN) / Тема (англ)</label>
+          <input type="text" id="aiken-topic-en" class="search-input" style="width:100%; height:38px;" required placeholder="e.g. Fractions" />
+        </div>
+        <div style="display:flex; flex-direction:column; gap:4px;" id="wrapper-aiken-topic-ru">
+          <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;">Topic (RU) / Тема (рус)</label>
+          <input type="text" id="aiken-topic-ru" class="search-input" style="width:100%; height:38px;" required placeholder="e.g. Дроби" />
+        </div>
+      </div>
+      <div style="display:none;">
+        <select id="aiken-topic">
+          <option value="all">all</option>
+        </select>
+        <select id="aiken-exam-type">
+          <option value="all">all</option>
+        </select>
+      </div>
+
+      <textarea id="aiken-text-area" class="search-input" style="width:100%; height:200px; resize:vertical; font-family:monospace; font-size:12px; padding:10px;" placeholder="Paste text here..."></textarea>
+      
+      <div id="aiken-preview-container" style="max-height: 150px; overflow-y: auto; border:1px solid #dde3ed; border-radius:6px; display:none; padding:10px; background:#f7f9fc;"></div>
+      
+      <div style="border-top:1px solid #f0f3f9; padding-top:14px; display:flex; gap:10px; justify-content:flex-end;">
+        <button type="button" class="od-btn-secondary" onclick="closeAikenImportModal()">Cancel</button>
+        <button type="button" class="od-btn-secondary" id="btn-aiken-preview" onclick="previewAiken()" style="background:#e8a020; color:#0b1f3a; border-color:#e8a020;">Preview</button>
+        <button type="button" class="od-btn-secondary" id="btn-aiken-save" onclick="saveAikenImport()" style="background:#1565c0; color:#fff; border-color:#1565c0; display:none;">Save Questions</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CSV Import Modal -->
+<div class="modal-overlay hidden" id="csv-import-modal-overlay" onclick="handleCsvOverlayClick(event)">
+  <div class="open-door-detail-card" style="max-width: 680px; margin: 0 auto;" role="dialog" aria-modal="true" aria-labelledby="csv-modal-title" onclick="event.stopPropagation()">
+    <div class="od-modal-hero" style="background: linear-gradient(135deg, #1b8c5e 0%, #106040 100%);">
+      <button type="button" class="od-modal-close" onclick="closeCsvImportModal()" title="Close">✕</button>
+      <div class="od-modal-title" id="csv-modal-title">Upload CSV File</div>
+      <div class="od-modal-sub" id="csv-modal-sub">Import multiple questions using a spreadsheet</div>
+    </div>
+    <div style="padding:20px 22px; display:flex; flex-direction:column; gap:12px;">
+      <div style="font-size:11px; color:#6b7a95; background:#e7f5ee; border:1px solid #c8e6c9; padding:10px; border-radius:6px; line-height:1.5;">
+        <strong>CSV Columns Requirements:</strong><br/>
+        The CSV file must have a header row and follow this structure:<br/>
+        <code>text, text_ru, opt_a, opt_b, opt_c, opt_d, opt_ru_a, opt_ru_b, opt_ru_c, opt_ru_d, correct, topic, exam_type</code><br/>
+        <em>Note: correct should be 0, 1, 2, or 3. exam_type can be: all, trial, or placement.</em>
+      </div>
+
+      <div style="border: 2px dashed #dde3ed; border-radius: 8px; padding: 30px 20px; text-align: center; cursor: pointer; position: relative;" id="csv-dropzone" onclick="document.getElementById('csv-file-input').click()">
+        <span style="font-size: 24px; display: block; margin-bottom: 8px;">📂</span>
+        <span style="font-size: 13px; font-weight: 600; color: #1565c0;">Choose a CSV file</span>
+        <span style="font-size: 11px; color: #6b7a95; display: block; margin-top: 4px;">or drag and drop it here</span>
+        <input type="file" id="csv-file-input" style="display:none;" accept=".csv" onchange="handleCsvFile(event)" />
+      </div>
+      
+      <div id="csv-preview-container" style="max-height: 150px; overflow-y: auto; border:1px solid #dde3ed; border-radius:6px; display:none; padding:10px; background:#f7f9fc;"></div>
+      
+      <div style="border-top:1px solid #f0f3f9; padding-top:14px; display:flex; gap:10px; justify-content:flex-end;">
+        <button type="button" class="od-btn-secondary" onclick="closeCsvImportModal()">Cancel</button>
+        <button type="button" class="od-btn-secondary" id="btn-csv-save" onclick="saveCsvImport()" style="background:#1565c0; color:#fff; border-color:#1565c0; display:none;">Import Questions</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="od-copy-toast" id="od-copy-toast" role="status"></div>
 
 <script>
@@ -781,6 +1153,7 @@
       "nav.main":           "Main",
       "nav.applicants":     "Applicants",
       "nav.openDoorsParticipants": "Project Fest",
+      "nav.quizzes":        "Exams",
       "nav.settings":       "Settings",
       "nav.placement":      "Placement Test",
       "nav.logout":         "Log Out",
@@ -869,6 +1242,7 @@
       "nav.main":           "Главная",
       "nav.applicants":     "Абитуриенты",
       "nav.openDoorsParticipants": "Project Fest",
+      "nav.quizzes":        "Экзамены",
       "nav.settings":       "Настройки",
       "nav.placement":      "Отборочный экзамен",
       "nav.logout":         "Выйти",
@@ -960,6 +1334,8 @@
     let title = tAdmin("topbar.title");
     if (activeAdminTab === "openDoors") {
       title = tAdmin("nav.openDoorsParticipants");
+    } else if (activeAdminTab === "quizzes") {
+      title = tAdmin("nav.quizzes");
     }
     document.getElementById("topbar-title").textContent = title;
   }
@@ -968,8 +1344,14 @@
     activeAdminTab = tab;
     document.getElementById("nav-tab-applicants").classList.toggle("active", tab === "applicants");
     document.getElementById("nav-tab-open-doors").classList.toggle("active", tab === "openDoors");
+    document.getElementById("nav-tab-quizzes").classList.toggle("active", tab === "quizzes");
     document.getElementById("panel-applicants").classList.toggle("visible", tab === "applicants");
     document.getElementById("panel-open-doors").classList.toggle("visible", tab === "openDoors");
+    document.getElementById("panel-quizzes").classList.toggle("visible", tab === "quizzes");
+    if (tab === "quizzes") {
+      activeQuizSubView = "exams";
+      selectedExamId = null;
+    }
     syncTopbarForActiveTab();
     closeModal();
     closeOpenDoorModal();
@@ -996,6 +1378,8 @@
     document.getElementById("lbl-nav-main").textContent       = tAdmin("nav.main");
     document.getElementById("lbl-nav-applicants").textContent = tAdmin("nav.applicants");
     document.getElementById("lbl-nav-open-doors").textContent = tAdmin("nav.openDoorsParticipants");
+    const lblNavQuizzes = document.getElementById("lbl-nav-quizzes");
+    if (lblNavQuizzes) lblNavQuizzes.textContent = tAdmin("nav.quizzes");
     const lblNavEvents = document.getElementById("lbl-nav-events");
     if (lblNavEvents) lblNavEvents.textContent = tAdmin("nav.events");
     document.getElementById("lbl-nav-settings").textContent   = tAdmin("nav.settings");
@@ -1018,6 +1402,12 @@
     document.getElementById("filter-all").textContent         = tAdmin("filter.all");
     document.getElementById("filter-trial").textContent       = tAdmin("filter.trial");
     document.getElementById("filter-placement").textContent   = tAdmin("filter.placement");
+    const filterExAll = document.getElementById("filter-exam-all");
+    if (filterExAll) filterExAll.textContent = tAdmin("filter.all");
+    const filterExTrial = document.getElementById("filter-exam-trial");
+    if (filterExTrial) filterExTrial.textContent = tAdmin("filter.trial");
+    const filterExPlacement = document.getElementById("filter-exam-placement");
+    if (filterExPlacement) filterExPlacement.textContent = tAdmin("filter.placement");
     document.getElementById("search").placeholder             = tAdmin("search.placeholder");
     document.getElementById("lbl-clear-btn").textContent      = tAdmin("clear.btn");
     const odDel = document.getElementById("od-btn-delete");
@@ -1259,6 +1649,10 @@
   }
 
   function topicName(lang, key) {
+    if (key && key.includes('|')) {
+      const parts = key.split('|');
+      return lang === 'ru' ? (parts[1] || parts[0]) : parts[0];
+    }
     const dict = TOPIC_NAMES[lang] || TOPIC_NAMES.en;
     return dict[key] ?? TOPIC_NAMES.en[key] ?? key;
   }
@@ -1267,6 +1661,16 @@
   let allApplicants = [];
   let allOpenDoorRegs = [];
   let allEvents = [];
+  let allExams = [];
+  let allQuestions = [];
+  let activeQuizFilter = "all";
+  let activeQuizSubView = "exams";
+  let activeExamFilter = "all";
+  let selectedExamId = null;
+  let editingExamId = null;
+  let editingQuestionId = null;
+  let parsedAikenQuestions = [];
+  let parsedCsvQuestions = [];
   let currentRecord = null;
   let currentOpenDoorRecord = null;
   let activeFilter  = "all";
@@ -1589,6 +1993,7 @@
   function renderAll() {
     renderTable();
     renderEventsSection();
+    renderQuizzes();
   }
 
   // ── Delete ──────────────────────────────────────────────────────────────────
@@ -1902,6 +2307,30 @@
       } else {
         allEvents = ev.data || [];
       }
+
+      const ex = await sb
+        .from("exams")
+        .select("id, title_en, title_ru, description_en, description_ru, subject, time_limit_sec, is_active, require_parent_info, created_at")
+        .order("created_at", { ascending: false });
+
+      if (ex.error) {
+        console.warn("exams fetch error:", ex.error.message);
+        allExams = [];
+      } else {
+        allExams = ex.data || [];
+      }
+
+      const qst = await sb
+        .from("questions")
+        .select("id, topic, topic_key, text, text_ru, opts, opts_ru, correct, exam_id, created_at")
+        .order("created_at", { ascending: false });
+
+      if (qst.error) {
+        console.warn("questions fetch error:", qst.error.message);
+        allQuestions = [];
+      } else {
+        allQuestions = qst.data || [];
+      }
     } catch (err) {
       // Network/CSP issue
       const errEl = document.getElementById("alert-error");
@@ -1913,6 +2342,8 @@
       allApplicants = loadLocalData();
       allOpenDoorRegs = [];
       allEvents = [];
+      allExams = [];
+      allQuestions = [];
     }
 
     await loadPlacementSetting();
@@ -1982,6 +2413,912 @@
         </tr></thead>
         <tbody>${rows}</tbody>
       </table>`;
+  }
+
+  // ── Quizzes section logic ───────────────────────────────────────────────────
+  // ── Exams & Quizzes section logic ───────────────────────────────────────────
+  function openExamModal(id) {
+    editingExamId = id;
+    const modalTitle = document.getElementById("exam-modal-title");
+    const form = document.getElementById("exam-form");
+    form.reset();
+
+    const idInput = document.getElementById("ex-id");
+
+    if (id) {
+      modalTitle.textContent = adminLang === "ru" ? "Редактировать экзамен" : "Edit Exam";
+      const ex = allExams.find(x => x.id === id);
+      if (!ex) return;
+
+      idInput.value = ex.id;
+      idInput.disabled = true;
+
+      document.getElementById("ex-title-en").value = ex.title_en || "";
+      document.getElementById("ex-title-ru").value = ex.title_ru || "";
+      document.getElementById("ex-desc-en").value = ex.description_en || "";
+      document.getElementById("ex-desc-ru").value = ex.description_ru || "";
+      if (ex.subject && ex.subject.includes('|')) {
+        const parts = ex.subject.split('|');
+        document.getElementById("ex-subject-en").value = parts[0] || "";
+        document.getElementById("ex-subject-ru").value = parts[1] || "";
+      } else {
+        const subjectMapRu = { math: "Математика", english: "Английский язык", physics: "Физика", chemistry: "Химия" };
+        const subjectMapEn = { math: "Mathematics", english: "English Language", physics: "Physics", chemistry: "Chemistry" };
+        document.getElementById("ex-subject-en").value = subjectMapEn[ex.subject] || ex.subject || "";
+        document.getElementById("ex-subject-ru").value = subjectMapRu[ex.subject] || ex.subject || "";
+      }
+      document.getElementById("ex-time-limit").value = Math.round((ex.time_limit_sec || 3600) / 60);
+      document.getElementById("ex-require-parent").checked = !!ex.require_parent_info;
+      document.getElementById("ex-active").checked = !!ex.is_active;
+    } else {
+      modalTitle.textContent = adminLang === "ru" ? "Создать экзамен" : "Create Exam";
+      idInput.disabled = false;
+    }
+
+    document.getElementById("exam-modal-overlay").classList.remove("hidden");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeExamModal() {
+    document.getElementById("exam-modal-overlay").classList.add("hidden");
+    editingExamId = null;
+    const otherOpen = !document.getElementById("modal-overlay").classList.contains("hidden") ||
+                      !document.getElementById("open-door-modal-overlay").classList.contains("hidden") ||
+                      !document.getElementById("event-modal-overlay").classList.contains("hidden");
+    if (!otherOpen) document.body.style.overflow = "";
+  }
+
+  function handleExamOverlayClick(e) {
+    if (e.target.id === "exam-modal-overlay") closeExamModal();
+  }
+
+  async function saveExamRecord(e) {
+    e.preventDefault();
+    const idVal = document.getElementById("ex-id").value.trim().toLowerCase();
+    const titleEn = document.getElementById("ex-title-en").value.trim();
+    const titleRu = document.getElementById("ex-title-ru").value.trim();
+    const descEn = document.getElementById("ex-desc-en").value.trim();
+    const descRu = document.getElementById("ex-desc-ru").value.trim();
+    const subjectEn = document.getElementById("ex-subject-en").value.trim();
+    const subjectRu = document.getElementById("ex-subject-ru").value.trim();
+    const subject = `${subjectEn}|${subjectRu}`;
+    const minutes = parseInt(document.getElementById("ex-time-limit").value, 10) || 60;
+    const requireParent = document.getElementById("ex-require-parent").checked;
+    const isActive = document.getElementById("ex-active").checked;
+
+    if (!idVal) {
+      alert("Exam ID / Slug is required");
+      return;
+    }
+
+    const payload = {
+      id: idVal,
+      title_en: titleEn,
+      title_ru: titleRu,
+      description_en: descEn,
+      description_ru: descRu,
+      subject: subject,
+      time_limit_sec: minutes * 60,
+      require_parent_info: requireParent,
+      is_active: isActive
+    };
+
+    try {
+      const sb = await getSB();
+      const { error } = await sb.from("exams").upsert(payload);
+
+      if (error) {
+        alert("Error saving exam: " + error.message);
+        return;
+      }
+
+      closeExamModal();
+      
+      // Reload exams
+      const ex = await sb
+        .from("exams")
+        .select("id, title_en, title_ru, description_en, description_ru, subject, time_limit_sec, is_active, require_parent_info, created_at")
+        .order("created_at", { ascending: false });
+      if (!ex.error) {
+        allExams = ex.data || [];
+        renderAll();
+      }
+    } catch (err) {
+      alert("Exception: " + (err.message || err));
+    }
+  }
+
+  async function deleteExamRecord(id) {
+    if (!confirm(adminLang === "ru" ? `Удалить экзамен "${id}" и ВСЕ его вопросы?` : `Delete exam "${id}" and ALL of its questions?`)) return;
+
+    try {
+      const sb = await getSB();
+      const { error } = await sb.from("exams").delete().eq("id", id);
+      if (error) {
+        alert("Error deleting exam: " + error.message);
+        return;
+      }
+
+      allExams = allExams.filter(x => x.id !== id);
+      allQuestions = allQuestions.filter(q => q.exam_id !== id);
+      renderAll();
+    } catch (err) {
+      alert("Exception: " + (err.message || err));
+    }
+  }
+
+  function manageQuestions(id) {
+    selectedExamId = id;
+    activeQuizSubView = "questions";
+    renderAll();
+  }
+
+  function backToExamsList() {
+    selectedExamId = null;
+    activeQuizSubView = "exams";
+    renderAll();
+  }
+
+  function getTopicLabel(topic) {
+    const map = {
+      FRACTIONS: adminLang === "ru" ? "Дроби" : "Fractions",
+      LINEAR_EQUATIONS: adminLang === "ru" ? "Линейные уравнения" : "Linear Equations",
+      GEOMETRY: adminLang === "ru" ? "Геометрия" : "Geometry",
+      IDENTITIES: adminLang === "ru" ? "Алг. тождества" : "Algebraic Identities",
+      ORDER_OF_OPS: adminLang === "ru" ? "Порядок действий" : "Order of Operations",
+      DECIMALS: adminLang === "ru" ? "Десятичные дроби" : "Decimals",
+      POWERS: adminLang === "ru" ? "Степени" : "Powers",
+      ROOTS: adminLang === "ru" ? "Квадратные корни" : "Square Roots",
+      PERCENTAGES: adminLang === "ru" ? "Проценты" : "Percentages",
+      SEQUENCES: adminLang === "ru" ? "Последовательности" : "Sequences",
+      WORD_PROBLEMS: adminLang === "ru" ? "Задачи" : "Word Problems",
+      RATIOS: adminLang === "ru" ? "Пропорции" : "Ratios & Proportions",
+      LOGIC: adminLang === "ru" ? "Логика" : "Logic",
+      FUNCTIONS: adminLang === "ru" ? "Функции" : "Functions"
+    };
+    return map[topic] || topic;
+  }
+
+  function syncMqTopicKey(val) {
+    const map = {
+      FRACTIONS: 'topic.fractions',
+      LINEAR_EQUATIONS: 'topic.linearEquations',
+      GEOMETRY: 'topic.geometry',
+      IDENTITIES: 'topic.identities',
+      ORDER_OF_OPS: 'topic.orderOfOps',
+      DECIMALS: 'topic.decimals',
+      POWERS: 'topic.powers',
+      ROOTS: 'topic.roots',
+      PERCENTAGES: 'topic.percentages',
+      SEQUENCES: 'topic.sequences',
+      WORD_PROBLEMS: 'topic.wordProblems',
+      RATIOS: 'topic.ratios',
+      LOGIC: 'topic.logic',
+      FUNCTIONS: 'topic.functions'
+    };
+    return map[val] || 'topic.unknown';
+  }
+
+  function setExamFilter(f) {
+    activeExamFilter = f;
+    ["all", "trial", "placement"].forEach(id => {
+      const btn = document.getElementById("filter-exam-" + id);
+      if (btn) {
+        btn.className = "filter-btn" + (f === id ? " active-" + id : "");
+      }
+    });
+    renderAll();
+  }
+
+  function renderExamsSection() {
+    const container = document.getElementById("exams-table-container");
+    const countEl = document.getElementById("exams-count");
+    if (!container) return;
+
+    let filteredExams = allExams;
+    if (activeExamFilter === "placement") {
+      filteredExams = allExams.filter(e => e.require_parent_info);
+    } else if (activeExamFilter === "trial") {
+      filteredExams = allExams.filter(e => !e.require_parent_info);
+    }
+
+    const totalCount = allExams.length;
+    const activeCount = allExams.filter(e => e.is_active).length;
+    
+    document.getElementById("exam-stat-total").textContent = totalCount;
+    document.getElementById("exam-stat-active").textContent = activeCount;
+    document.getElementById("exam-stat-questions").textContent = allQuestions.length;
+
+    countEl.textContent = " — " + tAdminFn("records", filteredExams.length);
+
+    if (filteredExams.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon">📋</div>
+          <div class="empty-state-title">${adminLang === "ru" ? "Экзаменов не найдено" : "No exams found"}</div>
+          <div class="empty-state-desc">${adminLang === "ru" ? "Создайте новые экзамены для начала." : "Create new exams to get started."}</div>
+        </div>`;
+      return;
+    }
+
+    const rows = filteredExams.map((ex, i) => {
+      const title = adminLang === "ru" ? ex.title_ru : ex.title_en;
+      const count = allQuestions.filter(q => q.exam_id === ex.id).length;
+      const statusText = ex.is_active ? (adminLang === "ru" ? "Активен" : "Active") : (adminLang === "ru" ? "Скрыт" : "Hidden");
+      const statusColor = ex.is_active ? "#1b8c5e" : "#c0392b";
+      const parentReqText = ex.require_parent_info ? (adminLang === "ru" ? "Да" : "Yes") : (adminLang === "ru" ? "Нет" : "No");
+
+      return `
+        <tr class="data-row" style="vertical-align: middle;">
+          <td style="color:#6b7a95;font-weight:600">${i + 1}</td>
+          <td style="font-family:monospace;font-weight:600">${ex.id}</td>
+          <td><span style="font-weight:600">${title}</span></td>
+          <td>${(() => {
+            if (ex.subject && ex.subject.includes('|')) {
+              const parts = ex.subject.split('|');
+              return adminLang === 'ru' ? (parts[1] || parts[0]) : parts[0];
+            } else {
+              const subjectMapRu = { math: "Математика", english: "Английский язык", physics: "Физика", chemistry: "Химия" };
+              const subjectMapEn = { math: "Mathematics", english: "English Language", physics: "Physics", chemistry: "Chemistry" };
+              return adminLang === 'ru' ? (subjectMapRu[ex.subject] || ex.subject) : (subjectMapEn[ex.subject] || ex.subject);
+            }
+          })()}</td>
+          <td>${Math.round(ex.time_limit_sec / 60)} min</td>
+          <td>${parentReqText}</td>
+          <td><span class="badge" style="background:${statusColor}18;color:${statusColor};border:1px solid ${statusColor}33">${statusText}</span></td>
+          <td><span class="badge" style="background:#1565c018;color:#1565c0;border:1px solid #1565c033">${count} questions</span></td>
+          <td>
+            <div style="display:flex;gap:6px;justify-content:flex-end">
+              <button type="button" class="od-btn-secondary" style="padding:4px 8px;font-size:11px;background:#e3f2fd;color:#0d47a1;border-color:#bbdefb" onclick="manageQuestions('${ex.id}')">⚙ Questions</button>
+              <button type="button" class="od-btn-secondary" style="padding:4px 8px;font-size:11px" onclick="openExamModal('${ex.id}')">✏ Edit</button>
+              <button type="button" class="delete-btn" style="opacity:1;padding:4px 8px;" onclick="deleteExamRecord('${ex.id}')" title="Delete">✕</button>
+            </div>
+          </td>
+        </tr>`;
+    }).join("");
+
+    container.innerHTML = `
+      <table>
+        <thead><tr>
+          <th>#</th>
+          <th>ID / Slug</th>
+          <th>Title</th>
+          <th>Subject</th>
+          <th>Time Limit</th>
+          <th>Parent Info?</th>
+          <th>Status</th>
+          <th>Questions</th>
+          <th></th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+  }
+
+  function renderQuizzes() {
+    if (activeQuizSubView === "exams") {
+      document.getElementById("quizzes-exams-subview").style.display = "block";
+      document.getElementById("quizzes-questions-subview").style.display = "none";
+      renderExamsSection();
+      return;
+    }
+
+    document.getElementById("quizzes-exams-subview").style.display = "none";
+    document.getElementById("quizzes-questions-subview").style.display = "block";
+
+    const ex = allExams.find(x => x.id === selectedExamId);
+    const activeExamTitleEl = document.getElementById("lbl-active-exam-title");
+    if (ex && activeExamTitleEl) {
+      activeExamTitleEl.textContent = adminLang === "ru" 
+        ? `Вопросы для: ${ex.title_ru} (${ex.id})` 
+        : `Questions for: ${ex.title_en} (${ex.id})`;
+    }
+
+    const container = document.getElementById("quizzes-table-container");
+    const countEl = document.getElementById("quizzes-count");
+    if (!container) return;
+
+    // Filter questions for this exam
+    const examQuestions = allQuestions.filter(q => q.exam_id === selectedExamId);
+
+    // Render Stats
+    const totalCount = examQuestions.length;
+    const uniqueTopics = new Set(examQuestions.map(q => q.topic)).size;
+
+    document.getElementById("quiz-stat-total").textContent = totalCount;
+    document.getElementById("quiz-stat-topics").textContent = uniqueTopics;
+
+    countEl.textContent = " — " + tAdminFn("records", totalCount);
+
+    if (examQuestions.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon">📝</div>
+          <div class="empty-state-title">${adminLang === "ru" ? "Вопросов не найдено" : "No questions found"}</div>
+          <div class="empty-state-desc">${adminLang === "ru" ? "Создайте новые вопросы или импортируйте их." : "Create new questions or import them."}</div>
+        </div>`;
+      return;
+    }
+
+    const rows = examQuestions.map((q, i) => {
+      let topicLabel = q.topic;
+      if (q.topic_key && q.topic_key.includes('|')) {
+        const parts = q.topic_key.split('|');
+        topicLabel = adminLang === 'ru' ? (parts[1] || parts[0]) : parts[0];
+      } else {
+        topicLabel = getTopicLabel(q.topic);
+      }
+      const textDisp = adminLang === "ru" ? (q.text_ru || q.text) : q.text;
+      const optsDisp = adminLang === "ru" ? (q.opts_ru || q.opts) : q.opts;
+      
+      const optListHtml = optsDisp.map((o, idx) => {
+        const isCorrect = idx === q.correct;
+        const colorStyle = isCorrect ? "color:#1b8c5e;font-weight:700;" : "color:#6b7a95;";
+        const prefix = String.fromCharCode(65 + idx) + ". ";
+        return `<div style="${colorStyle}">${prefix}${o}</div>`;
+      }).join("");
+
+      return `
+        <tr class="data-row" style="vertical-align: top;">
+          <td style="color:#6b7a95;font-weight:600">${i + 1}</td>
+          <td><span style="font-weight:600">${topicLabel}</span><br/><span style="font-size:11px;color:#8fa3c0">${q.topic_key || ""}</span></td>
+          <td style="max-width:320px;white-space:normal;word-break:break-word;">
+            <div style="font-weight:600;margin-bottom:6px;">${textDisp}</div>
+            ${adminLang === "ru" && q.text_ru !== q.text ? `<div style="font-size:11px;color:#8fa3c0;margin-top:2px;">EN: ${q.text}</div>` : ""}
+          </td>
+          <td style="white-space:normal;">${optListHtml}</td>
+          <td>
+            <div style="display:flex;gap:6px;justify-content:flex-end">
+              <button type="button" class="od-btn-secondary" style="padding:4px 8px;font-size:11px" onclick="openManualQuestionModal(${q.id})">✏ Edit</button>
+              <button type="button" class="delete-btn" style="opacity:1;padding:4px 8px;" onclick="deleteQuestion(${q.id})" title="Delete">✕</button>
+            </div>
+          </td>
+        </tr>`;
+    }).join("");
+
+    container.innerHTML = `
+      <table>
+        <thead><tr>
+          <th>#</th>
+          <th>Topic</th>
+          <th>Question Text</th>
+          <th>Options</th>
+          <th></th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+  }
+
+  function openManualQuestionModal(id) {
+    editingQuestionId = id;
+    const modalTitle = document.getElementById("manual-quiz-modal-title");
+    const form = document.getElementById("manual-quiz-form");
+    form.reset();
+
+    const activeExam = allExams.find(x => x.id === selectedExamId);
+    const isEnglishExam = activeExam && (
+      activeExam.id.toLowerCase().includes("english") ||
+      activeExam.subject.toLowerCase().includes("english") ||
+      activeExam.subject.toLowerCase().includes("английск")
+    );
+
+    const topicRuWrapper = document.getElementById("wrapper-mq-topic-ru");
+    const topicRuInput = document.getElementById("mq-topic-ru");
+    const topicContainer = document.getElementById("mq-topic-row-container");
+    const textRuWrapper = document.getElementById("wrapper-mq-text-ru");
+    const textRuInput = document.getElementById("mq-text-ru");
+    const optsRuWrapper = document.getElementById("wrapper-mq-opts-ru");
+    const optRuInputs = [
+      document.getElementById("mq-opt-ru-0"),
+      document.getElementById("mq-opt-ru-1"),
+      document.getElementById("mq-opt-ru-2"),
+      document.getElementById("mq-opt-ru-3")
+    ];
+
+    if (isEnglishExam) {
+      if (topicRuWrapper) topicRuWrapper.style.display = "none";
+      if (topicRuInput) topicRuInput.removeAttribute("required");
+      if (topicContainer) topicContainer.style.gridTemplateColumns = "1fr";
+      if (textRuWrapper) textRuWrapper.style.display = "none";
+      if (textRuInput) textRuInput.removeAttribute("required");
+      if (optsRuWrapper) optsRuWrapper.style.display = "none";
+      optRuInputs.forEach(input => { if (input) input.removeAttribute("required"); });
+    } else {
+      if (topicRuWrapper) topicRuWrapper.style.display = "flex";
+      if (topicRuInput) topicRuInput.setAttribute("required", "");
+      if (topicContainer) topicContainer.style.gridTemplateColumns = "1fr 1fr";
+      if (textRuWrapper) textRuWrapper.style.display = "flex";
+      if (textRuInput) textRuInput.setAttribute("required", "");
+      if (optsRuWrapper) optsRuWrapper.style.display = "block";
+      optRuInputs.forEach(input => { if (input) input.setAttribute("required", ""); });
+    }
+
+    if (id) {
+      modalTitle.textContent = adminLang === "ru" ? "Редактировать вопрос" : "Edit Question";
+      const q = allQuestions.find(x => Number(x.id) === Number(id));
+      if (q.topic_key && q.topic_key.includes('|')) {
+        const parts = q.topic_key.split('|');
+        document.getElementById("mq-topic-en").value = parts[0] || q.topic || "";
+        document.getElementById("mq-topic-ru").value = parts[1] || "";
+      } else {
+        // Fallback mapping for older predefined topic keys
+        const topicMap = {
+          "FRACTIONS": "Дроби",
+          "LINEAR_EQUATIONS": "Линейные уравнения",
+          "GEOMETRY": "Геометрия",
+          "IDENTITIES": "Алг. тождества",
+          "ORDER_OF_OPS": "Порядок действий",
+          "DECIMALS": "Десятичные дроби",
+          "POWERS": "Степени",
+          "ROOTS": "Квадратные корни",
+          "PERCENTAGES": "Проценты",
+          "SEQUENCES": "Последовательности",
+          "WORD_PROBLEMS": "Задачи",
+          "RATIOS": "Пропорции",
+          "LOGIC": "Логика",
+          "FUNCTIONS": "Функции"
+        };
+        document.getElementById("mq-topic-en").value = q.topic || "";
+        document.getElementById("mq-topic-ru").value = topicMap[q.topic] || q.topic || "";
+      }
+      document.getElementById("mq-text").value = q.text || "";
+      document.getElementById("mq-text-ru").value = q.text_ru || "";
+      
+      const opts = q.opts || [];
+      const optsRu = q.opts_ru || opts || [];
+      for (let idx = 0; idx < 4; idx++) {
+        document.getElementById(`mq-opt-${idx}`).value = opts[idx] || "";
+        document.getElementById(`mq-opt-ru-${idx}`).value = optsRu[idx] || "";
+      }
+      document.getElementById("mq-correct").value = q.correct ?? 0;
+    } else {
+      modalTitle.textContent = adminLang === "ru" ? "Создать вопрос" : "Create Question";
+    }
+
+    document.getElementById("manual-quiz-modal-overlay").classList.remove("hidden");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeManualQuizModal() {
+    document.getElementById("manual-quiz-modal-overlay").classList.add("hidden");
+    editingQuestionId = null;
+    const otherOpen = !document.getElementById("modal-overlay").classList.contains("hidden") ||
+                      !document.getElementById("open-door-modal-overlay").classList.contains("hidden") ||
+                      !document.getElementById("event-modal-overlay").classList.contains("hidden");
+    if (!otherOpen) document.body.style.overflow = "";
+  }
+
+  function handleManualQuizOverlayClick(e) {
+    if (e.target.id === "manual-quiz-modal-overlay") closeManualQuizModal();
+  }
+
+  async function saveManualQuiz(e) {
+    e.preventDefault();
+    const activeExam = allExams.find(x => x.id === selectedExamId);
+    const isEnglishExam = activeExam && (
+      activeExam.id.toLowerCase().includes("english") ||
+      activeExam.subject.toLowerCase().includes("english") ||
+      activeExam.subject.toLowerCase().includes("английск")
+    );
+
+    const topicEn = document.getElementById("mq-topic-en").value.trim();
+    const topicRu = isEnglishExam ? topicEn : document.getElementById("mq-topic-ru").value.trim();
+    const topic = topicEn;
+    const topic_key = `${topicEn}|${topicRu}`;
+    const text = document.getElementById("mq-text").value.trim();
+    const text_ru = isEnglishExam ? text : document.getElementById("mq-text-ru").value.trim();
+    const correct = parseInt(document.getElementById("mq-correct").value, 10);
+
+    const opts = [];
+    const opts_ru = [];
+    for (let idx = 0; idx < 4; idx++) {
+      const optVal = document.getElementById(`mq-opt-${idx}`).value.trim();
+      opts.push(optVal);
+      if (isEnglishExam) {
+        opts_ru.push(optVal);
+      } else {
+        opts_ru.push(document.getElementById(`mq-opt-ru-${idx}`).value.trim());
+      }
+    }
+
+    const payload = {
+      exam_id: selectedExamId,
+      topic,
+      topic_key,
+      text,
+      text_ru,
+      opts,
+      opts_ru,
+      correct
+    };
+
+    try {
+      const sb = await getSB();
+      let res;
+      if (editingQuestionId) {
+        res = await sb.from("questions").update(payload).eq("id", editingQuestionId);
+      } else {
+        res = await sb.from("questions").insert(payload);
+      }
+
+      if (res.error) {
+        alert("Error saving question: " + res.error.message);
+        return;
+      }
+
+      closeManualQuizModal();
+      
+      // Reload questions
+      const qst = await sb
+        .from("questions")
+        .select("id, topic, topic_key, text, text_ru, opts, opts_ru, correct, exam_id, created_at")
+        .order("created_at", { ascending: false });
+      if (!qst.error) {
+        allQuestions = qst.data || [];
+        renderAll();
+      }
+    } catch (err) {
+      alert("Exception: " + (err.message || err));
+    }
+  }
+
+  async function deleteQuestion(id) {
+    if (!confirm(adminLang === "ru" ? "Удалить этот вопрос?" : "Delete this question?")) return;
+
+    try {
+      const sb = await getSB();
+      const { error } = await sb.from("questions").delete().eq("id", id);
+      if (error) {
+        alert("Error deleting question: " + error.message);
+        return;
+      }
+
+      allQuestions = allQuestions.filter(x => Number(x.id) !== Number(id));
+      renderAll();
+    } catch (err) {
+      alert("Exception: " + (err.message || err));
+    }
+  }
+
+  // ── Aiken Plain Text Import ───────────────────────────────────────────────
+  function openAikenImportModal() {
+    document.getElementById("aiken-text-area").value = "";
+    document.getElementById("btn-aiken-save").style.display = "none";
+    const preview = document.getElementById("aiken-preview-container");
+    preview.style.display = "none";
+    preview.innerHTML = "";
+    parsedAikenQuestions = [];
+
+    const activeExam = allExams.find(x => x.id === selectedExamId);
+    const isEnglishExam = activeExam && (
+      activeExam.id.toLowerCase().includes("english") ||
+      activeExam.subject.toLowerCase().includes("english") ||
+      activeExam.subject.toLowerCase().includes("английск")
+    );
+
+    const aikenTopicRuWrapper = document.getElementById("wrapper-aiken-topic-ru");
+    const aikenTopicRuInput = document.getElementById("aiken-topic-ru");
+    const aikenTopicContainer = document.getElementById("aiken-topic-row-container");
+
+    if (isEnglishExam) {
+      if (aikenTopicRuWrapper) aikenTopicRuWrapper.style.display = "none";
+      if (aikenTopicRuInput) aikenTopicRuInput.removeAttribute("required");
+      if (aikenTopicContainer) aikenTopicContainer.style.gridTemplateColumns = "1fr";
+    } else {
+      if (aikenTopicRuWrapper) aikenTopicRuWrapper.style.display = "flex";
+      if (aikenTopicRuInput) aikenTopicRuInput.setAttribute("required", "");
+      if (aikenTopicContainer) aikenTopicContainer.style.gridTemplateColumns = "1fr 1fr";
+    }
+
+    document.getElementById("aiken-import-modal-overlay").classList.remove("hidden");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeAikenImportModal() {
+    document.getElementById("aiken-import-modal-overlay").classList.add("hidden");
+    const otherOpen = !document.getElementById("modal-overlay").classList.contains("hidden") ||
+                      !document.getElementById("open-door-modal-overlay").classList.contains("hidden") ||
+                      !document.getElementById("event-modal-overlay").classList.contains("hidden");
+    if (!otherOpen) document.body.style.overflow = "";
+  }
+
+  function handleAikenOverlayClick(e) {
+    if (e.target.id === "aiken-import-modal-overlay") closeAikenImportModal();
+  }
+
+  function parseAikenText(text) {
+    const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+    const questions = [];
+    let currentQuestion = null;
+    
+    for (const line of lines) {
+      const answerMatch = line.match(/^(?:ANSWER|ОТВЕТ)\s*:\s*([A-Da-d0-3])/i);
+      if (answerMatch && currentQuestion) {
+        const val = answerMatch[1].toUpperCase();
+        let correctIdx = -1;
+        if (val === 'A' || val === '0') correctIdx = 0;
+        else if (val === 'B' || val === '1') correctIdx = 1;
+        else if (val === 'C' || val === '2') correctIdx = 2;
+        else if (val === 'D' || val === '3') correctIdx = 3;
+        
+        currentQuestion.correct = correctIdx;
+        if (currentQuestion.opts.length >= 2 && correctIdx !== -1) {
+          // pad options if less than 4
+          while (currentQuestion.opts.length < 4) {
+            currentQuestion.opts.push("-");
+            currentQuestion.opts_ru.push("-");
+          }
+          questions.push(currentQuestion);
+        }
+        currentQuestion = null;
+        continue;
+      }
+      
+      const optMatch = line.match(/^([A-D]|[a-d])[\.\)]\s*(.+)$/);
+      if (optMatch && currentQuestion) {
+        currentQuestion.opts.push(optMatch[2]);
+        currentQuestion.opts_ru.push(optMatch[2]);
+        continue;
+      }
+      
+      if (currentQuestion) {
+        // If we hit text without an answer, discard previous uncompleted
+      }
+      
+      currentQuestion = {
+        text: line,
+        text_ru: line,
+        opts: [],
+        opts_ru: [],
+        correct: -1
+      };
+    }
+    return questions;
+  }
+
+  function previewAiken() {
+    const text = document.getElementById("aiken-text-area").value;
+    const questions = parseAikenText(text);
+    const preview = document.getElementById("aiken-preview-container");
+    const saveBtn = document.getElementById("btn-aiken-save");
+
+    if (questions.length === 0) {
+      preview.style.display = "block";
+      preview.innerHTML = `<div style="color:#c0392b;font-weight:600;font-size:12px;">No valid questions parsed. Check format.</div>`;
+      saveBtn.style.display = "none";
+      return;
+    }
+
+    parsedAikenQuestions = questions;
+    preview.style.display = "block";
+    saveBtn.style.display = "inline-block";
+
+    preview.innerHTML = `
+      <div style="font-size:12px;font-weight:700;color:#1b8c5e;margin-bottom:8px;">Parsed ${questions.length} questions:</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        ${questions.map((q, idx) => `
+          <div style="border-bottom:1px solid #dde3ed;padding-bottom:6px;font-size:12px;">
+            <strong>Q${idx+1}: ${q.text}</strong>
+            <div style="padding-left:10px;color:#526a8a;font-size:11px;">
+              ${q.opts.map((o, oidx) => {
+                const isCorrect = oidx === q.correct;
+                return `<div style="${isCorrect ? 'color:#1b8c5e;font-weight:700;' : ''}">${String.fromCharCode(65+oidx)}. ${o}</div>`;
+              }).join("")}
+            </div>
+          </div>
+        `).join("")}
+      </div>`;
+  }
+
+  async function saveAikenImport() {
+    if (parsedAikenQuestions.length === 0) return;
+    const activeExam = allExams.find(x => x.id === selectedExamId);
+    const isEnglishExam = activeExam && (
+      activeExam.id.toLowerCase().includes("english") ||
+      activeExam.subject.toLowerCase().includes("english") ||
+      activeExam.subject.toLowerCase().includes("английск")
+    );
+
+    const topicEn = document.getElementById("aiken-topic-en").value.trim();
+    const topicRu = isEnglishExam ? topicEn : document.getElementById("aiken-topic-ru").value.trim();
+    const topic = topicEn;
+    const topic_key = `${topicEn}|${topicRu}`;
+
+    const payload = parsedAikenQuestions.map(q => ({
+      topic,
+      topic_key,
+      text: q.text,
+      text_ru: q.text_ru,
+      opts: q.opts,
+      opts_ru: q.opts_ru,
+      correct: q.correct,
+      exam_id: selectedExamId
+    }));
+
+    try {
+      const sb = await getSB();
+      const { error } = await sb.from("questions").insert(payload);
+      if (error) {
+        alert("Error saving questions: " + error.message);
+        return;
+      }
+
+      closeAikenImportModal();
+      
+      // Reload questions
+      const qst = await sb
+        .from("questions")
+        .select("id, topic, topic_key, text, text_ru, opts, opts_ru, correct, exam_id, created_at")
+        .order("created_at", { ascending: false });
+      if (!qst.error) {
+        allQuestions = qst.data || [];
+        renderAll();
+      }
+    } catch (err) {
+      alert("Exception: " + (err.message || err));
+    }
+  }
+
+  // ── CSV Import ─────────────────────────────────────────────────────────────
+  function openCsvImportModal() {
+    document.getElementById("csv-file-input").value = "";
+    document.getElementById("btn-csv-save").style.display = "none";
+    const preview = document.getElementById("csv-preview-container");
+    preview.style.display = "none";
+    preview.innerHTML = "";
+    parsedCsvQuestions = [];
+    document.getElementById("csv-import-modal-overlay").classList.remove("hidden");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeCsvImportModal() {
+    document.getElementById("csv-import-modal-overlay").classList.add("hidden");
+    const otherOpen = !document.getElementById("modal-overlay").classList.contains("hidden") ||
+                      !document.getElementById("open-door-modal-overlay").classList.contains("hidden") ||
+                      !document.getElementById("event-modal-overlay").classList.contains("hidden");
+    if (!otherOpen) document.body.style.overflow = "";
+  }
+
+  function handleCsvOverlayClick(e) {
+    if (e.target.id === "csv-import-modal-overlay") closeCsvImportModal();
+  }
+
+  function parseCSVText(text) {
+    const lines = [];
+    let row = [""];
+    let inQuotes = false;
+    for (let i = 0; i < text.length; i++) {
+      const c = text[i];
+      const next = text[i+1];
+      if (c === '"') {
+        if (inQuotes && next === '"') { row[row.length - 1] += '"'; i++; }
+        else { inQuotes = !inQuotes; }
+      } else if (c === ',' && !inQuotes) {
+        row.push("");
+      } else if ((c === '\r' || c === '\n') && !inQuotes) {
+        if (c === '\r' && next === '\n') { i++; }
+        lines.push(row);
+        row = [""];
+      } else {
+        row[row.length - 1] += c;
+      }
+    }
+    if (row.length > 1 || row[0] !== "") { lines.push(row); }
+    return lines;
+  }
+
+  function handleCsvFile(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(evt) {
+      const content = evt.target.result;
+      const rows = parseCSVText(content);
+      const preview = document.getElementById("csv-preview-container");
+      const saveBtn = document.getElementById("btn-csv-save");
+
+      if (rows.length < 2) {
+        preview.style.display = "block";
+        preview.innerHTML = `<div style="color:#c0392b;font-weight:600;font-size:12px;">CSV file is empty or missing data rows.</div>`;
+        saveBtn.style.display = "none";
+        return;
+      }
+
+      // Read header row
+      const headers = rows[0].map(h => h.trim().toLowerCase());
+      
+      // Map columns
+      const questions = [];
+      for (let idx = 1; idx < rows.length; idx++) {
+        const row = rows[idx];
+        if (row.length < 11) continue; // skip invalid short lines
+
+        const text = row[headers.indexOf("text")] || row[0] || "";
+        const text_ru = row[headers.indexOf("text_ru")] || row[1] || text || "";
+        
+        const opt_a = row[headers.indexOf("opt_a")] || row[2] || "";
+        const opt_b = row[headers.indexOf("opt_b")] || row[3] || "";
+        const opt_c = row[headers.indexOf("opt_c")] || row[4] || "";
+        const opt_d = row[headers.indexOf("opt_d")] || row[5] || "";
+
+        const opt_ru_a = row[headers.indexOf("opt_ru_a")] || row[6] || opt_a || "";
+        const opt_ru_b = row[headers.indexOf("opt_ru_b")] || row[7] || opt_b || "";
+        const opt_ru_c = row[headers.indexOf("opt_ru_c")] || row[8] || opt_c || "";
+        const opt_ru_d = row[headers.indexOf("opt_ru_d")] || row[9] || opt_d || "";
+
+        let correct = parseInt(row[headers.indexOf("correct")] || row[10] || "0", 10);
+        if (isNaN(correct)) correct = 0;
+
+        const topic = (row[headers.indexOf("topic")] || row[11] || "GENERAL").toUpperCase().trim();
+        const topic_key = syncMqTopicKey(topic);
+
+        questions.push({
+          topic,
+          topic_key,
+          text,
+          text_ru,
+          opts: [opt_a, opt_b, opt_c, opt_d],
+          opts_ru: [opt_ru_a, opt_ru_b, opt_ru_c, opt_ru_d],
+          correct,
+          exam_id: selectedExamId
+        });
+      }
+
+      if (questions.length === 0) {
+        preview.style.display = "block";
+        preview.innerHTML = `<div style="color:#c0392b;font-weight:600;font-size:12px;">Failed to parse any questions from CSV. Check headers structure.</div>`;
+        saveBtn.style.display = "none";
+        return;
+      }
+
+      parsedCsvQuestions = questions;
+      preview.style.display = "block";
+      saveBtn.style.display = "inline-block";
+
+      preview.innerHTML = `
+        <div style="font-size:12px;font-weight:700;color:#1b8c5e;margin-bottom:8px;">Parsed ${questions.length} questions from CSV:</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          ${questions.map((q, idx) => `
+            <div style="border-bottom:1px solid #dde3ed;padding-bottom:6px;font-size:12px;">
+              <strong>Q${idx+1} [${q.topic} - ${q.exam_type}]: ${q.text}</strong>
+              <div style="padding-left:10px;color:#526a8a;font-size:11px;">
+                ${q.opts.map((o, oidx) => {
+                  const isCorrect = oidx === q.correct;
+                  return `<div style="${isCorrect ? 'color:#1b8c5e;font-weight:700;' : ''}">${String.fromCharCode(65+oidx)}. ${o}</div>`;
+                }).join("")}
+              </div>
+            </div>
+          `).join("")}
+        </div>`;
+    };
+    reader.readAsText(file, "UTF-8");
+  }
+
+  async function saveCsvImport() {
+    if (parsedCsvQuestions.length === 0) return;
+
+    try {
+      const sb = await getSB();
+      const { error } = await sb.from("questions").insert(parsedCsvQuestions);
+      if (error) {
+        alert("Error importing CSV questions: " + error.message);
+        return;
+      }
+
+      closeCsvImportModal();
+      
+      // Reload questions
+      const qst = await sb
+        .from("questions")
+        .select("id, topic, topic_key, text, text_ru, opts, opts_ru, correct, exam_id, created_at")
+        .order("created_at", { ascending: false });
+      if (!qst.error) {
+        allQuestions = qst.data || [];
+        renderAll();
+      }
+    } catch (err) {
+      alert("Exception: " + (err.message || err));
+    }
   }
 
   let editingEventId = null;
@@ -2331,6 +3668,32 @@
   window.showEventRegistrations = showEventRegistrations;
   window.closeEventRegsModal = closeEventRegsModal;
   window.handleEventRegsOverlayClick = handleEventRegsOverlayClick;
+
+  // Quiz & Exam callbacks
+  window.openExamModal = openExamModal;
+  window.closeExamModal = closeExamModal;
+  window.setExamFilter = setExamFilter;
+  window.handleExamOverlayClick = handleExamOverlayClick;
+  window.saveExamRecord = saveExamRecord;
+  window.deleteExamRecord = deleteExamRecord;
+  window.manageQuestions = manageQuestions;
+  window.backToExamsList = backToExamsList;
+  window.openManualQuestionModal = openManualQuestionModal;
+  window.closeManualQuizModal = closeManualQuizModal;
+  window.handleManualQuizOverlayClick = handleManualQuizOverlayClick;
+  window.saveManualQuiz = saveManualQuiz;
+  window.deleteQuestion = deleteQuestion;
+  window.openAikenImportModal = openAikenImportModal;
+  window.closeAikenImportModal = closeAikenImportModal;
+  window.handleAikenOverlayClick = handleAikenOverlayClick;
+  window.previewAiken = previewAiken;
+  window.saveAikenImport = saveAikenImport;
+  window.openCsvImportModal = openCsvImportModal;
+  window.closeCsvImportModal = closeCsvImportModal;
+  window.handleCsvOverlayClick = handleCsvOverlayClick;
+  window.handleCsvFile = handleCsvFile;
+  window.saveCsvImport = saveCsvImport;
+  window.syncMqTopicKey = syncMqTopicKey;
 
   renderUI();
   init();

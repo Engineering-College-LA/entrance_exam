@@ -7,21 +7,55 @@ import { MathIcon, EnglishIcon, EventIcon } from '../components/Icons'
 export function Landing({
   onSelectSubject,
   onRegisterOpenDoor,
-  isPlacementActive,
   isRegisteredOpenDoor,
   events = [],
   registeredEventIds = [],
+  exams = [],
 }: {
-  onSelectSubject: (pageId: 'subject') => void
+  onSelectSubject: (subject: string) => void
   onRegisterOpenDoor: (eventId?: string) => void
-  isPlacementActive: boolean | null
   isRegisteredOpenDoor: boolean
   events?: any[]
   registeredEventIds?: string[]
+  exams?: any[]
 }) {
   const { t } = useLang()
   const isMobile = useIsMobile()
   const isEn = t('landing.title1') === 'Mathematics'
+
+  const getSubjectTitle = (subject: string) => {
+    if (subject && subject.includes('|')) {
+      const parts = subject.split('|')
+      return isEn ? parts[0] : (parts[1] || parts[0])
+    }
+    const key = `dashboard.subject.${subject}.title`
+    const val = t(key)
+    if (val !== key) return val
+    if (subject === 'math') return isEn ? 'Mathematics' : 'Математика'
+    if (subject === 'english') return isEn ? 'English Language' : 'Английский язык'
+    if (subject === 'physics') return isEn ? 'Physics' : 'Физика'
+    return subject.charAt(0).toUpperCase() + subject.slice(1)
+  }
+
+  const getSubjectDesc = (subject: string) => {
+    if (subject && subject.includes('|')) {
+      const title = getSubjectTitle(subject)
+      return isEn ? `Admissions and trial tests in ${title}.` : `Отборочный и пробный экзамены по предмету ${title}.`
+    }
+    const key = `dashboard.subject.${subject}.desc`
+    const val = t(key)
+    if (val !== key) return val
+    if (subject === 'math') return isEn ? 'Admissions and trial tests in Mathematics.' : 'Отборочный и пробный экзамены по математике.'
+    if (subject === 'english') return isEn ? 'Admissions test in English. Grammar, reading, and vocabulary.' : 'Вступительный экзамен по английскому. Грамматика, чтение и лексика.'
+    if (subject === 'physics') return isEn ? 'Admissions test in Physics.' : 'Вступительный экзамен по физике.'
+    return isEn ? `Tests in ${subject}.` : `Тесты по предмету ${subject}.`
+  }
+
+  const activeExams = exams || []
+  const subjects = Array.from(new Set(activeExams.map((e) => e.subject)))
+  if (subjects.length === 0) {
+    subjects.push('math')
+  }
 
   return (
     <div
@@ -143,44 +177,66 @@ export function Landing({
             width: '100%',
           }}
         >
-          {/* Card 1: Mathematics */}
-          <ExamCard
-            badge={t('dashboard.subject.math.title')}
-            desc={t('dashboard.subject.math.desc')}
-            ctaLabel={t('dashboard.subject.math.cta')}
-            onStart={() => onSelectSubject('subject')}
-            accent={COLORS.accent}
-            icon={<MathIcon size={20} />}
-            showAttempts={false}
-            customRows={[
-              [t('landing.card.format'), 'MCQ'],
-              [
-                isEn ? 'Tests' : 'Тесты',
-                isPlacementActive ? '2 (Trial & Placement)' : '1 (Trial)',
-              ],
-              [isEn ? 'Languages' : 'Языки', 'RU & EN'],
-            ]}
-          />
+          {subjects.map((subj) => {
+            const subjExams = activeExams.filter((e) => e.subject === subj)
+            const count = subjExams.length
+            const subjectTitle = getSubjectTitle(subj)
+            const subjectDesc = getSubjectDesc(subj)
 
-          {/* Card 2: English Language (Coming Soon) */}
-          <ExamCard
-            badge={t('dashboard.subject.english.title')}
-            desc={t('dashboard.subject.english.desc')}
-            ctaLabel={t('dashboard.subject.english.comingSoon')}
-            onStart={() => {}}
-            accent={COLORS.blue}
-            icon={<EnglishIcon size={20} />}
-            disabled={true}
-            disabledHint={t('dashboard.subject.english.comingSoon')}
-            disabledCta={t('dashboard.subject.english.comingSoon')}
-            showAttempts={false}
-            tooltipText={isEn ? 'Registration opens June 15' : 'Регистрация откроется 15 июня'}
-            customRows={[
-              [t('landing.card.format'), 'MCQ / Grammar'],
-              [isEn ? 'Tests' : 'Тесты', isEn ? 'Coming Soon' : 'Скоро'],
-              [isEn ? 'Languages' : 'Языки', 'EN'],
-            ]}
-          />
+            let accent: string = COLORS.accent
+            let icon = <MathIcon size={20} />
+            if (subj === 'english') {
+              accent = COLORS.blue
+              icon = <EnglishIcon size={20} />
+            } else if (subj === 'physics') {
+              accent = COLORS.blueLight
+              icon = <MathIcon size={20} />
+            }
+
+            return (
+              <ExamCard
+                key={subj}
+                badge={subjectTitle}
+                desc={subjectDesc}
+                ctaLabel={isEn ? 'Select Subject' : 'Выбрать предмет'}
+                onStart={() => onSelectSubject(subj)}
+                accent={accent}
+                icon={icon}
+                showAttempts={false}
+                customRows={[
+                  [t('landing.card.format'), 'MCQ'],
+                  [
+                    isEn ? 'Tests' : 'Тесты',
+                    count > 0
+                      ? `${count} (${subjExams.map((e) => (isEn ? e.title_en : e.title_ru)).join(', ')})`
+                      : (isEn ? 'No tests available' : 'Нет доступных тестов'),
+                  ],
+                  [isEn ? 'Languages' : 'Языки', 'RU & EN'],
+                ]}
+              />
+            )
+          })}
+
+          {!subjects.includes('english') && (
+            <ExamCard
+              badge={t('dashboard.subject.english.title')}
+              desc={t('dashboard.subject.english.desc')}
+              ctaLabel={t('dashboard.subject.english.comingSoon')}
+              onStart={() => {}}
+              accent={COLORS.blue}
+              icon={<EnglishIcon size={20} />}
+              disabled={true}
+              disabledHint={t('dashboard.subject.english.comingSoon')}
+              disabledCta={t('dashboard.subject.english.comingSoon')}
+              showAttempts={false}
+              tooltipText={isEn ? 'Registration opens June 15' : 'Регистрация откроется 15 июня'}
+              customRows={[
+                [t('landing.card.format'), 'MCQ / Grammar'],
+                [isEn ? 'Tests' : 'Тесты', isEn ? 'Coming Soon' : 'Скоро'],
+                [isEn ? 'Languages' : 'Языки', 'EN'],
+              ]}
+            />
+          )}
 
           {/* Dynamic Events */}
           {(() => {
