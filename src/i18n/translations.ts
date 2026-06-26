@@ -76,7 +76,9 @@ export const TRANSLATIONS = {
     "openDoor.thanks.home": "← Back to Home",
 
     "error.firstName": "First name is required",
+    "error.firstName.invalid": "Enter a valid first name (letters only, min 2 characters)",
     "error.lastName": "Last name (surname) is required",
+    "error.lastName.invalid": "Enter a valid last name (letters only, min 2 characters)",
         "error.phone": "Enter a valid phone: +996 followed by 9 digits",
         "error.placementAlreadyTaken": "This phone number has already completed the placement test on this device.",
         "error.grade": "Please select your grade",
@@ -293,7 +295,9 @@ export const TRANSLATIONS = {
     "openDoor.thanks.home": "← На главную",
 
     "error.firstName": "Введите имя",
+    "error.firstName.invalid": "Введите корректное имя (только буквы, минимум 2 символа)",
     "error.lastName": "Введите фамилию",
+    "error.lastName.invalid": "Введите корректную фамилию (только буквы, минимум 2 символа)",
         "error.phone": "Введите телефон в формате +996 и 9 цифр",
         "error.placementAlreadyTaken": "Этот номер уже проходил отборочный экзамен на этом устройстве.",
         "error.grade": "Выберите класс",

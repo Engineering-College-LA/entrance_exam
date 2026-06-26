@@ -93,20 +93,40 @@ export const TimeService = {
 
 export type RegistrationForm = Record<string, string>
 
+// Accepts Cyrillic letters, Latin letters, hyphens, apostrophes and spaces; min 2, max 50 chars
+const NAME_RE = /^[A-Za-zА-Яа-яЁёҢңҮүҚқӨөҮүҺһ][A-Za-zА-Яа-яЁёҢңҮүҚқӨөҮүҺһ\s\-']{1,49}$/
+
+const isValidName = (value: string): boolean => {
+  const v = value.trim()
+  if (v.length < 2 || v.length > 50) return false
+  if (!NAME_RE.test(v)) return false
+  // Reject strings with 5+ consecutive identical characters (keyboard mash heuristic)
+  if (/(.)\1{4,}/.test(v)) return false
+  return true
+}
+
 export const ValidationService = {
-  registrationErrors(form: RegistrationForm, examType: string, requireParentInfo?: boolean) {
+  registrationErrors(form: RegistrationForm, examType: string) {
     const errs: Record<string, string> = {}
-    if (!form.firstName) errs.firstName = 'error.firstName'
-    if (!form.lastName) errs.lastName = 'error.lastName'
+    if (!form.firstName?.trim()) {
+      errs.firstName = 'error.firstName'
+    } else if (!isValidName(form.firstName)) {
+      errs.firstName = 'error.firstName.invalid'
+    }
+    if (!form.lastName?.trim()) {
+      errs.lastName = 'error.lastName'
+    } else if (!isValidName(form.lastName)) {
+      errs.lastName = 'error.lastName.invalid'
+    }
     if (!/^\+996\d{9}$/.test(form.phone ?? '')) errs.phone = 'error.phone'
     else if (
-      (examType === 'placement' || examType.endsWith('placement')) &&
+      examType === 'placement' &&
       hasPhoneCompletedPlacement(form.phone ?? '')
     ) {
       errs.phone = 'error.placementAlreadyTaken'
     }
     if (!form.grade) errs.grade = 'error.grade'
-    if (examType === 'placement' || examType === 'openDoor' || requireParentInfo) {
+    if (examType === 'placement' || examType === 'openDoor') {
       if (!/^\+996\d{9}$/.test(form.parentPhone ?? ''))
         errs.parentPhone = 'error.parentPhone'
       if (!form.parentName?.trim()) errs.parentName = 'error.parentName'
@@ -120,12 +140,12 @@ export const ValidationService = {
         errs.parentPhone = 'error.parentPhoneMustDiffer'
       }
     }
-    if ((examType === 'placement' || requireParentInfo) && !form.attended)
+    if (examType === 'placement' && !form.attended)
       errs.attended = 'error.attended'
     return errs
   },
-  registration(form: RegistrationForm, examType: string, requireParentInfo?: boolean) {
-    const errs = this.registrationErrors(form, examType, requireParentInfo)
+  registration(form: RegistrationForm, examType: string) {
+    const errs = this.registrationErrors(form, examType)
     const valid = Object.keys(errs).length === 0
     return { valid, errs }
   },
