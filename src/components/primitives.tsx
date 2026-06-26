@@ -8,6 +8,7 @@ import {
 import { COLORS } from '../constants'
 import { PAGES, STEP_KEYS } from '../constants'
 import { useLang } from '../context/LangContext'
+import { useIsMobile } from '../hooks/examHooks'
 import { Styles } from '../styles'
 import type { RegistrationField } from '../types/exam'
 
@@ -34,6 +35,7 @@ export function Breadcrumb({
 
 export function StepBar({ current }: { current: keyof typeof PAGES }) {
   const { t } = useLang()
+  const isMobile = useIsMobile()
   const active = PAGES[current]?.step ?? -1
   return (
     <div style={{ display: 'flex', alignItems: 'center', marginBottom: 32 }}>
@@ -46,7 +48,7 @@ export function StepBar({ current }: { current: keyof typeof PAGES }) {
             flex: i < STEP_KEYS.length - 1 ? 1 : 'none',
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 0 : 7 }}>
             <div
               style={{
                 width: 28,
@@ -82,21 +84,23 @@ export function StepBar({ current }: { current: keyof typeof PAGES }) {
             >
               {i < active ? '✓' : i + 1}
             </div>
-            <span
-              style={{
-                fontSize: 12,
-                fontWeight: 600,
-                whiteSpace: 'nowrap',
-                color:
-                  i === active
-                    ? COLORS.blue
-                    : i < active
-                      ? COLORS.success
-                      : COLORS.muted,
-              }}
-            >
-              {t(key)}
-            </span>
+            {!isMobile && (
+              <span
+                style={{
+                  fontSize: 12,
+                  fontWeight: 600,
+                  whiteSpace: 'nowrap',
+                  color:
+                    i === active
+                      ? COLORS.blue
+                      : i < active
+                        ? COLORS.success
+                        : COLORS.muted,
+                }}
+              >
+                {t(key)}
+              </span>
+            )}
           </div>
           {i < STEP_KEYS.length - 1 && (
             <div

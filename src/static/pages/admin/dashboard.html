@@ -424,6 +424,15 @@
           </div>
         </div>
         <div style="display:flex;gap:8px;align-items:center">
+          <!-- Subject Filter -->
+          <div class="date-filter-wrap" id="subject-filter-wrap">
+            <button class="date-filter-btn" id="subject-filter-btn" onclick="toggleSubjectDropdown()" type="button">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3zM5.89 12.5L12 15.83l6.11-3.33c-.7-.38-6.11-3.33-6.11-3.33L5.89 12.5zM12 18.06V21c0 .55.45 1 1 1h2c.55 0 1-.45 1-1v-2.94l-2-1.09-2 1.03z"/></svg>
+              <span id="subject-filter-label">All subjects</span>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 10l5 5 5-5H7z"/></svg>
+            </button>
+            <div class="date-dropdown" id="subject-dropdown"></div>
+          </div>
           <div class="date-filter-wrap" id="date-filter-wrap">
             <button class="date-filter-btn" id="date-filter-btn" onclick="toggleDateDropdown()" type="button">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20 3h-1V1h-2v2H7V1H5v2H4C2.9 3 2 3.9 2 5v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 18H4V8h16v13zm0-15H4V5h16v1z"/></svg>
@@ -1225,6 +1234,8 @@
       "sort.default":       "Sort by score (click: highest first)",
       "date.all":           "All dates",
       "date.title":         "Filter by date",
+      "subject.all":        "All subjects",
+      "subject.title":      "Filter by subject",
       "topbar.date.locale": "en-US",
     },
     ru: {
@@ -1314,6 +1325,8 @@
       "sort.default":       "Сортировать по баллу",
       "date.all":           "Все даты",
       "date.title":         "Фильтр по дате",
+      "subject.all":        "Все предметы",
+      "subject.title":      "Фильтр по предмету",
       "topbar.date.locale": "ru-RU",
     },
   };
@@ -1402,6 +1415,8 @@
     document.getElementById("filter-all").textContent         = tAdmin("filter.all");
     document.getElementById("filter-trial").textContent       = tAdmin("filter.trial");
     document.getElementById("filter-placement").textContent   = tAdmin("filter.placement");
+    updateDateFilterBtn();
+    updateSubjectFilterBtn();
     const filterExAll = document.getElementById("filter-exam-all");
     if (filterExAll) filterExAll.textContent = tAdmin("filter.all");
     const filterExTrial = document.getElementById("filter-exam-trial");
@@ -1680,6 +1695,7 @@
   let scoreSortOrder = null;
   /** null = show all dates; "YYYY-MM-DD" = specific day */
   let activeDateFilter = null;
+  let activeSubjectFilter = null;
 
   function toggleScoreSort() {
     if (scoreSortOrder === null) scoreSortOrder = "desc";
@@ -1763,6 +1779,7 @@
   let _closeDateDropdownOutside = null;
 
   function toggleDateDropdown() {
+    closeSubjectDropdown();
     const dd = document.getElementById("date-dropdown");
     if (dd.classList.contains("open")) {
       closeDateDropdown();
@@ -1799,6 +1816,117 @@
     if (_closeDateDropdownOutside) {
       document.removeEventListener("click", _closeDateDropdownOutside);
       _closeDateDropdownOutside = null;
+    }
+  }
+
+  // ── Subject filter ──────────────────────────────────────────────────────────
+  function getApplicantSubject(r) {
+    const exam = allExams.find(ex => ex.id === r.examType);
+    if (exam && exam.subject) {
+      return exam.subject;
+    }
+    const type = String(r.examType || "").toLowerCase();
+    if (type === "trial" || type === "placement") {
+      return "math";
+    }
+    if (type.includes("-")) {
+      const prefix = type.split("-")[0];
+      if (prefix && prefix !== "trial" && prefix !== "placement") {
+        return prefix;
+      }
+    }
+    if (type.includes("math")) return "math";
+    if (type.includes("english")) return "english";
+    if (type.includes("physics")) return "physics";
+    if (type.includes("chemistry")) return "chemistry";
+    return "math";
+  }
+
+  function getSubjectDisplayName(subject, lang) {
+    if (!subject) return lang === "ru" ? "Неизвестно" : "Unknown";
+    if (subject.includes("|")) {
+      const parts = subject.split("|");
+      return lang === "ru" ? (parts[1] || parts[0]) : parts[0];
+    }
+    const subjectMapRu = { math: "Математика", english: "Английский язык", physics: "Физика", chemistry: "Химия" };
+    const subjectMapEn = { math: "Mathematics", english: "English Language", physics: "Physics", chemistry: "Chemistry" };
+    return lang === "ru" ? (subjectMapRu[subject] || subject) : (subjectMapEn[subject] || subject);
+  }
+
+  function getAvailableSubjects() {
+    const counts = {};
+    for (const ex of allExams) {
+      if (ex.subject) counts[ex.subject] = 0;
+    }
+    for (const r of allApplicants) {
+      const subj = getApplicantSubject(r);
+      if (subj) counts[subj] = (counts[subj] || 0) + 1;
+    }
+    return Object.entries(counts)
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+      .map(([key, count]) => ({ key, count }));
+  }
+
+  function updateSubjectFilterBtn() {
+    const btn = document.getElementById("subject-filter-btn");
+    const label = document.getElementById("subject-filter-label");
+    if (!btn || !label) return;
+    if (activeSubjectFilter) {
+      label.textContent = getSubjectDisplayName(activeSubjectFilter, adminLang);
+      btn.classList.add("active");
+    } else {
+      label.textContent = tAdmin("subject.all");
+      btn.classList.remove("active");
+    }
+  }
+
+  function setSubjectFilter(subjectKey) {
+    activeSubjectFilter = subjectKey || null;
+    closeSubjectDropdown();
+    updateSubjectFilterBtn();
+    renderAll();
+  }
+
+  let _closeSubjectDropdownOutside = null;
+
+  function toggleSubjectDropdown() {
+    closeDateDropdown();
+    const dd = document.getElementById("subject-dropdown");
+    if (dd.classList.contains("open")) {
+      closeSubjectDropdown();
+    } else {
+      openSubjectDropdown();
+    }
+  }
+
+  function openSubjectDropdown() {
+    const dd = document.getElementById("subject-dropdown");
+    const subjects = getAvailableSubjects();
+    dd.innerHTML =
+      `<div class="date-dropdown-header">${tAdmin("subject.title")}</div>` +
+      `<div class="date-option${!activeSubjectFilter ? " selected" : ""}" onclick="setSubjectFilter(null)">` +
+        `${tAdmin("subject.all")}<span class="date-option-count">${allApplicants.length}</span>` +
+      `</div>` +
+      subjects.map(s =>
+        `<div class="date-option${activeSubjectFilter === s.key ? " selected" : ""}" onclick="setSubjectFilter('${s.key}')">` +
+          `${getSubjectDisplayName(s.key, adminLang)}<span class="date-option-count">${s.count}</span>` +
+        `</div>`
+      ).join("");
+    dd.classList.add("open");
+    if (_closeSubjectDropdownOutside) document.removeEventListener("click", _closeSubjectDropdownOutside);
+    _closeSubjectDropdownOutside = (e) => {
+      const wrap = document.getElementById("subject-filter-wrap");
+      if (wrap && !wrap.contains(e.target)) closeSubjectDropdown();
+    };
+    setTimeout(() => document.addEventListener("click", _closeSubjectDropdownOutside, { once: true }), 0);
+  }
+
+  function closeSubjectDropdown() {
+    const dd = document.getElementById("subject-dropdown");
+    if (dd) dd.classList.remove("open");
+    if (_closeSubjectDropdownOutside) {
+      document.removeEventListener("click", _closeSubjectDropdownOutside);
+      _closeSubjectDropdownOutside = null;
     }
   }
 
@@ -1886,6 +2014,9 @@
     let data = activeFilter === "all"
       ? allApplicants
       : allApplicants.filter(r => r.examType === activeFilter);
+    if (activeSubjectFilter) {
+      data = data.filter(r => getApplicantSubject(r) === activeSubjectFilter);
+    }
     if (activeDateFilter) {
       data = data.filter(r => toDateKey(r.completedAt) === activeDateFilter);
     }
@@ -1946,8 +2077,9 @@
     const rows = data.map((r, i) => {
       const color = scoreColor(r.score);
       const label = gradeLabel(r.score);
-      const typeLabel = r.examType === "placement" ? tAdmin("type.placement") : tAdmin("type.trial");
-      const typeColor = r.examType === "placement" ? "#1565c0" : "#e8a020";
+      const isPlacement = String(r.examType || "").toLowerCase().includes("placement");
+      const typeLabel = isPlacement ? tAdmin("type.placement") : tAdmin("type.trial");
+      const typeColor = isPlacement ? "#1565c0" : "#e8a020";
       const openDoorBadge = odPhones.has(normalizePhone(r.phone))
         ? `<span class="badge" style="background:#1b8c5e18;color:#1b8c5e;border:1px solid #1b8c5e44">${tAdmin("openDoor.regYes")}</span>`
         : "—";
@@ -2058,11 +2190,12 @@
     const color = scoreColor(pct);
     const label = gradeLabel(pct);
     const lang = adminLang;
-    const typeLabel = tr(lang, r.examType === "placement" ? "report.type.placement" : "report.type.trial");
+    const isPlacement = String(r.examType || "").toLowerCase().includes("placement");
+    const typeLabel = tr(lang, isPlacement ? "report.type.placement" : "report.type.trial");
 
     // Hero
     document.getElementById("rpt-title").textContent =
-      tr(lang, r.examType === "placement" ? "report.completed.placement" : "report.completed.trial");
+      tr(lang, isPlacement ? "report.completed.placement" : "report.completed.trial");
     document.getElementById("rpt-sub").innerHTML =
       `${tr(lang, "report.desc")} <span class="rpt-hero-name">${r.firstName} ${r.lastName}</span>`;
     document.getElementById("rpt-pct").textContent = pct + "%";
@@ -2100,7 +2233,7 @@
 
     // Parent strip (placement only)
     const parentStrip = document.getElementById("rpt-parent-strip");
-    if (r.examType === "placement" && (r.parentName || r.parentPhone)) {
+    if (isPlacement && (r.parentName || r.parentPhone)) {
       document.getElementById("rpt-lbl-parent").textContent       = tr(lang, "report.strip.parent");
       document.getElementById("rpt-lbl-parent-phone").textContent = tr(lang, "report.strip.parentPhone");
       document.getElementById("rpt-lbl-attended").textContent     = tr(lang, "report.strip.attended");
@@ -3694,6 +3827,8 @@
   window.handleCsvFile = handleCsvFile;
   window.saveCsvImport = saveCsvImport;
   window.syncMqTopicKey = syncMqTopicKey;
+  window.toggleSubjectDropdown = toggleSubjectDropdown;
+  window.setSubjectFilter = setSubjectFilter;
 
   renderUI();
   init();
