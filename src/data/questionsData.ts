@@ -273,8 +273,8 @@ export const PLACEMENT_EXTRA_FIELDS = [
 ];
 
 export const EXAM_RULES = [
-  { icon: "⏱", color: "#e8f0fb", titleKey: "rule.timer.title", descKey: "rule.timer.desc" },
-  { icon: "🚫", color: "#fdecea", titleKey: "rule.attempt.title", descKey: "rule.attempt.desc" },
-  { icon: "↔️", color: "#fef4e0", titleKey: "rule.navigate.title", descKey: "rule.navigate.desc" },
-  { icon: "📶", color: "#e7f5ee", titleKey: "rule.connection.title", descKey: "rule.connection.desc" },
+  { icon: "⏱", color: "#e8f0fb", textColor: "#1565c0", titleKey: "rule.timer.title", descKey: "rule.timer.desc" },
+  { icon: "🚫", color: "#fdecea", textColor: "#d32f2f", titleKey: "rule.attempt.title", descKey: "rule.attempt.desc" },
+  { icon: "↔️", color: "#fef4e0", textColor: "#b78103", titleKey: "rule.navigate.title", descKey: "rule.navigate.desc" },
+  { icon: "📶", color: "#e7f5ee", textColor: "#1b8c5e", titleKey: "rule.connection.title", descKey: "rule.connection.desc" },
 ];

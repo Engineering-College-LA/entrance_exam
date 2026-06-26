@@ -343,11 +343,13 @@ export function NavDot({
 export function RuleCard({
   icon,
   color,
+  textColor,
   titleKey,
   descKey,
 }: {
   icon: string
   color: string
+  textColor?: string
   titleKey: string
   descKey: string
 }) {
@@ -368,6 +370,7 @@ export function RuleCard({
           height: 38,
           borderRadius: 6,
           background: color,
+          color: textColor,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
