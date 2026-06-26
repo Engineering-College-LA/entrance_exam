@@ -350,17 +350,6 @@
       <span id="lbl-nav-quizzes">Exams</span>
     </button>
 
-    <div class="nav-section-label" id="lbl-nav-settings">Settings</div>
-    <div class="toggle-row">
-      <div class="toggle-label">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="#8fa3c0"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/></svg>
-        <span id="lbl-nav-placement">Placement Test</span>
-      </div>
-      <label class="toggle-switch">
-        <input type="checkbox" id="placement-toggle" onchange="togglePlacement(this.checked)" />
-        <span class="toggle-track"></span>
-      </label>
-    </div>
     <div class="sidebar-lang">
       <button class="sidebar-lang-btn active" id="lang-btn-ru" onclick="setAdminLang('ru')">RU</button>
       <button class="sidebar-lang-btn"        id="lang-btn-en" onclick="setAdminLang('en')">EN</button>
@@ -1395,8 +1384,6 @@
     if (lblNavQuizzes) lblNavQuizzes.textContent = tAdmin("nav.quizzes");
     const lblNavEvents = document.getElementById("lbl-nav-events");
     if (lblNavEvents) lblNavEvents.textContent = tAdmin("nav.events");
-    document.getElementById("lbl-nav-settings").textContent   = tAdmin("nav.settings");
-    document.getElementById("lbl-nav-placement").textContent  = tAdmin("nav.placement");
     document.getElementById("lbl-logout").textContent         = tAdmin("nav.logout");
     // Events elements
     const lblEventsSecTitle = document.getElementById("lbl-events-section-title");
@@ -2352,40 +2339,7 @@
     return _sb;
   }
 
-  async function loadPlacementSetting() {
-    try {
-      const sb = await getSB();
-      const { data, error } = await sb.from("settings").select("value").eq("key", "placement_active").single();
-      if (error) {
-        console.warn("Could not read placement setting:", error.message);
-        document.getElementById("placement-toggle").checked = true; // default on
-        return;
-      }
-      document.getElementById("placement-toggle").checked = data ? data.value === "true" : true;
-    } catch(e) {
-      document.getElementById("placement-toggle").checked = true; // default on
-    }
-  }
 
-  async function togglePlacement(checked) {
-    const toggle = document.getElementById("placement-toggle");
-    try {
-      const sb = await getSB();
-      const { error } = await sb.from("settings").upsert(
-        { key: "placement_active", value: String(checked) },
-        { onConflict: "key" }
-      );
-      if (error) {
-        toggle.checked = !checked; // revert visual state
-        alert("❌ Failed to save setting:\n" + error.message);
-        console.error("Supabase togglePlacement error:", error);
-      }
-    } catch(e) {
-      toggle.checked = !checked; // revert visual state
-      alert("❌ Could not connect to Supabase:\n" + (e.message || e));
-      console.error("togglePlacement exception:", e);
-    }
-  }
 
   // ── Data loading ────────────────────────────────────────────────────────────
   async function init() {
@@ -2479,7 +2433,6 @@
       allQuestions = [];
     }
 
-    await loadPlacementSetting();
     renderAll();
   }
 
