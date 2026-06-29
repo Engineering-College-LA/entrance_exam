@@ -69,6 +69,9 @@
 
     /* ── Section / Table ── */
     .section { background: #ffffff; border: 1px solid #dde3ed; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,.04); }
+    .section.overflow-visible { overflow: visible; }
+    .section.overflow-visible .section-header { border-top-left-radius: 9px; border-top-right-radius: 9px; }
+    .section.overflow-visible #table-container { border-bottom-left-radius: 9px; border-bottom-right-radius: 9px; overflow: hidden; }
     .section-header { padding: 16px 22px; background: #f7f9fc; border-bottom: 1px solid #dde3ed; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
     .section-title { font-size: 14px; font-weight: 700; color: #0b1f3a; }
     .section-count { font-size: 12px; color: #6b7a95; font-weight: 400; }
@@ -302,7 +305,7 @@
     .date-filter-btn { display: flex; align-items: center; gap: 6px; border: 1.5px solid #dde3ed; border-radius: 6px; padding: 7px 12px; font-size: 12px; font-weight: 600; font-family: inherit; color: #1a2535; background: #ffffff; cursor: pointer; white-space: nowrap; transition: border-color .15s, background .15s, color .15s; }
     .date-filter-btn:hover { border-color: #b0bcd0; }
     .date-filter-btn.active { border-color: #1565c0; color: #1565c0; background: #e3f0ff; }
-    .date-dropdown { position: absolute; top: calc(100% + 4px); right: 0; min-width: 220px; background: #fff; border: 1px solid #dde3ed; border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,.12); z-index: 100; overflow: hidden; display: none; }
+    .date-dropdown { position: absolute; top: calc(100% + 4px); right: 0; min-width: 220px; background: #fff; border: 1px solid #dde3ed; border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,.12); z-index: 100; overflow-y: auto; max-height: 280px; display: none; }
     .date-dropdown.open { display: block; }
     .date-dropdown-header { padding: 8px 14px; font-size: 11px; font-weight: 600; color: #6b7a95; text-transform: uppercase; letter-spacing: .5px; border-bottom: 1px solid #f0f3f9; }
     .date-option { display: flex; align-items: center; justify-content: space-between; padding: 9px 14px; font-size: 13px; color: #1a2535; cursor: pointer; transition: background .12s; gap: 12px; }
@@ -399,7 +402,7 @@
     </div>
 
     <!-- Table -->
-    <div class="section">
+    <div class="section overflow-visible">
       <div class="section-header">
         <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
           <div>

@@ -94,22 +94,22 @@
       <img src="../../assets/app_logo.png" alt="E|C" onerror="this.style.display='none'" />
       <div>
         <div class="logo-row-text">Engineering College</div>
-        <div class="logo-row-sub">Admin Portal</div>
+        <div class="logo-row-sub" id="lbl-admin-portal">Admin Portal</div>
       </div>
     </div>
     <div class="divider"></div>
-    <h1>Sign In</h1>
-    <p class="subtitle">Access the admin dashboard</p>
+    <h1 id="lbl-sign-in">Sign In</h1>
+    <p class="subtitle" id="lbl-subtitle">Access the admin dashboard</p>
 
-    <label for="username">Username</label>
+    <label for="username" id="lbl-username">Username</label>
     <input type="text" id="username" placeholder="Enter username" autocomplete="username" />
 
-    <label for="password">Password</label>
+    <label for="password" id="lbl-password">Password</label>
     <input type="password" id="password" placeholder="Enter password" autocomplete="current-password" />
     <div class="error-msg" id="error-msg">Incorrect username or password.</div>
 
     <button class="btn" id="login-btn" onclick="handleLogin()">Sign In</button>
-    <a class="back-link" href="../../index.html">← Back to Trial Test</a>
+    <a class="back-link" href="../../index.html" id="lbl-back">← Back to Trial Test</a>
   </div>
 
   <script>
@@ -121,6 +121,55 @@
     const ADMIN_USER = "admin";
     const ADMIN_PASS = "EC@2025";
 
+    // ── Localization ────────────────────────────────────────────────────────────
+    const LOGIN_STRINGS = {
+      en: {
+        adminPortal:     "Admin Portal",
+        signIn:          "Sign In",
+        subtitle:        "Access the admin dashboard",
+        username:        "Username",
+        password:        "Password",
+        btnSignIn:       "Sign In",
+        backLink:        "← Back to Trial Test",
+        errInvalid:      "Incorrect username or password.",
+        errBothRequired: "Please enter both username and password.",
+        pageTitle:       "Admin Login — E|C Engineering College",
+        userPlaceholder: "Enter username",
+        passPlaceholder: "Enter password",
+      },
+      ru: {
+        adminPortal:     "Панель администратора",
+        signIn:          "Вход",
+        subtitle:        "Доступ к панели администратора",
+        username:        "Имя пользователя",
+        password:        "Пароль",
+        btnSignIn:       "Войти",
+        backLink:        "← Назад к пробному экзамену",
+        errInvalid:      "Неверное имя пользователя или пароль.",
+        errBothRequired: "Введите имя пользователя и пароль.",
+        pageTitle:       "Вход — E|C Engineering College",
+        userPlaceholder: "Введите логин",
+        passPlaceholder: "Введите пароль",
+      },
+    };
+
+    const loginLang = localStorage.getItem("ec_admin_lang") || "ru";
+    const S = LOGIN_STRINGS[loginLang] || LOGIN_STRINGS.en;
+
+    document.documentElement.lang                                  = loginLang;
+    document.title                                                 = S.pageTitle;
+    document.getElementById("lbl-admin-portal").textContent        = S.adminPortal;
+    document.getElementById("lbl-sign-in").textContent             = S.signIn;
+    document.getElementById("lbl-subtitle").textContent            = S.subtitle;
+    document.getElementById("lbl-username").textContent            = S.username;
+    document.getElementById("lbl-password").textContent            = S.password;
+    document.getElementById("login-btn").textContent               = S.btnSignIn;
+    document.getElementById("lbl-back").textContent                = S.backLink;
+    document.getElementById("username").placeholder                = S.userPlaceholder;
+    document.getElementById("password").placeholder                = S.passPlaceholder;
+    document.getElementById("error-msg").textContent               = S.errInvalid;
+
+    // ── Auth ────────────────────────────────────────────────────────────────────
     function handleLogin() {
       const username = document.getElementById("username").value.trim();
       const password = document.getElementById("password").value;
@@ -133,7 +182,7 @@
       passEl.classList.remove("error");
 
       if (!username || !password) {
-        errMsg.textContent = "Please enter both username and password.";
+        errMsg.textContent = S.errBothRequired;
         errMsg.classList.add("visible");
         if (!username) userEl.classList.add("error");
         if (!password) passEl.classList.add("error");
@@ -144,7 +193,7 @@
         sessionStorage.setItem("ec_admin_auth", "1");
         window.location.replace("dashboard.html");
       } else {
-        errMsg.textContent = "Incorrect username or password.";
+        errMsg.textContent = S.errInvalid;
         errMsg.classList.add("visible");
         passEl.classList.add("error");
         passEl.value = "";

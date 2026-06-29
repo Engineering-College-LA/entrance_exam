@@ -262,6 +262,7 @@ export function ExamCard({
             padding: '10px 0',
             borderBottom: '1px solid color-mix(in srgb, var(--t-text) 6%, transparent)',
             fontSize: 13,
+            gap: 16,
           }}
         >
           <span
@@ -269,6 +270,7 @@ export function ExamCard({
               color: disabled
                 ? 'color-mix(in srgb, var(--t-text) 35%, transparent)'
                 : 'var(--t-muted)',
+              flexShrink: 0,
             }}
           >
             {label}
@@ -279,6 +281,7 @@ export function ExamCard({
                 ? 'color-mix(in srgb, var(--t-text) 50%, transparent)'
                 : 'var(--t-text)',
               fontWeight: 600,
+              textAlign: 'right',
             }}
           >
             {val}
