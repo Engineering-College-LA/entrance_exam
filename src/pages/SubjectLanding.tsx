@@ -327,6 +327,7 @@ export function SubjectLanding({
                   }
                   icon={isPlacement ? <TargetIcon size={20} /> : <MathIcon size={20} />}
                   variant="primary"
+                  isPlacement={isPlacement}
                 />
               )
             })}

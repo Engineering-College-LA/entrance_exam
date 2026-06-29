@@ -15,6 +15,7 @@ export function ExamCard({
   disabledCta,
   customRows,
   showAttempts = true,
+  isPlacement = false,
   icon,
   variant = 'primary',
   statusBadge,
@@ -33,6 +34,7 @@ export function ExamCard({
   disabledCta?: string
   customRows?: [string, string][]
   showAttempts?: boolean
+  isPlacement?: boolean
   icon?: React.ReactNode
   variant?: 'primary' | 'secondary' | 'success'
   statusBadge?: string
@@ -328,7 +330,7 @@ export function ExamCard({
               letterSpacing: 0.5,
             }}
           >
-            {t('landing.card.attempts.val')}
+            {t(isPlacement ? 'landing.card.attempts.val.placement' : 'landing.card.attempts.val')}
           </span>
         </div>
       )}

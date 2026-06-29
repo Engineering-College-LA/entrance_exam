@@ -33,7 +33,7 @@ export const TRANSLATIONS = {
     "landing.card.time": "Time Limit",
     "landing.card.time.val": "60 minutes",
     "landing.card.attempts": "Attempts",
-    "landing.card.attempts.val": "ONE ATTEMPT",
+    "landing.card.attempts.val": "UNLIMITED",
     "landing.card.results": "Results",
     "landing.card.results.val": "Instant Report",
 
@@ -249,7 +249,7 @@ export const TRANSLATIONS = {
     "landing.card.time": "Лимит времени",
     "landing.card.time.val": "60 минут",
     "landing.card.attempts": "Попытки",
-    "landing.card.attempts.val": "ОДНА ПОПЫТКА",
+    "landing.card.attempts.val": "НЕОГРАНИЧЕННО",
     "landing.card.results": "Результаты",
     "landing.card.results.val": "Мгновенный отчёт",
 

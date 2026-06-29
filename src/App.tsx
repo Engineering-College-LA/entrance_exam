@@ -297,6 +297,7 @@ function AppInner() {
           onStart={() => nav.go('exam')}
           totalQuestions={questions.length}
           timeLimitSec={timeLimitSec}
+          examType={nav.examType}
         />
       )}
       {nav.page === 'exam' && (
