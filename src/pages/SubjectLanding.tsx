@@ -9,7 +9,6 @@ import { MathIcon, EventIcon, FileTextIcon, TargetIcon } from '../components/Ico
 export function SubjectLanding({
   onStartExam,
   onRegisterOpenDoor,
-  isPlacementActive,
   onBack,
   isRegisteredOpenDoor,
   events = [],
@@ -20,7 +19,6 @@ export function SubjectLanding({
 }: {
   onStartExam: (exam: any) => void
   onRegisterOpenDoor: (eventId?: string) => void
-  isPlacementActive: boolean | null
   onBack: () => void
   isRegisteredOpenDoor: boolean
   events?: any[]
@@ -221,7 +219,6 @@ export function SubjectLanding({
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               {subjExams.map((exam) => {
-                if (exam.id === 'math-placement' && !isPlacementActive) return null
                 const isPlacement = exam.id === 'math-placement' || exam.require_parent_info
 
                 const examTitle = isEn ? exam.title_en : exam.title_ru
@@ -282,7 +279,6 @@ export function SubjectLanding({
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             {subjExams.map((exam) => {
-              if (exam.id === 'math-placement' && !isPlacementActive) return null
               const isPlacement = exam.id === 'math-placement' || exam.require_parent_info
               const isCachedOut = isPlacement && placementCachedOut
 
@@ -331,6 +327,7 @@ export function SubjectLanding({
                   }
                   icon={isPlacement ? <TargetIcon size={20} /> : <MathIcon size={20} />}
                   variant="primary"
+                  isPlacement={isPlacement}
                 />
               )
             })}

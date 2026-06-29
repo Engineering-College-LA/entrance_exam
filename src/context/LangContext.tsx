@@ -19,7 +19,15 @@ type LangContextValue = {
 const LangContext = createContext<LangContextValue | null>(null)
 
 export function LangProvider({ children }: { children: ReactNode }) {
-  const [lang, setLang] = useState<Lang>('ru')
+  const [lang, setLangState] = useState<Lang>(() => {
+    const saved = localStorage.getItem('ec_admin_lang')
+    return (saved === 'ru' || saved === 'en') ? saved : 'ru'
+  })
+
+  const setLang = useCallback((l: Lang) => {
+    setLangState(l)
+    localStorage.setItem('ec_admin_lang', l)
+  }, [])
 
   useEffect(() => {
     document.documentElement.lang = lang

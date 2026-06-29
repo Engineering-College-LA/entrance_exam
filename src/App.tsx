@@ -62,7 +62,6 @@ function AppInner() {
   const { lang, t } = useLang()
   const nav = usePageNav()
   const [questions, setQuestions] = useState<ExamQuestion[]>([])
-  const [isPlacementActive, setIsPlacementActive] = useState<boolean | null>(null)
   const [isRegisteredOpenDoor, setIsRegisteredOpenDoor] = useState(() => {
     if (typeof window === 'undefined') return false
     return localStorage.getItem('project_fest_registered') === 'true' || localStorage.getItem('registered_event_project-fest') === 'true'
@@ -152,35 +151,6 @@ function AppInner() {
       }
     }
     void fetchEvents()
-  }, [])
-
-  useEffect(() => {
-    const channel = supabase
-      ?.channel('settings-changes')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'settings' },
-        (payload) => {
-          const row = payload.new as { key?: string; value?: string } | undefined
-          if (row?.key === 'placement_active') {
-            setIsPlacementActive(row.value === 'true')
-          }
-        },
-      )
-      .subscribe(async () => {
-        if (!supabase) { setIsPlacementActive(false); return }
-        const { data, error } = await supabase
-          .from('settings')
-          .select('value')
-          .eq('key', 'placement_active')
-          .single()
-        if (error || !data) { setIsPlacementActive(false); return }
-        setIsPlacementActive(data.value === 'true')
-      })
-
-    return () => {
-      void supabase?.removeChannel(channel!)
-    }
   }, [])
 
   useEffect(() => {
@@ -303,7 +273,6 @@ function AppInner() {
         <SubjectLanding
           onStartExam={handleStartExam}
           onRegisterOpenDoor={handleRegisterOpenDoor}
-          isPlacementActive={isPlacementActive}
           onBack={() => nav.go('landing')}
           isRegisteredOpenDoor={isRegisteredOpenDoor}
           events={events}
@@ -328,6 +297,7 @@ function AppInner() {
           onStart={() => nav.go('exam')}
           totalQuestions={questions.length}
           timeLimitSec={timeLimitSec}
+          examType={nav.examType}
         />
       )}
       {nav.page === 'exam' && (

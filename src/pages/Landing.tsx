@@ -217,26 +217,6 @@ export function Landing({
             )
           })}
 
-          {!subjects.includes('english') && (
-            <ExamCard
-              badge={t('dashboard.subject.english.title')}
-              desc={t('dashboard.subject.english.desc')}
-              ctaLabel={t('dashboard.subject.english.comingSoon')}
-              onStart={() => {}}
-              accent={COLORS.blue}
-              icon={<EnglishIcon size={20} />}
-              disabled={true}
-              disabledHint={t('dashboard.subject.english.comingSoon')}
-              disabledCta={t('dashboard.subject.english.comingSoon')}
-              showAttempts={false}
-              tooltipText={isEn ? 'Registration opens June 15' : 'Регистрация откроется 15 июня'}
-              customRows={[
-                [t('landing.card.format'), 'MCQ / Grammar'],
-                [isEn ? 'Tests' : 'Тесты', isEn ? 'Coming Soon' : 'Скоро'],
-                [isEn ? 'Languages' : 'Языки', 'EN'],
-              ]}
-            />
-          )}
 
           {/* Dynamic Events */}
           {(() => {

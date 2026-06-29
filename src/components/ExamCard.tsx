@@ -15,6 +15,7 @@ export function ExamCard({
   disabledCta,
   customRows,
   showAttempts = true,
+  isPlacement = false,
   icon,
   variant = 'primary',
   statusBadge,
@@ -33,6 +34,7 @@ export function ExamCard({
   disabledCta?: string
   customRows?: [string, string][]
   showAttempts?: boolean
+  isPlacement?: boolean
   icon?: React.ReactNode
   variant?: 'primary' | 'secondary' | 'success'
   statusBadge?: string
@@ -262,6 +264,7 @@ export function ExamCard({
             padding: '10px 0',
             borderBottom: '1px solid color-mix(in srgb, var(--t-text) 6%, transparent)',
             fontSize: 13,
+            gap: 16,
           }}
         >
           <span
@@ -269,6 +272,7 @@ export function ExamCard({
               color: disabled
                 ? 'color-mix(in srgb, var(--t-text) 35%, transparent)'
                 : 'var(--t-muted)',
+              flexShrink: 0,
             }}
           >
             {label}
@@ -279,6 +283,7 @@ export function ExamCard({
                 ? 'color-mix(in srgb, var(--t-text) 50%, transparent)'
                 : 'var(--t-text)',
               fontWeight: 600,
+              textAlign: 'right',
             }}
           >
             {val}
@@ -325,7 +330,7 @@ export function ExamCard({
               letterSpacing: 0.5,
             }}
           >
-            {t('landing.card.attempts.val')}
+            {t(isPlacement ? 'landing.card.attempts.val.placement' : 'landing.card.attempts.val')}
           </span>
         </div>
       )}

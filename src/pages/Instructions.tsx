@@ -10,11 +10,13 @@ export function Instructions({
   onStart,
   totalQuestions,
   timeLimitSec,
+  examType,
 }: {
   student: Record<string, string>
   onStart: () => void
   totalQuestions: number
   timeLimitSec: number
+  examType?: string
 }) {
   const { t } = useLang()
   const [agreed, setAgreed] = useState(false)
@@ -99,7 +101,7 @@ export function Instructions({
         {[
           [String(totalQuestions), 'intro.stat.questions'],
           [`${mm}:${ss}`, 'intro.stat.timelimit'],
-          ['1×', 'intro.stat.attempts'],
+          [examType?.includes('trial') ? '∞' : '1×', 'intro.stat.attempts'],
         ].map(([v, lk]) => (
           <div key={lk} style={{ textAlign: 'center' }}>
             <div style={{ fontWeight: 800, fontSize: 22, color: 'var(--t-text)' }}>

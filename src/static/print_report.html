@@ -457,11 +457,11 @@
       return COLORS.danger;
     }
 
-    function gradeInfo(pct) {
-      if (pct >= 80) return { label: "Отлично",              color: COLORS.success };
-      if (pct >= 65) return { label: "Хорошо",               color: "#1976d2" };
-      if (pct >= 50) return { label: "Удовлетворительно",    color: COLORS.accent };
-      return          { label: "Требует улучшения",           color: COLORS.danger };
+    function gradeInfo(pct, isRu) {
+      if (pct >= 80) return { label: isRu ? "Отлично" : "Excellent",              color: COLORS.success };
+      if (pct >= 65) return { label: isRu ? "Хорошо" : "Good",               color: "#1976d2" };
+      if (pct >= 50) return { label: isRu ? "Удовлетворительно" : "Satisfactory",    color: COLORS.accent };
+      return          { label: isRu ? "Требует улучшения" : "Needs Improvement",   color: COLORS.danger };
     }
 
     function pad(n) { return String(n).padStart(2, "0"); }
@@ -473,7 +473,7 @@
       const pct = Math.round((result.correct / result.total) * 100);
       const mm = pad(Math.floor(result.elapsed / 60));
       const ss = pad(result.elapsed % 60);
-      const grade = gradeInfo(pct);
+      const grade = gradeInfo(pct, isRu);
       const gradeLabel = grade.label;
       const gradeColor = grade.color;
 
@@ -482,10 +482,11 @@
       const offset = C - (pct / 100) * C;
 
       const now = new Date();
-      const dateStr = now.toLocaleDateString("ru-RU", { day: "2-digit", month: "long", year: "numeric" });
-      const timeStr = now.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
+      const locale = isRu ? "ru-RU" : "en-US";
+      const dateStr = now.toLocaleDateString(locale, { day: "2-digit", month: "long", year: "numeric" });
+      const timeStr = now.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" });
 
-      const T = {
+      const T = isRu ? {
         completed: isPlacement ? "Вступительный Экзамен завершён!" : "Пробный Экзамен завершён!",
         desc: "Отчёт о результатах,",
         score: "Результат",
@@ -506,6 +507,27 @@
         attended: "Присутствие",
         attendedYes: "Пришёл",
         attendedNo: "Не пришёл",
+      } : {
+        completed: isPlacement ? "Placement Test Completed!" : "Trial Test Completed!",
+        desc: "Results report for,",
+        score: "Score",
+        correct: "Correct",
+        incorrect: "Incorrect",
+        total: "Total",
+        timeused: "Time Used",
+        topics: "Performance by Topic",
+        estimated: "Breakdown",
+        generated: `Generated ${dateStr} at ${timeStr}`,
+        grade: "Grade",
+        phone: "Phone",
+        badge: isPlacement ? "Placement Test" : "Trial Test",
+        footer: "E|C Engineering College — college.edu.kg",
+        parentSection: "Parent / Guardian",
+        parentName: "Parent Name",
+        parentPhone: "Parent Phone",
+        attended: "Attendance",
+        attendedYes: "Attended",
+        attendedNo: "Absent",
       };
 
       const topicsHTML = topics.map(tp => `
@@ -626,7 +648,8 @@
     }
 
     async function downloadAsPDF(student) {
-      showOverlay("Создание PDF…");
+      const isRu = document.documentElement.lang === "ru";
+      showOverlay(isRu ? "Создание PDF…" : "Generating PDF…");
       await document.fonts.ready;
       const el = document.querySelector(".page");
       const name = (student.firstName + "_" + student.lastName).replace(/\s+/g, "_");
@@ -678,6 +701,8 @@
     }
 
     function renderData(data) {
+      const isRu = data.lang === "ru";
+      document.title = isRu ? "Отчёт — E|C Engineering College" : "Report — E|C Engineering College";
       document.getElementById("report").innerHTML = buildReport(data);
       document.documentElement.lang = data.lang || "ru";
       if (isDownloadMode) {
@@ -693,7 +718,8 @@
     }
 
     async function loadFromSupabase(id) {
-      showOverlay("Загрузка данных…");
+      const isRuDetect = navigator.language.startsWith("ru");
+      showOverlay(isRuDetect ? "Загрузка данных…" : "Loading data…");
       try {
         const { createClient } = await import("https://esm.sh/@supabase/supabase-js@2");
         const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -704,13 +730,13 @@
           .single();
         hideOverlay();
         if (error || !data) {
-          showError("Запись не найдена в базе данных.");
+          showError(isRuDetect ? "Запись не найдена в базе данных." : "Record not found in database.");
           return;
         }
         renderData(rowToPrintData(data));
       } catch (e) {
         hideOverlay();
-        showError("Ошибка загрузки данных: " + e.message);
+        showError((isRuDetect ? "Ошибка загрузки данных: " : "Error loading data: ") + e.message);
       }
     }
 
@@ -721,12 +747,14 @@
       try {
         const raw = sessionStorage.getItem("ec_print_report");
         if (!raw) {
-          showError("Данные отчёта не найдены. Вернитесь назад и нажмите «Печать» снова.");
+          const isRuDetect = navigator.language.startsWith("ru");
+          showError(isRuDetect ? "Данные отчёта не найдены. Вернитесь назад и нажмите «Печать» снова." : "Report data not found. Please go back and try printing again.");
         } else {
           renderData(JSON.parse(raw));
         }
       } catch (e) {
-        showError("Ошибка загрузки данных отчёта.");
+        const isRuDetect = navigator.language.startsWith("ru");
+        showError(isRuDetect ? "Ошибка загрузки данных отчёта." : "Error loading report data.");
       }
     }
   </script>
