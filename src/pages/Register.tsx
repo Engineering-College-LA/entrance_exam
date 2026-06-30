@@ -31,7 +31,7 @@ export function Register({
   selectedEvent?: any
   requireParentInfo?: boolean
 }) {
-  const { t } = useLang()
+  const { lang, t } = useLang()
   const isMobile = useIsMobile()
   const isPlacement = examType === 'placement' || !!requireParentInfo
   const isOpenDoor = examType === 'openDoor'
@@ -83,7 +83,7 @@ export function Register({
           { text: 'college.edu.kg' },
           {
             text: isOpenDoor
-              ? t('register.openDoor.breadcrumb')
+              ? (selectedEvent ? (lang === 'en' ? selectedEvent.title_en : selectedEvent.title_ru) : t('register.openDoor.breadcrumb'))
               : isPlacement
                 ? t('register.placement.breadcrumb')
                 : t('register.breadcrumb.exam'),
@@ -123,14 +123,14 @@ export function Register({
               }}
             >
               {isOpenDoor
-                ? t('register.openDoor.header')
+                ? (selectedEvent ? (lang === 'en' ? selectedEvent.title_en : selectedEvent.title_ru) : t('register.openDoor.header'))
                 : isPlacement
                   ? t('register.placement.header')
                   : t('register.header')}
             </div>
             <div style={{ color: '#8fa3c0', fontSize: 13, marginTop: 3 }}>
               {isOpenDoor
-                ? t('register.openDoor.subheader')
+                ? (selectedEvent ? (lang === 'en' ? selectedEvent.desc_en : selectedEvent.desc_ru) : t('register.openDoor.subheader'))
                 : isPlacement
                   ? t('register.placement.subheader')
                   : t('register.subheader')}

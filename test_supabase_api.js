@@ -6,7 +6,7 @@ const key = 'sb_publishable_xLw_44i9tOTEfWTGcDQ41Q_DLWbaC1o';
 const supabase = createClient(url, key);
 
 async function run() {
-  const { data, error } = await supabase.from('questions').select('*').limit(1);
+  const { data, error } = await supabase.from('events').select('*').limit(1);
   if (error) {
     console.error('Query error:', error.message);
   } else {

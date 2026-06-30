@@ -12,6 +12,14 @@
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Inter', system-ui, sans-serif; background: #f0f3f9; color: #1a2535; min-height: 100vh; display: flex; }
 
+    /* Hide delete options for staff */
+    body.role-staff .delete-btn,
+    body.role-staff #rpt-btn-delete,
+    body.role-staff #od-btn-delete,
+    body.role-staff #lbl-clear-btn {
+      display: none !important;
+    }
+
     /* ── Sidebar ── */
     .sidebar { width: 220px; min-height: 100vh; background: linear-gradient(180deg,#0b1f3a 0%,#0d2444 100%); display: flex; flex-direction: column; flex-shrink: 0; position: fixed; top:0; left:0; bottom:0; z-index: 50; }
     .sidebar-brand { padding: 20px 20px 16px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid rgba(255,255,255,.08); }
@@ -756,29 +764,28 @@
           </div>
         </div>
 
-        <!-- Bilingual Date & Time -->
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
-          <!-- Date -->
-          <div style="display:flex; flex-direction:column; gap:4px;">
-            <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;" id="lbl-ev-date-ru">Date (RU)</label>
-            <input type="text" id="ev-date-ru" class="search-input" style="width:100%; height:38px;" required placeholder="e.g. 24 мая" />
-          </div>
-          <div style="display:flex; flex-direction:column; gap:4px;">
-            <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;" id="lbl-ev-date-en">Date (EN)</label>
-            <input type="text" id="ev-date-en" class="search-input" style="width:100%; height:38px;" required placeholder="e.g. 24 May" />
-          </div>
+        <!-- Date Selector (Calendar) -->
+        <div style="display:flex; flex-direction:column; gap:4px;">
+          <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;" id="lbl-ev-date-picker">Date</label>
+          <input type="date" id="ev-date-picker" class="search-input" style="width:100%; height:38px;" required />
+          <!-- Hidden inputs to keep existing DB logic working -->
+          <input type="hidden" id="ev-date-ru" />
+          <input type="hidden" id="ev-date-en" />
         </div>
 
+        <!-- Time Selectors (Clock) -->
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
-          <!-- Time -->
           <div style="display:flex; flex-direction:column; gap:4px;">
-            <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;" id="lbl-ev-time-ru">Time (RU)</label>
-            <input type="text" id="ev-time-ru" class="search-input" style="width:100%; height:38px;" required placeholder="e.g. 10:30 - 13:30" />
+            <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;" id="lbl-ev-time-start">Start Time</label>
+            <input type="time" id="ev-time-start" class="search-input" style="width:100%; height:38px;" required />
           </div>
           <div style="display:flex; flex-direction:column; gap:4px;">
-            <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;" id="lbl-ev-time-en">Time (EN)</label>
-            <input type="text" id="ev-time-en" class="search-input" style="width:100%; height:38px;" required placeholder="e.g. 10:30 - 13:30" />
+            <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;" id="lbl-ev-time-end">End Time</label>
+            <input type="time" id="ev-time-end" class="search-input" style="width:100%; height:38px;" required />
           </div>
+          <!-- Hidden inputs to keep existing DB logic working -->
+          <input type="hidden" id="ev-time-ru" />
+          <input type="hidden" id="ev-time-en" />
         </div>
 
         <!-- Bilingual Format & Requirements -->
@@ -1128,9 +1135,12 @@
   if (sessionStorage.getItem("ec_admin_auth") !== "1") {
     window.location.replace("login.html");
   }
+  const userRole = sessionStorage.getItem("ec_admin_role") || "staff";
+  document.body.classList.add("role-" + userRole);
 
   function logout() {
     sessionStorage.removeItem("ec_admin_auth");
+    sessionStorage.removeItem("ec_admin_role");
     window.location.replace("login.html");
   }
 
@@ -1153,7 +1163,7 @@
       "clear.btn":          "Clear All",
       "nav.main":           "Main",
       "nav.applicants":     "Applicants",
-      "nav.openDoorsParticipants": "Project Fest",
+      "nav.openDoorsParticipants": "Events",
       "nav.quizzes":        "Exams",
       "nav.settings":       "Settings",
       "nav.placement":      "Placement Test",
@@ -1161,7 +1171,7 @@
       "col.name":           "Name",
       "col.phone":          "Phone",
       "col.grade":          "Grade",
-      "col.openDoorReg":    "Project Fest",
+      "col.openDoorReg":    "Events",
       "col.type":           "Type",
       "col.score":          "Score",
       "col.result":         "Result",
@@ -1202,8 +1212,8 @@
       "loading":            "Loading applicants…",
       "records":            (n) => n + " record" + (n !== 1 ? "s" : ""),
       "delete.confirm":     "Delete this applicant record?",
-      "clear.confirm":      "Delete ALL applicant records AND Project Fest registrations? This cannot be undone.",
-      "section.openDoorTitle": "Project Fest registrations",
+      "clear.confirm":      "Delete ALL applicant records AND Event registrations? This cannot be undone.",
+      "section.openDoorTitle": "Event registrations",
       "openDoor.regYes":    "Yes",
       "openDoor.col.parent":      "Parent",
       "openDoor.col.parentPhone": "Parent phone",
@@ -1211,10 +1221,10 @@
       "openDoor.col.date":        "Registered",
       "openDoor.attended.yes":    "Yes",
       "openDoor.attended.no":     "No",
-      "openDoor.empty.title":     "No Project Fest registrations yet",
-      "openDoor.empty.desc":      "Sign-ups from the Project Fest form will appear here.",
-      "openDoor.delete.confirm":  "Delete this Project Fest registration?",
-      "openDoor.modal.title":     "Project Fest",
+      "openDoor.empty.title":     "No Event registrations yet",
+      "openDoor.empty.desc":      "Sign-ups from the registration form will appear here.",
+      "openDoor.delete.confirm":  "Delete this registration?",
+      "openDoor.modal.title":     "Event",
       "openDoor.modal.sub":       "Participant details",
       "openDoor.modal.student":   "Student",
       "openDoor.modal.copyTitle": "Copy number",
@@ -1229,6 +1239,7 @@
       "subject.all":        "All subjects",
       "subject.title":      "Filter by subject",
       "topbar.date.locale": "en-US",
+      "accessDenied":       "Access Denied: Staff members cannot delete records.",
     },
     ru: {
       "topbar.title":       "Абитуриенты",
@@ -1244,7 +1255,7 @@
       "clear.btn":          "Очистить",
       "nav.main":           "Главная",
       "nav.applicants":     "Абитуриенты",
-      "nav.openDoorsParticipants": "Project Fest",
+      "nav.openDoorsParticipants": "Мероприятия",
       "nav.quizzes":        "Экзамены",
       "nav.settings":       "Настройки",
       "nav.placement":      "Отборочный экзамен",
@@ -1252,7 +1263,7 @@
       "col.name":           "Имя",
       "col.phone":          "Телефон",
       "col.grade":          "Класс",
-      "col.openDoorReg":    "Project Fest",
+      "col.openDoorReg":    "Мероприятия",
       "col.type":           "Тип",
       "col.score":          "Балл",
       "col.result":         "Результат",
@@ -1293,8 +1304,8 @@
       "loading":            "Загрузка…",
       "records":            (n) => n + " " + (n % 10 === 1 && n % 100 !== 11 ? "запись" : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? "записи" : "записей"),
       "delete.confirm":     "Удалить эту запись?",
-      "clear.confirm":      "Удалить ВСЕ записи экзаменов И регистрации Project Fest? Это необратимо.",
-      "section.openDoorTitle": "Регистрации Project Fest",
+      "clear.confirm":      "Удалить ВСЕ записи экзаменов И регистрации на мероприятия? Это необратимо.",
+      "section.openDoorTitle": "Регистрации на мероприятия",
       "openDoor.regYes":    "Да",
       "openDoor.col.parent":      "Родитель",
       "openDoor.col.parentPhone": "Тел. родителя",
@@ -1302,10 +1313,10 @@
       "openDoor.col.date":        "Дата записи",
       "openDoor.attended.yes":    "Да",
       "openDoor.attended.no":     "Нет",
-      "openDoor.empty.title":     "Пока нет регистраций Project Fest",
-      "openDoor.empty.desc":      "Здесь появятся данные из формы Project Fest.",
-      "openDoor.delete.confirm":  "Удалить эту регистрацию Project Fest?",
-      "openDoor.modal.title":     "Project Fest",
+      "openDoor.empty.title":     "Пока нет регистраций на мероприятия",
+      "openDoor.empty.desc":      "Здесь появятся данные из формы регистрации.",
+      "openDoor.delete.confirm":  "Удалить эту регистрацию?",
+      "openDoor.modal.title":     "Мероприятие",
       "openDoor.modal.sub":       "Данные участника",
       "openDoor.modal.student":   "Ученик",
       "openDoor.modal.copyTitle": "Скопировать номер",
@@ -1320,6 +1331,7 @@
       "subject.all":        "Все предметы",
       "subject.title":      "Фильтр по предмету",
       "topbar.date.locale": "ru-RU",
+      "accessDenied":       "Доступ запрещен: Сотрудники не могут удалять записи.",
     },
   };
 
@@ -1532,6 +1544,7 @@
   }
 
   function deleteOpenDoorFromModal() {
+    if (!checkDeleteAccess()) return;
     if (!currentOpenDoorRecord) return;
     if (!confirm(tAdmin("openDoor.delete.confirm"))) return;
     const id = currentOpenDoorRecord.id;
@@ -2119,7 +2132,16 @@
   }
 
   // ── Delete ──────────────────────────────────────────────────────────────────
+  function checkDeleteAccess() {
+    if (sessionStorage.getItem("ec_admin_role") !== "superadmin") {
+      alert(tAdmin("accessDenied"));
+      return false;
+    }
+    return true;
+  }
+
   async function deleteRecord(id) {
+    if (!checkDeleteAccess()) return;
     if (!confirm(tAdmin("delete.confirm"))) return;
     allApplicants = allApplicants.filter(r => r.id !== id);
     // Remove from localStorage
@@ -2137,6 +2159,7 @@
   }
 
   async function deleteOpenDoorRecord(id, opts) {
+    if (!checkDeleteAccess()) return;
     const skipConfirm = opts && opts.skipConfirm;
     if (!skipConfirm && !confirm(tAdmin("openDoor.delete.confirm"))) return;
     const sid = id == null ? "" : String(id);
@@ -2151,9 +2174,8 @@
     }
   }
 
-
-
   async function clearAllData() {
+    if (!checkDeleteAccess()) return;
     if (!confirm(tAdmin("clear.confirm"))) return;
     allApplicants = [];
     allOpenDoorRegs = [];
@@ -2388,7 +2410,8 @@
 
       const ev = await sb
         .from("events")
-        .select("id, title_ru, title_en, desc_ru, desc_en, date_ru, date_en, time_ru, time_en, format_ru, format_en, req_ru, req_en, created_at")
+        .select("id, title_ru, title_en, desc_ru, desc_en, date_ru, date_en, time_ru, time_en, format_ru, format_en, req_ru, req_en, sort_order, created_at")
+        .order("sort_order", { ascending: true })
         .order("created_at", { ascending: false });
 
       if (ev.error) {
@@ -2472,7 +2495,8 @@
         : `<button type="button" class="od-btn-secondary" style="padding:4px 8px;font-size:11px;background:#e3f2fd;color:#0d47a1;border-color:#bbdefb" onclick="event.stopPropagation(); showEventQr('${idEnc}')">${qrLabel}</button>`;
 
       return `
-        <tr class="data-row" style="cursor: pointer; ${r.id === 'project-fest' ? 'background: rgba(27, 140, 94, 0.02);' : ''}" onclick="showEventRegistrations('${idEnc}')">
+        <tr class="data-row" draggable="true" ondragstart="eventDragStart(event, ${i})" ondragover="eventDragOver(event)" ondragend="eventDragEnd(event)" ondrop="eventDrop(event, ${i})" style="cursor: grab; ${r.id === 'project-fest' ? 'background: rgba(27, 140, 94, 0.02);' : ''}" onclick="showEventRegistrations('${idEnc}')">
+          <td style="cursor: grab; color: #b0bcd0; text-align: center; width: 40px; font-size: 16px;" onclick="event.stopPropagation();">☰</td>
           <td style="color:#6b7a95;font-weight:600">${i + 1}</td>
           <td style="font-family:monospace;font-weight:600">${r.id}</td>
           <td><span style="font-weight:600">${title}</span>${hiddenBadge}</td>
@@ -2492,6 +2516,7 @@
     container.innerHTML = `
       <table>
         <thead><tr>
+          <th style="width: 40px;"></th>
           <th>#</th>
           <th>ID</th>
           <th>${tAdmin("col.name")}</th>
@@ -2502,6 +2527,64 @@
         </tr></thead>
         <tbody>${rows}</tbody>
       </table>`;
+  }
+
+  // ── Drag & Drop Events Reordering ───────────────────────────────────────────
+  let draggedIndex = null;
+
+  function eventDragStart(e, index) {
+    draggedIndex = index;
+    e.dataTransfer.effectAllowed = "move";
+    e.currentTarget.style.opacity = "0.4";
+    e.currentTarget.style.background = "#e3f0ff";
+  }
+
+  function eventDragOver(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+  }
+
+  function eventDragEnd(e) {
+    e.currentTarget.style.opacity = "";
+    e.currentTarget.style.background = "";
+    draggedIndex = null;
+  }
+
+  async function eventDrop(e, index) {
+    e.preventDefault();
+    if (draggedIndex === null || draggedIndex === index) return;
+
+    const draggedItem = allEvents[draggedIndex];
+    allEvents.splice(draggedIndex, 1);
+    allEvents.splice(index, 0, draggedItem);
+
+    renderEventsSection();
+
+    try {
+      const sb = await getSB();
+      const payloads = allEvents.map((ev, idx) => ({
+        id: ev.id,
+        title_ru: ev.title_ru,
+        title_en: ev.title_en,
+        desc_ru: ev.desc_ru,
+        desc_en: ev.desc_en,
+        date_ru: ev.date_ru,
+        date_en: ev.date_en,
+        time_ru: ev.time_ru,
+        time_en: ev.time_en,
+        format_ru: ev.format_ru,
+        format_en: ev.format_en,
+        req_ru: ev.req_ru,
+        req_en: ev.req_en,
+        sort_order: idx
+      }));
+      const { error } = await sb.from("events").upsert(payloads);
+      if (error) {
+        console.error("Error saving drag order:", error.message);
+      }
+    } catch (err) {
+      console.error("Exception in eventDrop:", err);
+    }
   }
 
   // ── Quizzes section logic ───────────────────────────────────────────────────
@@ -2618,6 +2701,7 @@
   }
 
   async function deleteExamRecord(id) {
+    if (!checkDeleteAccess()) return;
     if (!confirm(adminLang === "ru" ? `Удалить экзамен "${id}" и ВСЕ его вопросы?` : `Delete exam "${id}" and ALL of its questions?`)) return;
 
     try {
@@ -3051,6 +3135,7 @@
   }
 
   async function deleteQuestion(id) {
+    if (!checkDeleteAccess()) return;
     if (!confirm(adminLang === "ru" ? "Удалить этот вопрос?" : "Delete this question?")) return;
 
     try {
@@ -3410,6 +3495,67 @@
     }
   }
 
+  function parseEventDate(dateRu, dateEn) {
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateEn)) return dateEn;
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateRu)) return dateRu;
+
+    const monthsEn = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"];
+    const monthsRu = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];
+
+    let targetStr = dateEn || dateRu || "";
+    targetStr = targetStr.trim();
+    if (!targetStr) return "";
+
+    const parts = targetStr.split(/\s+/);
+    if (parts.length >= 2) {
+      const day = parseInt(parts[0], 10);
+      const monthWord = parts[1].toLowerCase();
+      let monthIdx = monthsEn.indexOf(monthWord);
+      if (monthIdx === -1) {
+        monthIdx = monthsRu.indexOf(monthWord);
+      }
+      if (day > 0 && monthIdx !== -1) {
+        let year = new Date().getFullYear();
+        if (parts.length >= 3) {
+          const parsedYear = parseInt(parts[2], 10);
+          if (parsedYear > 2000) year = parsedYear;
+        }
+        const yStr = String(year);
+        const mStr = String(monthIdx + 1).padStart(2, '0');
+        const dStr = String(day).padStart(2, '0');
+        return `${yStr}-${mStr}-${dStr}`;
+      }
+    }
+
+    const d = new Date(targetStr);
+    if (!isNaN(d.getTime())) {
+      const yStr = String(d.getFullYear());
+      const mStr = String(d.getMonth() + 1).padStart(2, '0');
+      const dStr = String(d.getDate()).padStart(2, '0');
+      return `${yStr}-${mStr}-${dStr}`;
+    }
+
+    return "";
+  }
+
+  function parseEventTime(timeStr) {
+    if (!timeStr) return { start: "", end: "" };
+    const parts = timeStr.split("-").map(s => s.trim());
+    const start = parts[0] || "";
+    const end = parts[1] || "";
+    const norm = (t) => {
+      const match = t.match(/^(\d{1,2}):(\d{2})/);
+      if (match) {
+        return `${match[1].padStart(2, '0')}:${match[2]}`;
+      }
+      return "";
+    };
+    return {
+      start: norm(start),
+      end: norm(end)
+    };
+  }
+
   let editingEventId = null;
 
   function openEventModal(encodedId) {
@@ -3426,10 +3572,9 @@
     document.getElementById("lbl-ev-title-en").textContent = tAdmin("events.modal.titleEn");
     document.getElementById("lbl-ev-desc-ru").textContent = tAdmin("events.modal.descRu");
     document.getElementById("lbl-ev-desc-en").textContent = tAdmin("events.modal.descEn");
-    document.getElementById("lbl-ev-date-ru").textContent = tAdmin("events.modal.dateRu");
-    document.getElementById("lbl-ev-date-en").textContent = tAdmin("events.modal.dateEn");
-    document.getElementById("lbl-ev-time-ru").textContent = tAdmin("events.modal.timeRu");
-    document.getElementById("lbl-ev-time-en").textContent = tAdmin("events.modal.timeEn");
+    document.getElementById("lbl-ev-date-picker").textContent = adminLang === "ru" ? "Дата" : "Date";
+    document.getElementById("lbl-ev-time-start").textContent = adminLang === "ru" ? "Время начала" : "Start Time";
+    document.getElementById("lbl-ev-time-end").textContent = adminLang === "ru" ? "Время окончания" : "End Time";
     document.getElementById("lbl-ev-format-ru").textContent = tAdmin("events.modal.formatRu");
     document.getElementById("lbl-ev-format-en").textContent = tAdmin("events.modal.formatEn");
     document.getElementById("lbl-ev-req-ru").textContent = tAdmin("events.modal.reqRu");
@@ -3458,6 +3603,12 @@
       document.getElementById("ev-req-ru").value = ev.req_ru || "";
       document.getElementById("ev-req-en").value = ev.req_en || "";
 
+      // Set picker values
+      document.getElementById("ev-date-picker").value = parseEventDate(ev.date_ru, ev.date_en);
+      const parsedTime = parseEventTime(ev.time_ru || ev.time_en);
+      document.getElementById("ev-time-start").value = parsedTime.start;
+      document.getElementById("ev-time-end").value = parsedTime.end;
+
       // Check for hidden flag inside format_en
       const isHidden = ev.format_en && ev.format_en.endsWith("__hidden");
       document.getElementById("ev-hidden").checked = isHidden;
@@ -3477,6 +3628,15 @@
       
       document.getElementById("event-form").reset();
       document.getElementById("ev-hidden").checked = false;
+
+      // Clear pickers manually
+      document.getElementById("ev-date-picker").value = "";
+      document.getElementById("ev-time-start").value = "";
+      document.getElementById("ev-time-end").value = "";
+      document.getElementById("ev-date-ru").value = "";
+      document.getElementById("ev-date-en").value = "";
+      document.getElementById("ev-time-ru").value = "";
+      document.getElementById("ev-time-en").value = "";
     }
 
     document.getElementById("event-modal-overlay").classList.remove("hidden");
@@ -3504,10 +3664,38 @@
     const titleEn = document.getElementById("ev-title-en").value.trim();
     const descRu = document.getElementById("ev-desc-ru").value.trim();
     const descEn = document.getElementById("ev-desc-en").value.trim();
-    const dateRu = document.getElementById("ev-date-ru").value.trim();
-    const dateEn = document.getElementById("ev-date-en").value.trim();
-    const timeRu = document.getElementById("ev-time-ru").value.trim();
-    const timeEn = document.getElementById("ev-time-en").value.trim();
+
+    // Process pickers to generate date_ru/date_en & time_ru/time_en
+    const pickerDate = document.getElementById("ev-date-picker").value;
+    const timeStart = document.getElementById("ev-time-start").value;
+    const timeEnd = document.getElementById("ev-time-end").value;
+
+    let dateRu = "";
+    let dateEn = "";
+    if (pickerDate) {
+      const parts = pickerDate.split("-"); // ["2026", "05", "24"]
+      if (parts.length === 3) {
+        const monthIdx = parseInt(parts[1], 10) - 1; // 0-based
+        const day = parseInt(parts[2], 10);
+        const monthsRu = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];
+        const monthsEn = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        if (monthIdx >= 0 && monthIdx < 12 && day > 0 && day <= 31) {
+          dateRu = `${day} ${monthsRu[monthIdx]}`;
+          dateEn = `${day} ${monthsEn[monthIdx]}`;
+        }
+      }
+    }
+
+    let timeRu = "";
+    let timeEn = "";
+    if (timeStart && timeEnd) {
+      timeRu = `${timeStart} - ${timeEnd}`;
+      timeEn = `${timeStart} - ${timeEnd}`;
+    } else if (timeStart) {
+      timeRu = timeStart;
+      timeEn = timeStart;
+    }
+
     let formatRu = document.getElementById("ev-format-ru").value.trim();
     let formatEn = document.getElementById("ev-format-en").value.trim();
     const reqRu = document.getElementById("ev-req-ru").value.trim();
@@ -3527,6 +3715,9 @@
       formatEn = formatEn.replace(/__hidden$/, "");
     }
 
+    const existing = allEvents.find(x => x.id === idVal);
+    const sortOrder = existing ? (existing.sort_order ?? 0) : allEvents.length;
+
     const payload = {
       id: idVal,
       title_ru: titleRu,
@@ -3540,7 +3731,8 @@
       format_ru: formatRu,
       format_en: formatEn,
       req_ru: reqRu,
-      req_en: reqEn
+      req_en: reqEn,
+      sort_order: sortOrder
     };
 
     try {
@@ -3558,7 +3750,8 @@
       // Reload from Supabase
       const { data, error: fetchErr } = await sb
         .from("events")
-        .select("id, title_ru, title_en, desc_ru, desc_en, date_ru, date_en, time_ru, time_en, format_ru, format_en, req_ru, req_en, created_at")
+        .select("id, title_ru, title_en, desc_ru, desc_en, date_ru, date_en, time_ru, time_en, format_ru, format_en, req_ru, req_en, sort_order, created_at")
+        .order("sort_order", { ascending: true })
         .order("created_at", { ascending: false });
       
       if (!fetchErr) {
@@ -3571,6 +3764,7 @@
   }
 
   async function deleteEvent(encodedId) {
+    if (!checkDeleteAccess()) return;
     const id = decodeURIComponent(encodedId);
     if (!confirm(tAdmin("events.delete.confirm"))) return;
 
@@ -3749,6 +3943,10 @@
   window.saveEvent = saveEvent;
   window.deleteEvent = deleteEvent;
   window.handleEventOverlayClick = handleEventOverlayClick;
+  window.eventDragStart = eventDragStart;
+  window.eventDragOver = eventDragOver;
+  window.eventDragEnd = eventDragEnd;
+  window.eventDrop = eventDrop;
   window.showEventQr = showEventQr;
   window.showProjectFestQr = showProjectFestQr;
   window.closeQrModal = closeQrModal;

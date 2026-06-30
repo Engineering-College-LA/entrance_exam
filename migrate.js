@@ -32,10 +32,17 @@ async function run() {
         format_en TEXT NOT NULL,
         req_ru TEXT NOT NULL,
         req_en TEXT NOT NULL,
+        sort_order INT DEFAULT 0,
         created_at TIMESTAMPTZ NOT NULL DEFAULT now()
       );
     `);
     console.log('Table public.events verified/created.');
+
+    // 1b. Add sort_order column if table already exists
+    await client.query(`
+      ALTER TABLE public.events ADD COLUMN IF NOT EXISTS sort_order INT DEFAULT 0;
+    `);
+    console.log('Column sort_order verified/added to public.events.');
 
     // 2. Add event_id to open_door_registrations
     await client.query(`

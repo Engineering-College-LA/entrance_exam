@@ -48,7 +48,9 @@ export function OpenDoorThanks({ student, selectedEvent, onHome }: OpenDoorThank
               {t('openDoor.thanks.title')}
             </div>
             <div style={{ color: '#8fa3c0', fontSize: 13, marginTop: 4 }}>
-              {t('openDoor.thanks.sub')}
+              {selectedEvent
+                ? (isEn ? 'Engineering College' : 'Инженерный колледж')
+                : t('openDoor.thanks.sub')}
             </div>
           </div>
         </div>
@@ -61,7 +63,11 @@ export function OpenDoorThanks({ student, selectedEvent, onHome }: OpenDoorThank
               marginBottom: 20,
             }}
           >
-            {t('openDoor.thanks.body')}
+            {selectedEvent
+              ? (isEn
+                  ? `Thank you! We have saved your details and are waiting for you at "${eventTitle}".`
+                  : `Спасибо! Мы сохранили ваши данные и ждём вас на "${eventTitle}".`)
+              : t('openDoor.thanks.body')}
           </p>
 
           {/* Ticket Container */}
