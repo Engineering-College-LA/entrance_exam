@@ -12,6 +12,14 @@
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Inter', system-ui, sans-serif; background: #f0f3f9; color: #1a2535; min-height: 100vh; display: flex; }
 
+    /* Hide delete options for staff */
+    body.role-staff .delete-btn,
+    body.role-staff #rpt-btn-delete,
+    body.role-staff #od-btn-delete,
+    body.role-staff #lbl-clear-btn {
+      display: none !important;
+    }
+
     /* ── Sidebar ── */
     .sidebar { width: 220px; min-height: 100vh; background: linear-gradient(180deg,#0b1f3a 0%,#0d2444 100%); display: flex; flex-direction: column; flex-shrink: 0; position: fixed; top:0; left:0; bottom:0; z-index: 50; }
     .sidebar-brand { padding: 20px 20px 16px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid rgba(255,255,255,.08); }
@@ -1128,9 +1136,12 @@
   if (sessionStorage.getItem("ec_admin_auth") !== "1") {
     window.location.replace("login.html");
   }
+  const userRole = sessionStorage.getItem("ec_admin_role") || "staff";
+  document.body.classList.add("role-" + userRole);
 
   function logout() {
     sessionStorage.removeItem("ec_admin_auth");
+    sessionStorage.removeItem("ec_admin_role");
     window.location.replace("login.html");
   }
 
@@ -1229,6 +1240,7 @@
       "subject.all":        "All subjects",
       "subject.title":      "Filter by subject",
       "topbar.date.locale": "en-US",
+      "accessDenied":       "Access Denied: Staff members cannot delete records.",
     },
     ru: {
       "topbar.title":       "Абитуриенты",
@@ -1320,6 +1332,7 @@
       "subject.all":        "Все предметы",
       "subject.title":      "Фильтр по предмету",
       "topbar.date.locale": "ru-RU",
+      "accessDenied":       "Доступ запрещен: Сотрудники не могут удалять записи.",
     },
   };
 
@@ -1532,6 +1545,7 @@
   }
 
   function deleteOpenDoorFromModal() {
+    if (!checkDeleteAccess()) return;
     if (!currentOpenDoorRecord) return;
     if (!confirm(tAdmin("openDoor.delete.confirm"))) return;
     const id = currentOpenDoorRecord.id;
@@ -2119,7 +2133,16 @@
   }
 
   // ── Delete ──────────────────────────────────────────────────────────────────
+  function checkDeleteAccess() {
+    if (sessionStorage.getItem("ec_admin_role") !== "superadmin") {
+      alert(tAdmin("accessDenied"));
+      return false;
+    }
+    return true;
+  }
+
   async function deleteRecord(id) {
+    if (!checkDeleteAccess()) return;
     if (!confirm(tAdmin("delete.confirm"))) return;
     allApplicants = allApplicants.filter(r => r.id !== id);
     // Remove from localStorage
@@ -2137,6 +2160,7 @@
   }
 
   async function deleteOpenDoorRecord(id, opts) {
+    if (!checkDeleteAccess()) return;
     const skipConfirm = opts && opts.skipConfirm;
     if (!skipConfirm && !confirm(tAdmin("openDoor.delete.confirm"))) return;
     const sid = id == null ? "" : String(id);
@@ -2151,9 +2175,8 @@
     }
   }
 
-
-
   async function clearAllData() {
+    if (!checkDeleteAccess()) return;
     if (!confirm(tAdmin("clear.confirm"))) return;
     allApplicants = [];
     allOpenDoorRegs = [];
@@ -2618,6 +2641,7 @@
   }
 
   async function deleteExamRecord(id) {
+    if (!checkDeleteAccess()) return;
     if (!confirm(adminLang === "ru" ? `Удалить экзамен "${id}" и ВСЕ его вопросы?` : `Delete exam "${id}" and ALL of its questions?`)) return;
 
     try {
@@ -3051,6 +3075,7 @@
   }
 
   async function deleteQuestion(id) {
+    if (!checkDeleteAccess()) return;
     if (!confirm(adminLang === "ru" ? "Удалить этот вопрос?" : "Delete this question?")) return;
 
     try {
@@ -3571,6 +3596,7 @@
   }
 
   async function deleteEvent(encodedId) {
+    if (!checkDeleteAccess()) return;
     const id = decodeURIComponent(encodedId);
     if (!confirm(tAdmin("events.delete.confirm"))) return;
 

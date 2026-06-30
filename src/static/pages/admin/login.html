@@ -120,6 +120,8 @@
 
     const ADMIN_USER = "admin";
     const ADMIN_PASS = "EC@2025";
+    const STAFF_USER = "staff";
+    const STAFF_PASS = "Staff_EC@2025";
 
     // ── Localization ────────────────────────────────────────────────────────────
     const LOGIN_STRINGS = {
@@ -191,6 +193,11 @@
 
       if (username === ADMIN_USER && password === ADMIN_PASS) {
         sessionStorage.setItem("ec_admin_auth", "1");
+        sessionStorage.setItem("ec_admin_role", "superadmin");
+        window.location.replace("dashboard.html");
+      } else if (username === STAFF_USER && password === STAFF_PASS) {
+        sessionStorage.setItem("ec_admin_auth", "1");
+        sessionStorage.setItem("ec_admin_role", "staff");
         window.location.replace("dashboard.html");
       } else {
         errMsg.textContent = S.errInvalid;
