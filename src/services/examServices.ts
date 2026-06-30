@@ -106,7 +106,7 @@ const isValidName = (value: string): boolean => {
 }
 
 export const ValidationService = {
-  registrationErrors(form: RegistrationForm, examType: string) {
+  registrationErrors(form: RegistrationForm, examType: string, requireParentInfo?: boolean) {
     const errs: Record<string, string> = {}
     if (!form.firstName?.trim()) {
       errs.firstName = 'error.firstName'
@@ -120,13 +120,13 @@ export const ValidationService = {
     }
     if (!/^\+996\d{9}$/.test(form.phone ?? '')) errs.phone = 'error.phone'
     else if (
-      examType === 'placement' &&
+      (examType === 'placement' || examType.endsWith('placement')) &&
       hasPhoneCompletedPlacement(form.phone ?? '')
     ) {
       errs.phone = 'error.placementAlreadyTaken'
     }
     if (!form.grade) errs.grade = 'error.grade'
-    if (examType === 'placement' || examType === 'openDoor') {
+    if (examType === 'placement' || examType === 'openDoor' || requireParentInfo) {
       if (!/^\+996\d{9}$/.test(form.parentPhone ?? ''))
         errs.parentPhone = 'error.parentPhone'
       if (!form.parentName?.trim()) errs.parentName = 'error.parentName'
@@ -140,12 +140,12 @@ export const ValidationService = {
         errs.parentPhone = 'error.parentPhoneMustDiffer'
       }
     }
-    if (examType === 'placement' && !form.attended)
+    if ((examType === 'placement' || requireParentInfo) && !form.attended)
       errs.attended = 'error.attended'
     return errs
   },
-  registration(form: RegistrationForm, examType: string) {
-    const errs = this.registrationErrors(form, examType)
+  registration(form: RegistrationForm, examType: string, requireParentInfo?: boolean) {
+    const errs = this.registrationErrors(form, examType, requireParentInfo)
     const valid = Object.keys(errs).length === 0
     return { valid, errs }
   },
