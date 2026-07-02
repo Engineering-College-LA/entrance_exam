@@ -33,6 +33,25 @@ export function OpenDoorThanks({ student, selectedEvent, onHome }: OpenDoorThank
   // Encode student info in QR code
   const qrData = `REG_ID: ${regId}\nName: ${firstName} ${lastName}\nPhone: ${phone}\nGrade: ${grade}\nEvent: ${eventTitle}`
 
+  const downloadQrCode = async () => {
+    try {
+      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(qrData)}`
+      const response = await fetch(qrUrl)
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `ticket-${regId}.png`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      window.URL.revokeObjectURL(url)
+    } catch (error) {
+      console.error('Failed to download QR code directly, opening in new tab', error)
+      window.open(`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(qrData)}`, '_blank')
+    }
+  }
+
   return (
     <div style={{ maxWidth: 560, margin: '0 auto', padding: '32px 20px' }}>
       <div style={{ ...Styles.card, overflow: 'hidden', textAlign: 'center' }}>
@@ -124,9 +143,14 @@ export function OpenDoorThanks({ student, selectedEvent, onHome }: OpenDoorThank
             </div>
           </div>
 
-          <button type="button" onClick={onHome} style={Styles.btnPrimary()}>
-            {t('openDoor.thanks.home')}
-          </button>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 16, alignItems: 'center' }}>
+            <button type="button" onClick={downloadQrCode} style={{ ...Styles.btnPrimary(), width: '100%' }}>
+              {isEn ? 'Download QR Code' : 'Скачать QR-код'}
+            </button>
+            <button type="button" onClick={onHome} style={{ ...Styles.btnGhost, justifyContent: 'center', padding: '8px 16px' }}>
+              <span>←</span> {t('openDoor.thanks.home')}
+            </button>
+          </div>
         </div>
       </div>
     </div>

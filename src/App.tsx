@@ -155,10 +155,73 @@ function AppInner() {
   }, [])
 
   useEffect(() => {
-    if (nav.selectedEventId && nav.page === 'landing') {
-      nav.go('register', { examType: 'openDoor', eventId: nav.selectedEventId })
+    const checkRedirect = () => {
+      if (nav.selectedEventId && nav.page === 'landing') {
+        const targetEventId = nav.selectedEventId
+        const isRegistered = registeredEventIds.includes(targetEventId) || (targetEventId === 'project-fest' && isRegisteredOpenDoor)
+        if (isRegistered) {
+          const savedInfo = localStorage.getItem(`registered_event_${targetEventId}_info`)
+          let studentInfo = null
+          if (savedInfo) {
+            try {
+              studentInfo = JSON.parse(savedInfo)
+            } catch (e) {
+              console.error(e)
+            }
+          }
+          if (!studentInfo) {
+            const globalStudent = localStorage.getItem('ec_current_student')
+            if (globalStudent) {
+              try {
+                studentInfo = JSON.parse(globalStudent)
+              } catch (e) {
+                console.error(e)
+              }
+            }
+          }
+          if (studentInfo) {
+            nav.setStudent(studentInfo)
+          }
+          nav.go('openDoorThanks', { eventId: targetEventId })
+        } else {
+          nav.go('register', { examType: 'openDoor', eventId: nav.selectedEventId })
+        }
+      }
     }
-  }, [nav.selectedEventId, nav.page, nav.go])
+    checkRedirect()
+  }, [nav.selectedEventId, nav.page, nav.go, registeredEventIds, isRegisteredOpenDoor])
+
+  useEffect(() => {
+    if (nav.page === 'register' && nav.examType === 'openDoor' && nav.selectedEventId) {
+      const targetEventId = nav.selectedEventId
+      const isRegistered = registeredEventIds.includes(targetEventId) || (targetEventId === 'project-fest' && isRegisteredOpenDoor)
+      if (isRegistered) {
+        const savedInfo = localStorage.getItem(`registered_event_${targetEventId}_info`)
+        let studentInfo = null
+        if (savedInfo) {
+          try {
+            studentInfo = JSON.parse(savedInfo)
+          } catch (e) {
+            console.error(e)
+          }
+        }
+        if (!studentInfo) {
+          const globalStudent = localStorage.getItem('ec_current_student')
+          if (globalStudent) {
+            try {
+              studentInfo = JSON.parse(globalStudent)
+            } catch (e) {
+              console.error(e)
+            }
+          }
+        }
+        if (studentInfo) {
+          nav.setStudent(studentInfo)
+        }
+        nav.go('openDoorThanks', { eventId: targetEventId })
+      }
+    }
+  }, [nav.page, nav.examType, nav.selectedEventId, registeredEventIds, isRegisteredOpenDoor, nav.go])
 
   // Find resolved active exam from URL
   const resolvedActiveExam = activeExam || (dbExams || []).find(e => e.id === nav.examType) || DEFAULT_EXAMS.find(e => e.id === nav.examType)
@@ -197,31 +260,59 @@ function AppInner() {
   }
 
   const handleRegisterOpenDoor = (eventId?: string) => {
-    nav.go('register', { examType: 'openDoor', eventId })
+    const targetEventId = eventId || 'project-fest'
+    const isRegistered = registeredEventIds.includes(targetEventId) || (targetEventId === 'project-fest' && isRegisteredOpenDoor)
+    
+    if (isRegistered) {
+      const savedInfo = localStorage.getItem(`registered_event_${targetEventId}_info`)
+      let studentInfo = null
+      if (savedInfo) {
+        try {
+          studentInfo = JSON.parse(savedInfo)
+        } catch (e) {
+          console.error(e)
+        }
+      }
+      if (!studentInfo) {
+        const globalStudent = localStorage.getItem('ec_current_student')
+        if (globalStudent) {
+          try {
+            studentInfo = JSON.parse(globalStudent)
+          } catch (e) {
+            console.error(e)
+          }
+        }
+      }
+      if (studentInfo) {
+        nav.setStudent(studentInfo)
+      }
+      nav.go('openDoorThanks', { eventId: targetEventId })
+    } else {
+      nav.go('register', { examType: 'openDoor', eventId })
+    }
   }
 
   const handleRegister = (form: Record<string, string>) => {
     if (nav.examType === 'openDoor') {
       void (async () => {
-        const { error } = await insertOpenDoorRegistration(form, lang, nav.selectedEventId || undefined)
+        const { error, id } = await insertOpenDoorRegistration(form, lang, nav.selectedEventId || undefined)
         if (error) {
           window.alert(
             `${t('register.openDoor.error')}\n\n${error.message}`,
           )
           return
         }
-        if (nav.selectedEventId) {
-          localStorage.setItem(`registered_event_${nav.selectedEventId}`, 'true')
-          setRegisteredEventIds(prev => [...prev, nav.selectedEventId!])
-          if (nav.selectedEventId === 'project-fest') {
-            localStorage.setItem('project_fest_registered', 'true')
-            setIsRegisteredOpenDoor(true)
-          }
-        } else {
+        const formWithId = { ...form, id }
+        const targetEventId = nav.selectedEventId || 'project-fest'
+        localStorage.setItem(`registered_event_${targetEventId}`, 'true')
+        localStorage.setItem(`registered_event_${targetEventId}_info`, JSON.stringify(formWithId))
+        
+        setRegisteredEventIds(prev => [...prev, targetEventId])
+        if (targetEventId === 'project-fest') {
           localStorage.setItem('project_fest_registered', 'true')
           setIsRegisteredOpenDoor(true)
         }
-        nav.setStudent(form)
+        nav.setStudent(formWithId)
         nav.go('openDoorThanks')
       })()
       return
