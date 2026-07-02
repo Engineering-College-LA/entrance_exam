@@ -4,11 +4,11 @@ export async function insertOpenDoorRegistration(
   form: Record<string, string>,
   lang: string,
   eventId?: string,
-): Promise<{ error: Error | null }> {
+): Promise<{ error: Error | null; id?: string }> {
   if (!supabase)
     return { error: new Error('Supabase is not configured (missing env)') }
 
-  const id = String(Date.now())
+  const id = form.id || String(Date.now())
   const { error } = await supabase.from('open_door_registrations').insert({
     id,
     first_name: form.firstName,
@@ -24,5 +24,5 @@ export async function insertOpenDoorRegistration(
   })
 
   if (error) return { error: new Error(error.message) }
-  return { error: null }
+  return { error: null, id }
 }

@@ -363,13 +363,13 @@ export function SubjectLanding({
                     ctaLabel={
                       isRegistered
                         ? isEn
-                          ? 'Registered ✓'
-                          : 'Вы записаны ✓'
+                          ? 'View Pass'
+                          : 'Показать билет'
                         : isEn
                           ? 'Register'
                           : 'Записаться'
                     }
-                    onStart={isRegistered ? undefined : () => onRegisterOpenDoor(event.id)}
+                    onStart={() => onRegisterOpenDoor(event.id)}
                     accent={COLORS.success}
                     icon={<EventIcon size={20} />}
                     variant={isRegistered ? 'success' : 'secondary'}

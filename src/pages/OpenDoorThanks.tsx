@@ -12,26 +12,57 @@ export function OpenDoorThanks({ student, selectedEvent, onHome }: OpenDoorThank
   const { t } = useLang()
   const isEn = t('landing.title1') === 'Mathematics'
 
-  const firstName = student?.firstName || ''
-  const lastName = student?.lastName || ''
-  const phone = student?.phone || ''
-  const grade = student?.grade || ''
-  const regId = student?.id || String(Date.now())
+  // Extract query parameters if page is opened via QR scan link
+  const queryParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+  const qId = queryParams?.get('id') || '';
+  const qFirstName = queryParams?.get('firstName') || '';
+  const qLastName = queryParams?.get('lastName') || '';
+  const qPhone = queryParams?.get('phone') || '';
+  const qGrade = queryParams?.get('grade') || '';
+  const qEvent = queryParams?.get('event') || '';
+  const qEventDate = queryParams?.get('eventDate') || '';
+  const qEventTime = queryParams?.get('eventTime') || '';
+
+  const firstName = student?.firstName || qFirstName || ''
+  const lastName = student?.lastName || qLastName || ''
+  const phone = student?.phone || qPhone || ''
+  const grade = student?.grade || qGrade || ''
+  const regId = student?.id || qId || String(Date.now())
 
   const eventTitle = selectedEvent
     ? (isEn ? selectedEvent.title_en : selectedEvent.title_ru)
-    : t('openDoor.thanks.title')
+    : qEvent || t('openDoor.thanks.title')
 
   const eventDate = selectedEvent
     ? (isEn ? selectedEvent.date_en : selectedEvent.date_ru)
-    : t('landing.openDoor.date.val')
+    : qEventDate || t('landing.openDoor.date.val')
 
   const eventTime = selectedEvent
     ? (isEn ? selectedEvent.time_en : selectedEvent.time_ru)
-    : t('landing.openDoor.time.val')
+    : qEventTime || t('landing.openDoor.time.val')
 
-  // Encode student info in QR code
-  const qrData = `REG_ID: ${regId}\nName: ${firstName} ${lastName}\nPhone: ${phone}\nGrade: ${grade}\nEvent: ${eventTitle}`
+  // Generate a URL to open this exact ticket page with details prefilled
+  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://college.edu.kg';
+  const qrData = `${origin}/open_doors/thanks?id=${regId}&firstName=${encodeURIComponent(firstName)}&lastName=${encodeURIComponent(lastName)}&phone=${encodeURIComponent(phone)}&grade=${encodeURIComponent(grade)}&event=${encodeURIComponent(eventTitle)}&eventDate=${encodeURIComponent(eventDate)}&eventTime=${encodeURIComponent(eventTime)}`
+
+  const downloadQrCode = async () => {
+    try {
+      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(qrData)}`
+      const response = await fetch(qrUrl)
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `ticket-${regId}.png`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      window.URL.revokeObjectURL(url)
+    } catch (error) {
+      console.error('Failed to download QR code directly, opening in new tab', error)
+      window.open(`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(qrData)}`, '_blank')
+    }
+  }
 
   return (
     <div style={{ maxWidth: 560, margin: '0 auto', padding: '32px 20px' }}>
@@ -124,9 +155,14 @@ export function OpenDoorThanks({ student, selectedEvent, onHome }: OpenDoorThank
             </div>
           </div>
 
-          <button type="button" onClick={onHome} style={Styles.btnPrimary()}>
-            {t('openDoor.thanks.home')}
-          </button>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 16, alignItems: 'center' }}>
+            <button type="button" onClick={downloadQrCode} style={{ ...Styles.btnPrimary(), width: '100%' }}>
+              {isEn ? 'Download QR Code' : 'Скачать QR-код'}
+            </button>
+            <button type="button" onClick={onHome} style={{ ...Styles.btnGhost, justifyContent: 'center', padding: '8px 16px' }}>
+              <span>←</span> {t('openDoor.thanks.home')}
+            </button>
+          </div>
         </div>
       </div>
     </div>
