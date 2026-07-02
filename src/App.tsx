@@ -302,7 +302,7 @@ function AppInner() {
           )
           return
         }
-        const formWithId = { ...form, id }
+        const formWithId: Record<string, string> = { ...form, id: id || '' }
         const targetEventId = nav.selectedEventId || 'project-fest'
         localStorage.setItem(`registered_event_${targetEventId}`, 'true')
         localStorage.setItem(`registered_event_${targetEventId}_info`, JSON.stringify(formWithId))
