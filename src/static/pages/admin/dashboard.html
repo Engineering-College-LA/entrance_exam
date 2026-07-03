@@ -52,6 +52,10 @@
     .topbar-title { font-size: 15px; font-weight: 700; color: #0b1f3a; }
     .topbar-right { display: flex; align-items: center; gap: 14px; }
     .topbar-date { font-size: 12px; color: #6b7a95; }
+    .topbar-lang { display: flex; gap: 4px; align-items: center; margin-left: 8px; }
+    .topbar-lang-btn { font-size: 11px; font-weight: 700; padding: 4px 8px; border-radius: 4px; border: 1px solid #dde3ed; background: #ffffff; color: #6b7a95; cursor: pointer; font-family: monospace; transition: all .15s; text-align: center; line-height: 1; }
+    .topbar-lang-btn:hover { background: #f0f3f9; color: #0b1f3a; }
+    .topbar-lang-btn.active { background: #1565c0; color: #ffffff; border-color: #1565c0; }
     .sidebar-lang { display: flex; gap: 4px; padding: 10px 10px 4px; }
     .sidebar-lang-btn { flex: 1; font-size: 11px; font-weight: 700; padding: 6px 0; border-radius: 4px; border: 1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.04); color: #6b7a95; cursor: pointer; font-family: monospace; letter-spacing: .5px; transition: all .15s; text-align: center; }
     .sidebar-lang-btn:hover { background: rgba(255,255,255,.08); color: #c8d8ea; }
@@ -380,6 +384,10 @@
     <div class="topbar-title" id="topbar-title">Applicants</div>
     <div class="topbar-right">
       <span class="topbar-date" id="topbar-date"></span>
+      <div class="topbar-lang">
+        <button class="topbar-lang-btn" id="topbar-lang-btn-ru" onclick="setAdminLang('ru')">RU</button>
+        <button class="topbar-lang-btn" id="topbar-lang-btn-en" onclick="setAdminLang('en')">EN</button>
+      </div>
     </div>
   </div>
 
@@ -921,17 +929,17 @@
         <div style="display:flex; gap:20px; align-items:center; margin-top:8px;">
           <div style="display:flex; align-items:center; gap:8px;">
             <input type="checkbox" id="ex-require-parent" style="width:16px; height:16px; cursor:pointer;" />
-            <label for="ex-require-parent" style="font-size:12px; font-weight:600; color:#1a2535; cursor:pointer;">Require Parent Info</label>
+            <label for="ex-require-parent" id="lbl-ex-require-parent" style="font-size:12px; font-weight:600; color:#1a2535; cursor:pointer;">Placement Exam</label>
           </div>
           <div style="display:flex; align-items:center; gap:8px;">
             <input type="checkbox" id="ex-active" style="width:16px; height:16px; cursor:pointer;" checked />
-            <label for="ex-active" style="font-size:12px; font-weight:600; color:#1a2535; cursor:pointer;">Is Active</label>
+            <label for="ex-active" id="lbl-ex-active" style="font-size:12px; font-weight:600; color:#1a2535; cursor:pointer;">Is Active</label>
           </div>
         </div>
       </div>
       <div style="margin-top:16px; border-top:1px solid #f0f3f9; padding-top:14px; display:flex; gap:10px; justify-content:flex-end;">
-        <button type="button" class="od-btn-secondary" onclick="closeExamModal()">Cancel</button>
-        <button type="submit" class="od-btn-secondary" style="background:#1565c0; color:#fff; border-color:#1565c0;">Save Exam</button>
+        <button type="button" class="od-btn-secondary" id="btn-ex-cancel" onclick="closeExamModal()">Cancel</button>
+        <button type="submit" class="od-btn-secondary" id="btn-ex-save" style="background:#1565c0; color:#fff; border-color:#1565c0;">Save Exam</button>
       </div>
     </form>
   </div>
@@ -1380,6 +1388,12 @@
     localStorage.setItem("ec_admin_lang", lang);
     document.getElementById("lang-btn-ru").classList.toggle("active", lang === "ru");
     document.getElementById("lang-btn-en").classList.toggle("active", lang === "en");
+    
+    const topbarRu = document.getElementById("topbar-lang-btn-ru");
+    const topbarEn = document.getElementById("topbar-lang-btn-en");
+    if (topbarRu) topbarRu.classList.toggle("active", lang === "ru");
+    if (topbarEn) topbarEn.classList.toggle("active", lang === "en");
+    
     renderUI();
     renderAll();
   }
@@ -1439,6 +1453,23 @@
     const odX = document.querySelector(".od-modal-close");
     if (odX) odX.title = tAdmin("openDoor.modal.close");
     updateDateFilterBtn();
+
+    const lblExRequireParent = document.getElementById("lbl-ex-require-parent");
+    if (lblExRequireParent) {
+      lblExRequireParent.textContent = adminLang === "ru" ? "Отборочный экзамен" : "Placement Exam";
+    }
+    const lblExActive = document.getElementById("lbl-ex-active");
+    if (lblExActive) {
+      lblExActive.textContent = adminLang === "ru" ? "Активен" : "Is Active";
+    }
+    const btnExCancel = document.getElementById("btn-ex-cancel");
+    if (btnExCancel) {
+      btnExCancel.textContent = adminLang === "ru" ? "Отмена" : "Cancel";
+    }
+    const btnExSave = document.getElementById("btn-ex-save");
+    if (btnExSave) {
+      btnExSave.textContent = adminLang === "ru" ? "Сохранить" : "Save Exam";
+    }
   }
 
   function flashOdCopiedToast() {
@@ -1560,6 +1591,11 @@
   // Sync switcher button state on load
   document.getElementById("lang-btn-ru").classList.toggle("active", adminLang === "ru");
   document.getElementById("lang-btn-en").classList.toggle("active", adminLang === "en");
+  
+  const topbarRu = document.getElementById("topbar-lang-btn-ru");
+  const topbarEn = document.getElementById("topbar-lang-btn-en");
+  if (topbarRu) topbarRu.classList.toggle("active", adminLang === "ru");
+  if (topbarEn) topbarEn.classList.toggle("active", adminLang === "en");
 
   // ── Topic lookup (bilingual) ────────────────────────────────────────────────
   const TOPIC_NAMES = {
@@ -2819,7 +2855,7 @@
       const count = allQuestions.filter(q => q.exam_id === ex.id).length;
       const statusText = ex.is_active ? (adminLang === "ru" ? "Активен" : "Active") : (adminLang === "ru" ? "Скрыт" : "Hidden");
       const statusColor = ex.is_active ? "#1b8c5e" : "#c0392b";
-      const parentReqText = ex.require_parent_info ? (adminLang === "ru" ? "Да" : "Yes") : (adminLang === "ru" ? "Нет" : "No");
+      const typeText = ex.require_parent_info ? tAdmin("type.placement") : tAdmin("type.trial");
 
       return `
         <tr class="data-row" style="vertical-align: middle;">
@@ -2837,7 +2873,7 @@
             }
           })()}</td>
           <td>${Math.round(ex.time_limit_sec / 60)} min</td>
-          <td>${parentReqText}</td>
+          <td>${typeText}</td>
           <td><span class="badge" style="background:${statusColor}18;color:${statusColor};border:1px solid ${statusColor}33">${statusText}</span></td>
           <td><span class="badge" style="background:#1565c018;color:#1565c0;border:1px solid #1565c033">${count} questions</span></td>
           <td>
@@ -2858,7 +2894,7 @@
           <th>Title</th>
           <th>Subject</th>
           <th>Time Limit</th>
-          <th>Parent Info?</th>
+          <th>${tAdmin("col.type")}</th>
           <th>Status</th>
           <th>Questions</th>
           <th></th>

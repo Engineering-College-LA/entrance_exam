@@ -55,7 +55,7 @@ export function ExamCard({
   const buttonEl = (
     <button
       type="button"
-      onClick={disabled || variant === 'success' ? undefined : onStart}
+      onClick={disabled || (variant === 'success' && !onStart) ? undefined : onStart}
       disabled={disabled}
       style={{
         marginTop: 20,
@@ -67,7 +67,9 @@ export function ExamCard({
         background: disabled
           ? 'color-mix(in srgb, var(--t-text) 4%, transparent)'
           : variant === 'success'
-          ? 'color-mix(in srgb, var(--c-success) 10%, transparent)'
+          ? hovered && onStart
+            ? 'color-mix(in srgb, var(--c-success) 18%, transparent)'
+            : 'color-mix(in srgb, var(--c-success) 10%, transparent)'
           : variant === 'secondary'
           ? hovered
             ? accent
@@ -85,7 +87,9 @@ export function ExamCard({
         border: disabled
           ? '1px solid color-mix(in srgb, var(--t-text) 8%, transparent)'
           : variant === 'success'
-          ? '1.5px solid color-mix(in srgb, var(--c-success) 25%, transparent)'
+          ? hovered && onStart
+            ? '1.5px solid color-mix(in srgb, var(--c-success) 45%, transparent)'
+            : '1.5px solid color-mix(in srgb, var(--c-success) 25%, transparent)'
           : variant === 'secondary'
           ? `1.5px solid ${accent}`
           : 'none',
@@ -93,7 +97,11 @@ export function ExamCard({
         fontSize: 13,
         padding: '12px 20px',
         borderRadius: 6,
-        cursor: disabled ? 'not-allowed' : variant === 'success' ? 'default' : 'pointer',
+        cursor: disabled
+          ? 'not-allowed'
+          : (variant === 'success' && !onStart)
+          ? 'default'
+          : 'pointer',
         letterSpacing: 0.3,
         boxShadow: hovered && !disabled && variant === 'primary'
           ? `0 4px 14px color-mix(in srgb, ${accent} 35%, transparent)`
@@ -104,7 +112,7 @@ export function ExamCard({
       {disabled
         ? disabledCta ?? (isEn ? 'Unavailable' : 'Недоступно')
         : ctaLabel}{' '}
-      {!disabled && variant !== 'success' && (
+      {!disabled && (variant !== 'success' || !!onStart) && (
         <span
           style={{
             fontSize: 16,

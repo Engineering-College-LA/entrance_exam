@@ -244,8 +244,16 @@ export function Landing({
                   key={event.id}
                   badge={title}
                   desc={desc}
-                  ctaLabel={isRegistered ? (isEn ? 'Registered ✓' : 'Вы записаны ✓') : (isEn ? 'Register' : 'Записаться')}
-                  onStart={isRegistered ? undefined : () => onRegisterOpenDoor(event.id)}
+                  ctaLabel={
+                    isRegistered
+                      ? isEn
+                        ? 'View Pass'
+                        : 'Показать билет'
+                      : isEn
+                      ? 'Register'
+                      : 'Записаться'
+                  }
+                  onStart={() => onRegisterOpenDoor(event.id)}
                   accent={COLORS.success}
                   icon={<EventIcon size={20} />}
                   variant={isRegistered ? 'success' : 'secondary'}
