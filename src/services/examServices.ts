@@ -118,24 +118,36 @@ export const ValidationService = {
     } else if (!isValidName(form.lastName)) {
       errs.lastName = 'error.lastName.invalid'
     }
-    if (!/^\+996\d{9}$/.test(form.phone ?? '')) errs.phone = 'error.phone'
-    else if (
+    const phone = form.phone ?? ''
+    const isRussianPhone = phone.startsWith('+7')
+    const studentPhoneOk = isRussianPhone
+      ? /^\+7\d{10}$/.test(phone)
+      : /^\+996\d{9}$/.test(phone)
+
+    if (!studentPhoneOk) {
+      errs.phone = isRussianPhone ? 'error.phone.ru' : 'error.phone.kg'
+    } else if (
       (examType === 'placement' || examType.endsWith('placement')) &&
-      hasPhoneCompletedPlacement(form.phone ?? '')
+      hasPhoneCompletedPlacement(phone)
     ) {
       errs.phone = 'error.placementAlreadyTaken'
     }
     if (!form.grade) errs.grade = 'error.grade'
     if (examType === 'placement' || examType === 'openDoor' || requireParentInfo) {
-      if (!/^\+996\d{9}$/.test(form.parentPhone ?? ''))
-        errs.parentPhone = 'error.parentPhone'
+      const parentPhone = form.parentPhone ?? ''
+      const isRussianParentPhone = parentPhone.startsWith('+7')
+      const parentPhoneOk = isRussianParentPhone
+        ? /^\+7\d{10}$/.test(parentPhone)
+        : /^\+996\d{9}$/.test(parentPhone)
+
+      if (!parentPhoneOk) {
+        errs.parentPhone = isRussianParentPhone ? 'error.parentPhone.ru' : 'error.parentPhone.kg'
+      }
       if (!form.parentName?.trim()) errs.parentName = 'error.parentName'
-      const studentPhoneOk = /^\+996\d{9}$/.test(form.phone ?? '')
-      const parentPhoneOk = /^\+996\d{9}$/.test(form.parentPhone ?? '')
       if (
         studentPhoneOk &&
         parentPhoneOk &&
-        (form.phone ?? '').trim() === (form.parentPhone ?? '').trim()
+        phone.trim() === parentPhone.trim()
       ) {
         errs.parentPhone = 'error.parentPhoneMustDiffer'
       }

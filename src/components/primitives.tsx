@@ -470,13 +470,44 @@ export function FormField({
     )
   }
   if (field.type === 'phone') {
-    const handlePhoneChange = (e: ChangeEvent<HTMLInputElement>) => {
-      let val = e.target.value
-      if (!val.startsWith('+996')) val = '+996'
-      if (val.length > 13) val = val.slice(0, 13)
-      const next = { ...e, target: { ...e.target, value: val } }
+    const countryCode = value.startsWith('+7') ? '+7' : '+996'
+    const localValue = value.startsWith(countryCode) ? value.slice(countryCode.length) : ''
+
+    const handleCountryChange = (e: ChangeEvent<HTMLSelectElement>) => {
+      const newCode = e.target.value
+      const digits = localValue.replace(/\D/g, '')
+      const maxDigits = newCode === '+7' ? 10 : 9
+      const truncated = digits.slice(0, maxDigits)
+      const nextVal = newCode + truncated
+      
+      const next = {
+        ...e,
+        target: {
+          ...e.target,
+          value: nextVal,
+          name: e.target.name
+        }
+      }
+      onChange(next as unknown as ChangeEvent<HTMLInputElement>)
+    }
+
+    const handlePhoneDigitsChange = (e: ChangeEvent<HTMLInputElement>) => {
+      const digits = e.target.value.replace(/\D/g, '')
+      const maxDigits = countryCode === '+7' ? 10 : 9
+      const truncated = digits.slice(0, maxDigits)
+      const nextVal = countryCode + truncated
+
+      const next = {
+        ...e,
+        target: {
+          ...e.target,
+          value: nextVal,
+          name: e.target.name
+        }
+      }
       onChange(next as ChangeEvent<HTMLInputElement>)
     }
+
     return (
       <div className={shake ? 'field-shake' : ''}>
         <label style={Styles.label}>
@@ -485,13 +516,38 @@ export function FormField({
             <span style={{ color: COLORS.danger }}> *</span>
           )}
         </label>
-        <input
-          style={inputStyle}
-          type="tel"
-          value={value}
-          onChange={handlePhoneChange}
-          maxLength={13}
-        />
+        <div style={{ display: 'flex', gap: 8 }}>
+          <select
+            style={{
+              height: 44,
+              border: `1.5px solid ${COLORS.border}`,
+              borderRadius: 4,
+              background: 'var(--t-card-bg)',
+              fontFamily: 'inherit',
+              fontSize: 14,
+              color: COLORS.text,
+              padding: '0 8px 0 12px',
+              outline: 'none',
+              cursor: 'pointer',
+              flexShrink: 0,
+              width: 120,
+              ...errorStyle,
+            }}
+            value={countryCode}
+            onChange={handleCountryChange}
+          >
+            <option value="+996">🇰🇬 +996</option>
+            <option value="+7">🇷🇺 +7</option>
+          </select>
+          <input
+            style={{ ...inputStyle, flex: 1 }}
+            type="tel"
+            value={localValue}
+            onChange={handlePhoneDigitsChange}
+            placeholder={countryCode === '+7' ? '999 123-45-67' : '555 123 456'}
+            maxLength={countryCode === '+7' ? 10 : 9}
+          />
+        </div>
         {errorEl}
       </div>
     )

@@ -21,9 +21,17 @@ export function getPlacementCompletedPhones(): string[] {
   }
 }
 
+export function isValidPhone(phone: string): boolean {
+  const p = normalizePhone(phone)
+  if (p.startsWith('+7')) {
+    return /^\+7\d{10}$/.test(p)
+  }
+  return /^\+996\d{9}$/.test(p)
+}
+
 export function hasPhoneCompletedPlacement(phone: string): boolean {
   const p = normalizePhone(phone)
-  if (!/^\+996\d{9}$/.test(p)) return false
+  if (!isValidPhone(p)) return false
   return getPlacementCompletedPhones().includes(p)
 }
 
@@ -54,7 +62,7 @@ export function recordPlacementCompletion(
   result: ExamResult,
 ): void {
   const phone = normalizePhone(student.phone ?? '')
-  if (!/^\+996\d{9}$/.test(phone)) return
+  if (!isValidPhone(phone)) return
 
   const phones = getPlacementCompletedPhones()
   if (!phones.includes(phone)) phones.push(phone)
