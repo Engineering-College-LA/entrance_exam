@@ -147,7 +147,7 @@ export function Instructions({
             ⚠️
           </div>
           <div style={{ fontSize: 13, fontWeight: 700, lineHeight: 1.6 }}>
-            Запрещено сворачивать окно или переключаться между вкладками браузера. Это приведёт к автоматическому завершению экзамена.
+            {t('intro.warning')}
           </div>
         </div>
       </div>

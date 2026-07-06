@@ -118,6 +118,7 @@ export const TRANSLATIONS = {
     "intro.stat.results": "Results",
     "intro.checkbox": "I have read the rules and I am ready to begin",
     "intro.start": "Start Trial Test →",
+    "intro.warning": "It is forbidden to minimize the window or switch between browser tabs. This will result in automatic exam termination.",
 
     // Exam rules
     "rule.timer.title": "Timer Runs Continuously",
@@ -341,6 +342,7 @@ export const TRANSLATIONS = {
     "intro.stat.results": "Результаты",
     "intro.checkbox": "Я ознакомился с правилами и готов начать",
     "intro.start": "Начать Пробный Экзамен →",
+    "intro.warning": "Запрещено сворачивать окно или переключаться между вкладками браузера. Это приведёт к автоматическому завершению экзамена.",
 
     // Exam rules
     "rule.timer.title": "Таймер идёт непрерывно",
