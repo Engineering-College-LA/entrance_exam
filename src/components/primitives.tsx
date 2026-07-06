@@ -517,28 +517,55 @@ export function FormField({
           )}
         </label>
         <div style={{ display: 'flex', gap: 8 }}>
-          <select
+          <div
             style={{
-              height: 44,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
               border: `1.5px solid ${COLORS.border}`,
               borderRadius: 4,
               background: 'var(--t-card-bg)',
-              fontFamily: 'inherit',
-              fontSize: 14,
-              color: COLORS.text,
-              padding: '0 8px 0 12px',
-              outline: 'none',
-              cursor: 'pointer',
+              paddingLeft: 10,
+              height: 44,
               flexShrink: 0,
-              width: 120,
+              boxSizing: 'border-box',
               ...errorStyle,
             }}
-            value={countryCode}
-            onChange={handleCountryChange}
           >
-            <option value="+996">🇰🇬 +996</option>
-            <option value="+7">🇷🇺 +7</option>
-          </select>
+            {countryCode === '+7' ? (
+              <svg width="20" height="14" viewBox="0 0 3 2" style={{ display: 'block', borderRadius: 1 }}>
+                <rect width="3" height="2" fill="#fff"/>
+                <rect width="3" height="1.333" y="0.667" fill="#0039a6"/>
+                <rect width="3" height="0.667" y="1.333" fill="#d52b1e"/>
+              </svg>
+            ) : (
+              <svg width="20" height="14" viewBox="0 0 30 20" style={{ display: 'block', borderRadius: 1 }}>
+                <rect width="30" height="20" fill="#e52b2b"/>
+                <circle cx="15" cy="10" r="4.5" fill="#f4e04d"/>
+                <path d="M 15 7 A 3 3 0 0 1 15 13 A 3 3 0 0 1 15 7 Z" fill="none" stroke="#e52b2b" strokeWidth="0.6"/>
+                <path d="M 12 10 L 18 10 M 15 7 L 15 13" stroke="#e52b2b" strokeWidth="0.6"/>
+              </svg>
+            )}
+            <select
+              style={{
+                height: '100%',
+                border: 'none',
+                background: 'transparent',
+                fontFamily: 'inherit',
+                fontSize: 14,
+                color: COLORS.text,
+                paddingRight: 8,
+                paddingLeft: 0,
+                outline: 'none',
+                cursor: 'pointer',
+              }}
+              value={countryCode}
+              onChange={handleCountryChange}
+            >
+              <option value="+996" style={{ background: 'var(--t-card-bg)' }}>KG +996</option>
+              <option value="+7" style={{ background: 'var(--t-card-bg)' }}>RU +7</option>
+            </select>
+          </div>
           <input
             style={{ ...inputStyle, flex: 1 }}
             type="tel"
