@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { COLORS } from '../constants'
 import { useLang } from '../context/LangContext'
+import { useTheme } from '../context/ThemeContext'
 
 export function ExamCard({
   badge,
@@ -41,6 +42,7 @@ export function ExamCard({
   tooltipText?: string
 }) {
   const { t, lang } = useLang()
+  const { theme } = useTheme()
   const [hovered, setHovered] = useState(false)
 
   const rows = customRows ?? [
@@ -52,76 +54,26 @@ export function ExamCard({
   ]
   const isEn = t('landing.title1') === 'Mathematics'
 
+  const isDark = theme === 'dark'
+  const textColor = accent === COLORS.accent && isDark ? COLORS.navy : COLORS.white
+  const isSuccessStyle = variant === 'success'
+
   const buttonEl = (
     <button
       type="button"
-      onClick={disabled || (variant === 'success' && !onStart) ? undefined : onStart}
+      className={isSuccessStyle ? 'cta-button cta-button-success' : 'cta-button cta-button-primary'}
+      onClick={disabled || (isSuccessStyle && !onStart) ? undefined : onStart}
       disabled={disabled}
       style={{
-        marginTop: 20,
-        width: '100%',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 8,
-        background: disabled
-          ? 'color-mix(in srgb, var(--t-text) 4%, transparent)'
-          : variant === 'success'
-          ? hovered && onStart
-            ? 'color-mix(in srgb, var(--c-success) 18%, transparent)'
-            : 'color-mix(in srgb, var(--c-success) 10%, transparent)'
-          : variant === 'secondary'
-          ? hovered
-            ? accent
-            : 'transparent'
-          : accent,
-        color: disabled
-          ? 'color-mix(in srgb, var(--t-text) 30%, transparent)'
-          : variant === 'success'
-          ? 'var(--c-success)'
-          : variant === 'secondary'
-          ? hovered
-            ? COLORS.white
-            : accent
-          : COLORS.navy,
-        border: disabled
-          ? '1px solid color-mix(in srgb, var(--t-text) 8%, transparent)'
-          : variant === 'success'
-          ? hovered && onStart
-            ? '1.5px solid color-mix(in srgb, var(--c-success) 45%, transparent)'
-            : '1.5px solid color-mix(in srgb, var(--c-success) 25%, transparent)'
-          : variant === 'secondary'
-          ? `1.5px solid ${accent}`
-          : 'none',
-        fontWeight: 800,
-        fontSize: 13,
-        padding: '12px 20px',
-        borderRadius: 6,
-        cursor: disabled
-          ? 'not-allowed'
-          : (variant === 'success' && !onStart)
-          ? 'default'
-          : 'pointer',
-        letterSpacing: 0.3,
-        boxShadow: hovered && !disabled && variant === 'primary'
-          ? `0 4px 14px color-mix(in srgb, ${accent} 35%, transparent)`
-          : 'none',
-        transition: 'all 0.2s ease',
-      }}
+        '--btn-accent': accent,
+        '--btn-text-color': textColor,
+      } as React.CSSProperties}
     >
       {disabled
         ? disabledCta ?? (isEn ? 'Unavailable' : 'Недоступно')
         : ctaLabel}{' '}
-      {!disabled && (variant !== 'success' || !!onStart) && (
-        <span
-          style={{
-            fontSize: 16,
-            transform: hovered ? 'translateX(4px)' : 'translateX(0)',
-            transition: 'transform 0.2s ease',
-            display: 'inline-block',
-            lineHeight: 1,
-          }}
-        >
+      {!disabled && (!isSuccessStyle || !!onStart) && (
+        <span className="cta-arrow">
           →
         </span>
       )}
@@ -130,6 +82,7 @@ export function ExamCard({
 
   return (
     <div
+      className="exam-card"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
@@ -342,14 +295,16 @@ export function ExamCard({
           </span>
         </div>
       )}
-      {tooltipText ? (
-        <div className="tooltip-container" style={{ width: '100%' }}>
-          {buttonEl}
-          <span className="tooltip-content">{tooltipText}</span>
-        </div>
-      ) : (
-        buttonEl
-      )}
+      <div style={{ marginTop: 'auto', paddingTop: 20, width: '100%' }}>
+        {tooltipText ? (
+          <div className="tooltip-container" style={{ width: '100%' }}>
+            {buttonEl}
+            <span className="tooltip-content">{tooltipText}</span>
+          </div>
+        ) : (
+          buttonEl
+        )}
+      </div>
     </div>
   )
 }
