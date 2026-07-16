@@ -220,6 +220,13 @@ export const TRANSLATIONS = {
     "dashboard.subject.english.desc": "Admissions test in English. Grammar, reading, and vocabulary.",
     "dashboard.subject.english.comingSoon": "Coming Soon",
     "dashboard.backToPortal": "← Back to Portal",
+    "landing.category.exams.title": "Admissions Tests",
+    "landing.category.exams.desc": "Take placement tests or practice trial exams in Mathematics, English, and other subjects.",
+    "landing.category.exams.cta": "Select Category",
+    "landing.category.events.title": "Events & Fairs",
+    "landing.category.events.desc": "Register for Project Fest, career guidance seminars, and student projects showcase.",
+    "landing.category.events.cta": "Select Category",
+    "landing.category.back": "← Back to Categories",
   },
 
   ru: {
@@ -444,5 +451,12 @@ export const TRANSLATIONS = {
     "dashboard.subject.english.desc": "Вступительный экзамен по английскому. Грамматика, чтение и лексика.",
     "dashboard.subject.english.comingSoon": "Скоро",
     "dashboard.backToPortal": "← Назад в портал",
+    "landing.category.exams.title": "Вступительные испытания",
+    "landing.category.exams.desc": "Пройдите официальные отборочные тесты или пробные экзамены по математике и другим предметам.",
+    "landing.category.exams.cta": "Выбрать категорию",
+    "landing.category.events.title": "Мероприятия и выставки",
+    "landing.category.events.desc": "Зарегистрируйтесь на Project Fest, семинары по профориентации и ярмарку студенческих проектов.",
+    "landing.category.events.cta": "Выбрать категорию",
+    "landing.category.back": "← Назад к категориям",
   },
 };
