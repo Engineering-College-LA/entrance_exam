@@ -1859,10 +1859,21 @@
   }
 
   // ── Subject filter ──────────────────────────────────────────────────────────
+  function normalizeSubjectKey(s) {
+    if (!s) return "math";
+    const str = String(s).toLowerCase();
+    if (str.includes("math") || str.includes("матем")) return "math";
+    if (str.includes("english") || str.includes("англ")) return "english";
+    if (str.includes("physics") || str.includes("физик")) return "physics";
+    if (str.includes("chemistry") || str.includes("хими")) return "chemistry";
+    if (str.includes("|")) return str.split("|")[0].trim().toLowerCase();
+    return str;
+  }
+
   function getApplicantSubject(r) {
     const exam = allExams.find(ex => ex.id === r.examType);
     if (exam && exam.subject) {
-      return exam.subject;
+      return normalizeSubjectKey(exam.subject);
     }
     const type = String(r.examType || "").toLowerCase();
     if (type === "trial" || type === "placement") {
@@ -1871,31 +1882,35 @@
     if (type.includes("-")) {
       const prefix = type.split("-")[0];
       if (prefix && prefix !== "trial" && prefix !== "placement") {
-        return prefix;
+        return normalizeSubjectKey(prefix);
       }
     }
-    if (type.includes("math")) return "math";
-    if (type.includes("english")) return "english";
-    if (type.includes("physics")) return "physics";
-    if (type.includes("chemistry")) return "chemistry";
+    if (type.includes("math") || type.includes("матем")) return "math";
+    if (type.includes("english") || type.includes("англ")) return "english";
+    if (type.includes("physics") || type.includes("физик")) return "physics";
+    if (type.includes("chemistry") || type.includes("хими")) return "chemistry";
     return "math";
   }
 
   function getSubjectDisplayName(subject, lang) {
     if (!subject) return lang === "ru" ? "Неизвестно" : "Unknown";
+    const key = normalizeSubjectKey(subject);
     if (subject.includes("|")) {
       const parts = subject.split("|");
       return lang === "ru" ? (parts[1] || parts[0]) : parts[0];
     }
     const subjectMapRu = { math: "Математика", english: "Английский язык", physics: "Физика", chemistry: "Химия" };
     const subjectMapEn = { math: "Mathematics", english: "English Language", physics: "Physics", chemistry: "Chemistry" };
-    return lang === "ru" ? (subjectMapRu[subject] || subject) : (subjectMapEn[subject] || subject);
+    return lang === "ru" ? (subjectMapRu[key] || subject) : (subjectMapEn[key] || subject);
   }
 
   function getAvailableSubjects() {
     const counts = {};
     for (const ex of allExams) {
-      if (ex.subject) counts[ex.subject] = 0;
+      if (ex.subject) {
+        const normKey = normalizeSubjectKey(ex.subject);
+        counts[normKey] = 0;
+      }
     }
     for (const r of allApplicants) {
       const subj = getApplicantSubject(r);
@@ -1920,7 +1935,7 @@
   }
 
   function setSubjectFilter(subjectKey) {
-    activeSubjectFilter = subjectKey || null;
+    activeSubjectFilter = subjectKey ? normalizeSubjectKey(subjectKey) : null;
     closeSubjectDropdown();
     updateSubjectFilterBtn();
     renderAll();
@@ -2050,20 +2065,40 @@
 
   // ── Filter (matches table: exam type + search) — no score sort ───────────────
   function getFilteredApplicants() {
-    let data = activeFilter === "all"
-      ? allApplicants
-      : allApplicants.filter(r => r.examType === activeFilter);
+    let data = allApplicants;
+    if (activeFilter === "placement") {
+      data = data.filter(r => String(r.examType || "").toLowerCase().includes("placement"));
+    } else if (activeFilter === "trial") {
+      data = data.filter(r => !String(r.examType || "").toLowerCase().includes("placement"));
+    }
+
     if (activeSubjectFilter) {
-      data = data.filter(r => getApplicantSubject(r) === activeSubjectFilter);
+      const targetSubj = normalizeSubjectKey(activeSubjectFilter);
+      data = data.filter(r => getApplicantSubject(r) === targetSubj);
     }
     if (activeDateFilter) {
       data = data.filter(r => toDateKey(r.completedAt) === activeDateFilter);
     }
     const q = document.getElementById("search").value.trim().toLowerCase();
     if (q) {
-      data = data.filter(r =>
-        (r.firstName + " " + r.lastName).toLowerCase().includes(q) ||
-        r.phone.includes(q));
+      const qDigits = q.replace(/\D/g, "");
+      data = data.filter(r => {
+        const name = (r.firstName + " " + r.lastName).toLowerCase();
+        const parentName = (r.parentName || "").toLowerCase();
+        const phone = r.phone || "";
+        const parentPhone = r.parentPhone || "";
+        const grade = String(r.grade || "").toLowerCase();
+        
+        const phoneDigits = phone.replace(/\D/g, "");
+        const parentPhoneDigits = parentPhone.replace(/\D/g, "");
+
+        const matchesName = name.includes(q) || parentName.includes(q);
+        const matchesGrade = grade.includes(q);
+        const matchesPhone = phone.includes(q) || parentPhone.includes(q) ||
+          (qDigits.length > 2 && (phoneDigits.includes(qDigits) || parentPhoneDigits.includes(qDigits)));
+
+        return matchesName || matchesGrade || matchesPhone;
+      });
     }
     return data;
   }
