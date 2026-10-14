@@ -60,22 +60,40 @@ Deno.serve(async (req) => {
     auth: { persistSession: false },
   })
 
-  const { data: existing, error: fetchError } = await admin
-    .from('paid_exam_registrations')
-    .select('id, payment_status')
-    .eq('id', paymentId)
-    .maybeSingle()
+  // We control the PaymentId format: "pe_..." for exam payments,
+  // "oly_..." for Olympiad payments. Try the matching table first, then
+  // fall back to checking the other in case the prefix convention changes.
+  const tablesToTry: Array<'paid_exam_registrations' | 'olympiad_registrations'> =
+    paymentId.startsWith('oly_')
+      ? ['olympiad_registrations', 'paid_exam_registrations']
+      : ['paid_exam_registrations', 'olympiad_registrations']
 
-  if (fetchError || !existing) return json({ error: 'Unknown payment id' }, 404)
+  let table: 'paid_exam_registrations' | 'olympiad_registrations' | null = null
+  let existingStatus: string | null = null
 
-  if (existing.payment_status === 'pending') {
+  for (const t of tablesToTry) {
+    const { data: existing } = await admin
+      .from(t)
+      .select('id, payment_status')
+      .eq('id', paymentId)
+      .maybeSingle()
+    if (existing) {
+      table = t
+      existingStatus = existing.payment_status
+      break
+    }
+  }
+
+  if (!table) return json({ error: 'Unknown payment id' }, 404)
+
+  if (existingStatus === 'pending') {
     const resultStatus = resolveStatus(body)
     // Unrecognized status: leave as pending rather than guessing — a future
     // webhook (success or failure) will resolve it, or it surfaces for
     // manual review instead of silently misreporting.
     if (resultStatus) {
       await admin
-        .from('paid_exam_registrations')
+        .from(table)
         .update({
           payment_status: resultStatus,
           finik_transaction_id: finikTransactionId ?? null,

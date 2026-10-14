@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Header } from './components/Header'
 import { LangProvider, useLang } from './context/LangContext'
 import { usePageNav } from './hooks/examHooks'
-import { insertOlympiadRegistration } from './lib/olympiadRegistration'
+import { startOlympiadPayment } from './lib/olympiadRegistration'
 import { insertOpenDoorRegistration } from './lib/openDoorRegistration'
 import { startPaidExamPayment } from './lib/paidExamPayment'
 import { supabase } from './lib/supabase'
@@ -340,12 +340,12 @@ function AppInner() {
     }
     if (nav.examType === 'olympiad') {
       void (async () => {
-        const { error } = await insertOlympiadRegistration(form, lang)
-        if (error) {
-          window.alert(`${t('register.olympiad.error')}\n\n${error.message}`)
+        const result = await startOlympiadPayment(form, lang)
+        if ('error' in result) {
+          window.alert(`${t('register.olympiad.error')}\n\n${result.error.message}`)
           return
         }
-        nav.go('olympiadThanks')
+        window.location.href = result.redirectUrl
       })()
       return
     }
@@ -465,6 +465,7 @@ function AppInner() {
       {nav.page === 'paymentResult' && (
         <PaymentResult
           onStartExam={handleStartPaidExamAfterPayment}
+          onOlympiadConfirmed={() => nav.go('olympiadThanks')}
           onHome={() => nav.go('landing')}
         />
       )}

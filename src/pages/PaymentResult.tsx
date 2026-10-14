@@ -6,18 +6,31 @@ import { readCachedPaidExamStudent } from '../lib/paidExamPayment'
 import { supabase } from '../lib/supabase'
 import { Styles } from '../styles'
 
+type PaymentType = 'exam' | 'olympiad'
+
 type PaymentRow = {
   id: string
-  exam_id: string | null
+  exam_id?: string | null
   first_name: string
   last_name: string
   phone: string
   grade: string
-  parent_phone: string | null
-  parent_name: string | null
+  parent_phone?: string | null
+  parent_name?: string | null
+  school?: string | null
   amount: number | null
   currency: string | null
   payment_status: 'pending' | 'paid' | 'failed'
+}
+
+const TABLE_BY_TYPE: Record<PaymentType, 'paid_exam_registrations' | 'olympiad_registrations'> = {
+  exam: 'paid_exam_registrations',
+  olympiad: 'olympiad_registrations',
+}
+
+const SELECT_BY_TYPE: Record<PaymentType, string> = {
+  exam: 'id, exam_id, first_name, last_name, phone, grade, parent_phone, parent_name, amount, currency, payment_status',
+  olympiad: 'id, first_name, last_name, phone, grade, school, amount, currency, payment_status',
 }
 
 type Status =
@@ -40,23 +53,32 @@ function rowToStudent(row: PaymentRow): Record<string, string> {
     grade: row.grade,
     parentPhone: row.parent_phone ?? '',
     parentName: row.parent_name ?? '',
+    school: row.school ?? '',
   }
 }
 
 export function PaymentResult({
   onStartExam,
+  onOlympiadConfirmed,
   onHome,
 }: {
   onStartExam: (examId: string, student: Record<string, string>) => void
+  onOlympiadConfirmed: () => void
   onHome: () => void
 }) {
   const { t } = useLang()
-  // We set this query param ourselves when creating the payment (Finik's own
-  // redirect params aren't publicly documented, and can't be trusted as proof
-  // of payment anyway) — see supabase/functions/finik-create-payment's RedirectUrl.
+  // We set these query params ourselves when creating the payment (Finik's
+  // own redirect params aren't publicly documented, and can't be trusted as
+  // proof of payment anyway) — see supabase/functions/finik-create-payment's
+  // RedirectUrl.
   const [paymentId] = useState(
     () => new URLSearchParams(window.location.search).get('paymentId') ?? '',
   )
+  const [paymentType] = useState<PaymentType>(() => {
+    const t = new URLSearchParams(window.location.search).get('type')
+    return t === 'olympiad' ? 'olympiad' : 'exam'
+  })
+  const table = TABLE_BY_TYPE[paymentType]
   const [status, setStatus] = useState<Status>(paymentId ? 'loading' : 'invalid')
   const [row, setRow] = useState<PaymentRow | null>(null)
   const pollAttempts = useRef(0)
@@ -68,10 +90,8 @@ export function PaymentResult({
     }
     try {
       const { data, error } = await supabase
-        .from('paid_exam_registrations')
-        .select(
-          'id, exam_id, first_name, last_name, phone, grade, parent_phone, parent_name, amount, currency, payment_status',
-        )
+        .from(table)
+        .select(SELECT_BY_TYPE[paymentType])
         .eq('id', paymentId)
         .maybeSingle()
       if (error) {
@@ -82,8 +102,8 @@ export function PaymentResult({
         setStatus('not_found')
         return
       }
-      setRow(data)
-      setStatus(data.payment_status)
+      setRow(data as unknown as PaymentRow)
+      setStatus((data as unknown as PaymentRow).payment_status)
     } catch {
       setStatus('network_error')
     }
@@ -94,13 +114,13 @@ export function PaymentResult({
   useEffect(() => {
     if (!paymentId || !supabase) return
     const channel = supabase
-      .channel(`paid-exam-${paymentId}`)
+      .channel(`payment-${paymentId}`)
       .on(
         'postgres_changes',
         {
           event: 'UPDATE',
           schema: 'public',
-          table: 'paid_exam_registrations',
+          table,
           filter: `id=eq.${paymentId}`,
         },
         (payload) => {
@@ -133,6 +153,10 @@ export function PaymentResult({
   }, [status, paymentId])
 
   const handleStart = () => {
+    if (paymentType === 'olympiad') {
+      onOlympiadConfirmed()
+      return
+    }
     if (!row?.exam_id) return
     const cached = readCachedPaidExamStudent(paymentId)
     onStartExam(row.exam_id, cached ?? rowToStudent(row))
@@ -225,13 +249,19 @@ export function PaymentResult({
             {ticketDetails}
             <InfoBanner
               icon="✅"
-              text={t('payment.result.paid')}
+              text={
+                paymentType === 'olympiad'
+                  ? t('payment.result.olympiadPaid')
+                  : t('payment.result.paid')
+              }
               bg="#eafaf1"
               borderColor="#aee3c8"
               color={COLORS.success}
             />
             <button type="button" onClick={handleStart} style={Styles.btnPrimary()}>
-              {t('payment.result.start')}
+              {paymentType === 'olympiad'
+                ? t('payment.result.olympiadContinue')
+                : t('payment.result.start')}
             </button>
           </>
         )}
