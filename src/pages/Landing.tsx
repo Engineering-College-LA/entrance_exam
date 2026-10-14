@@ -3,13 +3,14 @@ import { COLORS } from '../constants'
 import { ExamCard } from '../components/ExamCard'
 import { useLang } from '../context/LangContext'
 import { useIsMobile } from '../hooks/examHooks'
-import { MathIcon, EventIcon } from '../components/Icons'
+import { MathIcon, EventIcon, TrophyIcon } from '../components/Icons'
 
 type ViewMode = 'selection' | 'exams' | 'events'
 
 export function Landing({
   onSelectSubject,
   onRegisterOpenDoor,
+  onRegisterOlympiad,
   isRegisteredOpenDoor,
   events = [],
   registeredEventIds = [],
@@ -17,6 +18,7 @@ export function Landing({
 }: {
   onSelectSubject: (subject: string) => void
   onRegisterOpenDoor: (eventId?: string) => void
+  onRegisterOlympiad: () => void
   isRegisteredOpenDoor: boolean
   events?: any[]
   registeredEventIds?: string[]
@@ -433,7 +435,7 @@ export function Landing({
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
+            gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)',
             gap: isMobile ? 20 : 28,
             width: '100%',
           }}
@@ -470,6 +472,17 @@ export function Landing({
                 : isEn ? 'Coming soon' : 'Скоро'
             }
             onClick={() => setViewMode('events')}
+          />
+
+          {/* ── Math Olympiad Card ── */}
+          <CategoryCard
+            icon={<TrophyIcon size={36} />}
+            title={t('landing.category.olympiad.title')}
+            desc={t('landing.category.olympiad.desc')}
+            ctaLabel={t('landing.category.olympiad.cta')}
+            accent="#e8a020"
+            countLabel={isEn ? 'Grade 9' : '9 класс'}
+            onClick={onRegisterOlympiad}
           />
         </div>
       </div>

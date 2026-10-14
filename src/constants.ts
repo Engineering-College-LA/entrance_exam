@@ -51,6 +51,8 @@ export const PAGES = {
   report: { labelKey: 'page.report', step: 3 },
   openDoorThanks: { labelKey: 'page.openDoorThanks', step: -1 },
   subject: { labelKey: 'page.subject', step: -1 },
+  paymentResult: { labelKey: 'page.paymentResult', step: -1 },
+  olympiadThanks: { labelKey: 'page.olympiadThanks', step: -1 },
 } as const
 
 export const STEP_KEYS = [

@@ -154,6 +154,8 @@ export const ValidationService = {
     }
     if ((examType === 'placement' || requireParentInfo) && !form.attended)
       errs.attended = 'error.attended'
+    if (examType === 'olympiad' && !form.school?.trim())
+      errs.school = 'error.school'
     return errs
   },
   registration(form: RegistrationForm, examType: string, requireParentInfo?: boolean) {

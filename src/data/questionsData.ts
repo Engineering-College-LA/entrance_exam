@@ -272,6 +272,15 @@ export const PLACEMENT_EXTRA_FIELDS = [
   { key: "attended", labelKey: "field.attended", required: true, type: "select", options: ["attended", "not_attended"] },
 ];
 
+// Grade is locked to 9th for now — Olympiad has no other grades open yet.
+export const OLYMPIAD_GRADE_FIELD = {
+  key: "grade", labelKey: "field.grade", required: true, type: "select", options: ["9"], initialValue: "9",
+};
+
+export const OLYMPIAD_EXTRA_FIELDS = [
+  { key: "school", labelKey: "field.school", required: true, placeholderKey: "field.school.ph", type: "text" },
+];
+
 export const EXAM_RULES = [
   { icon: "⏱", color: "#e8f0fb", textColor: "#1565c0", titleKey: "rule.timer.title", descKey: "rule.timer.desc" },
   { icon: "🚫", color: "#fdecea", textColor: "#d32f2f", titleKey: "rule.attempt.title", descKey: "rule.attempt.desc" },

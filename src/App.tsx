@@ -2,13 +2,17 @@ import { useEffect, useState } from 'react'
 import { Header } from './components/Header'
 import { LangProvider, useLang } from './context/LangContext'
 import { usePageNav } from './hooks/examHooks'
+import { insertOlympiadRegistration } from './lib/olympiadRegistration'
 import { insertOpenDoorRegistration } from './lib/openDoorRegistration'
+import { startPaidExamPayment } from './lib/paidExamPayment'
 import { supabase } from './lib/supabase'
 import { Exam } from './pages/Exam'
 import { Instructions } from './pages/Instructions'
 import { Landing } from './pages/Landing'
 import { SubjectLanding } from './pages/SubjectLanding'
+import { OlympiadThanks } from './pages/OlympiadThanks'
 import { OpenDoorThanks } from './pages/OpenDoorThanks'
+import { PaymentResult } from './pages/PaymentResult'
 import { Register } from './pages/Register'
 import { Report } from './pages/Report'
 import {
@@ -227,21 +231,17 @@ function AppInner() {
   const resolvedActiveExam = activeExam || (dbExams || []).find(e => e.id === nav.examType) || DEFAULT_EXAMS.find(e => e.id === nav.examType)
   const timeLimitSec = resolvedActiveExam ? resolvedActiveExam.time_limit_sec : 3600
 
-  const handleStartExam = async (exam: any) => {
-    setActiveExam(exam)
-    if (exam.id === 'math-placement' || exam.require_parent_info) {
-      clearLastRegisteredPhone()
-    }
+  const buildQuestionsForExam = (exam: any): ExamQuestion[] => {
     let baseQuestions: ExamQuestion[] = []
     if (dbQuestions && dbQuestions.length > 0) {
       baseQuestions = dbQuestions.filter(
-        q => q.exam_type === exam.id || 
-             (exam.id === 'math-trial' && q.exam_type === 'trial') || 
-             (exam.id === 'math-placement' && q.exam_type === 'placement') || 
+        q => q.exam_type === exam.id ||
+             (exam.id === 'math-trial' && q.exam_type === 'trial') ||
+             (exam.id === 'math-placement' && q.exam_type === 'placement') ||
              q.exam_type === 'all'
       )
     }
-    
+
     if (baseQuestions.length === 0) {
       if (exam.id === 'math-trial') {
         baseQuestions = TRIAL_QUESTIONS_BASE
@@ -255,8 +255,29 @@ function AppInner() {
         baseQuestions = QuestionService.build(baseQuestions, 30)
       }
     }
-    setQuestions(QuestionService.shuffle(baseQuestions))
+    return QuestionService.shuffle(baseQuestions)
+  }
+
+  const handleStartExam = async (exam: any) => {
+    setActiveExam(exam)
+    if (exam.id === 'math-placement' || exam.require_parent_info) {
+      clearLastRegisteredPhone()
+    }
+    setQuestions(buildQuestionsForExam(exam))
     nav.go('register', { examType: exam.id })
+  }
+
+  const handleRegisterOlympiad = () => {
+    nav.go('register', { examType: 'olympiad' })
+  }
+
+  const handleStartPaidExamAfterPayment = (examId: string, student: Record<string, string>) => {
+    const exam = (dbExams || []).find((e) => e.id === examId) || DEFAULT_EXAMS.find(e => e.id === examId)
+    if (!exam) return
+    setActiveExam(exam)
+    setQuestions(buildQuestionsForExam(exam))
+    nav.setStudent(student)
+    nav.go('intro', { examType: examId })
   }
 
   const handleRegisterOpenDoor = (eventId?: string) => {
@@ -317,6 +338,28 @@ function AppInner() {
       })()
       return
     }
+    if (nav.examType === 'olympiad') {
+      void (async () => {
+        const { error } = await insertOlympiadRegistration(form, lang)
+        if (error) {
+          window.alert(`${t('register.olympiad.error')}\n\n${error.message}`)
+          return
+        }
+        nav.go('olympiadThanks')
+      })()
+      return
+    }
+    if (resolvedActiveExam?.fee_kgs) {
+      void (async () => {
+        const result = await startPaidExamPayment(form, lang, resolvedActiveExam.id)
+        if ('error' in result) {
+          window.alert(`${t('register.paidExam.error')}\n\n${result.error.message}`)
+          return
+        }
+        window.location.href = result.redirectUrl
+      })()
+      return
+    }
     if (nav.examType === 'placement' || resolvedActiveExam?.require_parent_info) {
       setLastRegisteredPhone(form.phone ?? '')
     }
@@ -355,6 +398,7 @@ function AppInner() {
         <Landing
           onSelectSubject={(subject) => nav.go('subject', { subject })}
           onRegisterOpenDoor={handleRegisterOpenDoor}
+          onRegisterOlympiad={handleRegisterOlympiad}
           isRegisteredOpenDoor={isRegisteredOpenDoor}
           events={events}
           registeredEventIds={registeredEventIds}
@@ -377,7 +421,7 @@ function AppInner() {
       {nav.page === 'register' && (
         <Register
           onSubmit={handleRegister}
-          onBack={() => nav.go(nav.examType === 'openDoor' ? 'landing' : 'subject')}
+          onBack={() => nav.go(nav.examType === 'openDoor' || nav.examType === 'olympiad' ? 'landing' : 'subject')}
           examType={nav.examType}
           selectedEvent={events.find(e => e.id === nav.selectedEventId)}
           requireParentInfo={resolvedActiveExam?.require_parent_info}
@@ -412,6 +456,15 @@ function AppInner() {
         <OpenDoorThanks
           student={nav.student}
           selectedEvent={events.find(e => e.id === nav.selectedEventId)}
+          onHome={() => nav.go('landing')}
+        />
+      )}
+      {nav.page === 'olympiadThanks' && (
+        <OlympiadThanks onHome={() => nav.go('landing')} />
+      )}
+      {nav.page === 'paymentResult' && (
+        <PaymentResult
+          onStartExam={handleStartPaidExamAfterPayment}
           onHome={() => nav.go('landing')}
         />
       )}
