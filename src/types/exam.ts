@@ -36,5 +36,7 @@ export type PageId =
   | 'report'
   | 'openDoorThanks'
   | 'subject'
+  | 'paymentResult'
+  | 'olympiadThanks'
 
 export type ExamType = string

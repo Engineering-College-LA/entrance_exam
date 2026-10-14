@@ -8,6 +8,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="icon" type="image/png" href="../../assets/app_logo.png" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Inter', system-ui, sans-serif; background: #f0f3f9; color: #1a2535; min-height: 100vh; display: flex; }
@@ -364,6 +365,14 @@
       <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 16h-2v-2h2v2zm1.07-7.75l-.9.92C12.45 11.9 12 12.5 12 14h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H7c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.04-.42 1.99-1.07 2.75z"/></svg>
       <span id="lbl-nav-quizzes">Exams</span>
     </button>
+    <button type="button" class="nav-item" id="nav-tab-paid-exam" onclick="setAdminTab('paidExam')" title="Entrance Exam Payments">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>
+      <span id="lbl-nav-paid-exam">Entrance Exam Payments</span>
+    </button>
+    <button type="button" class="nav-item" id="nav-tab-olympiad" onclick="setAdminTab('olympiad')" title="Math Olympiad">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
+      <span id="lbl-nav-olympiad">Math Olympiad</span>
+    </button>
 
     <div class="sidebar-lang">
       <button class="sidebar-lang-btn active" id="lang-btn-ru" onclick="setAdminLang('ru')">RU</button>
@@ -587,6 +596,45 @@
               <div class="spinner"></div>
               <div style="font-size:13px;color:#6b7a95" id="lbl-loading-quizzes">Loading questions…</div>
             </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Paid entrance exam payments (separate tab) -->
+    <div id="panel-paid-exam" class="content-panel">
+      <div class="section">
+        <div class="section-header">
+          <div>
+            <span class="section-title" id="lbl-paid-exam-section-title">Entrance exam payments</span>
+            <span class="section-count" id="paid-exam-count"></span>
+          </div>
+        </div>
+        <div id="paid-exam-table-container">
+          <div class="spinner-wrap">
+            <div class="spinner"></div>
+            <div style="font-size:13px;color:#6b7a95">Loading…</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Math Olympiad registrations (separate tab) -->
+    <div id="panel-olympiad" class="content-panel">
+      <div class="section">
+        <div class="section-header">
+          <div>
+            <span class="section-title" id="lbl-olympiad-section-title">Math Olympiad registrations</span>
+            <span class="section-count" id="olympiad-count"></span>
+          </div>
+          <button type="button" class="filter-btn" id="olympiad-export-btn" style="color:#1b8c5e;" onclick="exportOlympiadXlsx()">
+            <span id="lbl-olympiad-export-btn">⬇ Export XLSX</span>
+          </button>
+        </div>
+        <div id="olympiad-table-container">
+          <div class="spinner-wrap">
+            <div class="spinner"></div>
+            <div style="font-size:13px;color:#6b7a95">Loading…</div>
           </div>
         </div>
       </div>
@@ -925,6 +973,10 @@
             <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;">Time Limit (Minutes)</label>
             <input type="number" id="ex-time-limit" class="search-input" style="width:100%; height:38px;" value="60" required />
           </div>
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;">Fee, KGS (optional — leave empty for a free exam)</label>
+            <input type="number" id="ex-fee-kgs" class="search-input" style="width:100%; height:38px;" min="1" placeholder="e.g. 500" />
+          </div>
         </div>
         <div style="display:flex; gap:20px; align-items:center; margin-top:8px;">
           <div style="display:flex; align-items:center; gap:8px;">
@@ -1173,6 +1225,23 @@
       "nav.applicants":     "Applicants",
       "nav.openDoorsParticipants": "Events",
       "nav.quizzes":        "Exams",
+      "nav.paidExam":       "Entrance Exam Payments",
+      "nav.olympiad":       "Math Olympiad",
+      "paidExam.col.status":     "Payment",
+      "paidExam.col.amount":     "Amount",
+      "paidExam.col.exam":       "Exam",
+      "paidExam.status.pending": "Pending",
+      "paidExam.status.paid":    "Paid",
+      "paidExam.status.failed":  "Failed",
+      "paidExam.empty.title":    "No payments yet",
+      "paidExam.empty.desc":     "Registrations for paid exams will appear here.",
+      "paidExam.delete.confirm": "Delete this payment record?",
+      "section.olympiadTitle":   "Math Olympiad registrations",
+      "olympiad.col.school":     "School",
+      "olympiad.export.btn":     "⬇ Export XLSX",
+      "olympiad.empty.title":    "No Olympiad registrations yet",
+      "olympiad.empty.desc":     "Sign-ups from the Math Olympiad form will appear here.",
+      "olympiad.delete.confirm": "Delete this Olympiad registration?",
       "nav.settings":       "Settings",
       "nav.placement":      "Placement Test",
       "nav.logout":         "Log Out",
@@ -1265,6 +1334,23 @@
       "nav.applicants":     "Абитуриенты",
       "nav.openDoorsParticipants": "Мероприятия",
       "nav.quizzes":        "Экзамены",
+      "nav.paidExam":       "Оплата вступительных",
+      "nav.olympiad":       "Олимпиада по математике",
+      "paidExam.col.status":     "Оплата",
+      "paidExam.col.amount":     "Сумма",
+      "paidExam.col.exam":       "Экзамен",
+      "paidExam.status.pending": "Ожидание",
+      "paidExam.status.paid":    "Оплачено",
+      "paidExam.status.failed":  "Не удалось",
+      "paidExam.empty.title":    "Пока нет платежей",
+      "paidExam.empty.desc":     "Здесь появятся регистрации на платные экзамены.",
+      "paidExam.delete.confirm": "Удалить эту запись о платеже?",
+      "section.olympiadTitle":   "Регистрации на олимпиаду по математике",
+      "olympiad.col.school":     "Школа",
+      "olympiad.export.btn":     "⬇ Экспорт XLSX",
+      "olympiad.empty.title":    "Пока нет регистраций на олимпиаду",
+      "olympiad.empty.desc":     "Здесь появятся данные из формы олимпиады по математике.",
+      "olympiad.delete.confirm": "Удалить эту регистрацию на олимпиаду?",
       "nav.settings":       "Настройки",
       "nav.placement":      "Отборочный экзамен",
       "nav.logout":         "Выйти",
@@ -1361,6 +1447,10 @@
       title = tAdmin("nav.openDoorsParticipants");
     } else if (activeAdminTab === "quizzes") {
       title = tAdmin("nav.quizzes");
+    } else if (activeAdminTab === "paidExam") {
+      title = tAdmin("nav.paidExam");
+    } else if (activeAdminTab === "olympiad") {
+      title = tAdmin("nav.olympiad");
     }
     document.getElementById("topbar-title").textContent = title;
   }
@@ -1370,9 +1460,13 @@
     document.getElementById("nav-tab-applicants").classList.toggle("active", tab === "applicants");
     document.getElementById("nav-tab-open-doors").classList.toggle("active", tab === "openDoors");
     document.getElementById("nav-tab-quizzes").classList.toggle("active", tab === "quizzes");
+    document.getElementById("nav-tab-paid-exam").classList.toggle("active", tab === "paidExam");
+    document.getElementById("nav-tab-olympiad").classList.toggle("active", tab === "olympiad");
     document.getElementById("panel-applicants").classList.toggle("visible", tab === "applicants");
     document.getElementById("panel-open-doors").classList.toggle("visible", tab === "openDoors");
     document.getElementById("panel-quizzes").classList.toggle("visible", tab === "quizzes");
+    document.getElementById("panel-paid-exam").classList.toggle("visible", tab === "paidExam");
+    document.getElementById("panel-olympiad").classList.toggle("visible", tab === "olympiad");
     if (tab === "quizzes") {
       activeQuizSubView = "exams";
       selectedExamId = null;
@@ -1413,6 +1507,9 @@
     if (lblNavQuizzes) lblNavQuizzes.textContent = tAdmin("nav.quizzes");
     const lblNavEvents = document.getElementById("lbl-nav-events");
     if (lblNavEvents) lblNavEvents.textContent = tAdmin("nav.events");
+    document.getElementById("lbl-nav-paid-exam").textContent  = tAdmin("nav.paidExam");
+    document.getElementById("lbl-nav-olympiad").textContent   = tAdmin("nav.olympiad");
+    document.getElementById("lbl-olympiad-export-btn").textContent = tAdmin("olympiad.export.btn");
     document.getElementById("lbl-logout").textContent         = tAdmin("nav.logout");
     // Events elements
     const lblEventsSecTitle = document.getElementById("lbl-events-section-title");
@@ -1717,6 +1814,8 @@
   let allEvents = [];
   let allExams = [];
   let allQuestions = [];
+  let allPaidExamRegs = [];
+  let allOlympiadRegs = [];
   let activeQuizFilter = "all";
   let activeQuizSubView = "exams";
   let activeExamFilter = "all";
@@ -2200,6 +2299,186 @@
     renderTable();
     renderEventsSection();
     renderQuizzes();
+    renderPaidExamSection();
+    renderOlympiadSection();
+  }
+
+  function paidExamStatusBadge(status) {
+    const color = status === "paid" ? "#1b8c5e" : status === "failed" ? "#c0392b" : "#e8a020";
+    const label = tAdmin("paidExam.status." + status) || status;
+    return `<span class="badge" style="background:${color}18;color:${color};border:1px solid ${color}44">${label}</span>`;
+  }
+
+  function renderPaidExamSection() {
+    const container = document.getElementById("paid-exam-table-container");
+    const titleEl = document.getElementById("lbl-paid-exam-section-title");
+    const countEl = document.getElementById("paid-exam-count");
+    if (!container || !titleEl || !countEl) return;
+    titleEl.textContent = tAdmin("nav.paidExam");
+    countEl.textContent = allPaidExamRegs.length ? (" — " + tAdminFn("records", allPaidExamRegs.length)) : "";
+
+    if (!allPaidExamRegs.length) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon">💳</div>
+          <div class="empty-state-title">${tAdmin("paidExam.empty.title")}</div>
+          <div class="empty-state-desc">${tAdmin("paidExam.empty.desc")}</div>
+        </div>`;
+      return;
+    }
+
+    const examTitle = (examId) => {
+      const ex = allExams.find((e) => e.id === examId);
+      if (!ex) return examId || "—";
+      return adminLang === "ru" ? (ex.title_ru || ex.title_en) : (ex.title_en || ex.title_ru);
+    };
+
+    const rows = allPaidExamRegs.map((r, i) => {
+      const idEnc = encodeURIComponent(String(r.id));
+      return `
+        <tr class="data-row data-row-od">
+          <td style="color:#6b7a95;font-weight:600">${i + 1}</td>
+          <td><span style="font-weight:600">${r.first_name} ${r.last_name}</span></td>
+          <td style="color:#526a8a">${r.phone || "—"}</td>
+          <td>${examTitle(r.exam_id)}</td>
+          <td>${paidExamStatusBadge(r.payment_status)}</td>
+          <td style="color:#526a8a">${r.amount != null ? r.amount + " " + (r.currency || "KGS") : "—"}</td>
+          <td style="color:#6b7a95;font-size:12px">${formatDate(r.created_at)}</td>
+          <td><button type="button" class="delete-btn" style="opacity:1" data-pe-delete-id="${idEnc}" title="Delete">✕</button></td>
+        </tr>`;
+    }).join("");
+
+    container.innerHTML = `
+      <table>
+        <thead><tr>
+          <th>#</th>
+          <th>${tAdmin("col.name")}</th>
+          <th>${tAdmin("col.phone")}</th>
+          <th>${tAdmin("paidExam.col.exam")}</th>
+          <th>${tAdmin("paidExam.col.status")}</th>
+          <th>${tAdmin("paidExam.col.amount")}</th>
+          <th>${tAdmin("col.date")}</th>
+          <th></th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+
+    const wrap = document.getElementById("paid-exam-table-container");
+    if (wrap && wrap.dataset.peDelegated !== "1") {
+      wrap.dataset.peDelegated = "1";
+      wrap.addEventListener("click", (ev) => {
+        const delBtn = ev.target.closest("button[data-pe-delete-id]");
+        if (!delBtn) return;
+        ev.preventDefault();
+        const enc = delBtn.getAttribute("data-pe-delete-id");
+        if (enc == null) return;
+        void deletePaidExamRecord(decodeURIComponent(enc));
+      });
+    }
+  }
+
+  async function deletePaidExamRecord(id) {
+    if (!checkDeleteAccess()) return;
+    if (!confirm(tAdmin("paidExam.delete.confirm"))) return;
+    const sid = id == null ? "" : String(id);
+    allPaidExamRegs = allPaidExamRegs.filter((r) => String(r.id) !== sid);
+    try {
+      const sb = await getSB();
+      await sb.from("paid_exam_registrations").delete().eq("id", sid);
+    } catch(e) {}
+    renderAll();
+  }
+
+  function renderOlympiadSection() {
+    const container = document.getElementById("olympiad-table-container");
+    const titleEl = document.getElementById("lbl-olympiad-section-title");
+    const countEl = document.getElementById("olympiad-count");
+    if (!container || !titleEl || !countEl) return;
+    titleEl.textContent = tAdmin("section.olympiadTitle");
+    countEl.textContent = allOlympiadRegs.length ? (" — " + tAdminFn("records", allOlympiadRegs.length)) : "";
+
+    if (!allOlympiadRegs.length) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon">🧮</div>
+          <div class="empty-state-title">${tAdmin("olympiad.empty.title")}</div>
+          <div class="empty-state-desc">${tAdmin("olympiad.empty.desc")}</div>
+        </div>`;
+      return;
+    }
+
+    const rows = allOlympiadRegs.map((r, i) => {
+      const idEnc = encodeURIComponent(String(r.id));
+      return `
+        <tr class="data-row data-row-od">
+          <td style="color:#6b7a95;font-weight:600">${i + 1}</td>
+          <td><span style="font-weight:600">${r.first_name} ${r.last_name}</span></td>
+          <td style="color:#526a8a">${r.phone || "—"}</td>
+          <td>${r.school || "—"}</td>
+          <td style="font-weight:600;color:#0b1f3a">${r.grade || "—"}</td>
+          <td style="color:#6b7a95;font-size:12px">${formatDate(r.registered_at)}</td>
+          <td><button type="button" class="delete-btn" style="opacity:1" data-oly-delete-id="${idEnc}" title="Delete">✕</button></td>
+        </tr>`;
+    }).join("");
+
+    container.innerHTML = `
+      <table>
+        <thead><tr>
+          <th>#</th>
+          <th>${tAdmin("col.name")}</th>
+          <th>${tAdmin("col.phone")}</th>
+          <th>${tAdmin("olympiad.col.school")}</th>
+          <th>${tAdmin("col.grade")}</th>
+          <th>${tAdmin("col.date")}</th>
+          <th></th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+
+    const wrap = document.getElementById("olympiad-table-container");
+    if (wrap && wrap.dataset.olyDelegated !== "1") {
+      wrap.dataset.olyDelegated = "1";
+      wrap.addEventListener("click", (ev) => {
+        const delBtn = ev.target.closest("button[data-oly-delete-id]");
+        if (!delBtn) return;
+        ev.preventDefault();
+        const enc = delBtn.getAttribute("data-oly-delete-id");
+        if (enc == null) return;
+        void deleteOlympiadRecord(decodeURIComponent(enc));
+      });
+    }
+  }
+
+  async function deleteOlympiadRecord(id) {
+    if (!checkDeleteAccess()) return;
+    if (!confirm(tAdmin("olympiad.delete.confirm"))) return;
+    const sid = id == null ? "" : String(id);
+    allOlympiadRegs = allOlympiadRegs.filter((r) => String(r.id) !== sid);
+    try {
+      const sb = await getSB();
+      await sb.from("olympiad_registrations").delete().eq("id", sid);
+    } catch(e) {}
+    renderAll();
+  }
+
+  function exportOlympiadXlsx() {
+    if (typeof XLSX === "undefined") {
+      alert("❌ Export library failed to load. Check your connection and try again.");
+      return;
+    }
+    const rows = allOlympiadRegs.map((r, i) => ({
+      "#": i + 1,
+      [tAdmin("col.name")]: `${r.first_name} ${r.last_name}`.trim(),
+      [tAdmin("col.phone")]: r.phone,
+      [tAdmin("olympiad.col.school")]: r.school,
+      [tAdmin("col.grade")]: r.grade,
+      [tAdmin("col.date")]: formatDate(r.registered_at),
+    }));
+    const sheet = XLSX.utils.json_to_sheet(rows);
+    const book = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(book, sheet, "Olympiad");
+    const stamp = new Date().toISOString().slice(0, 10);
+    XLSX.writeFile(book, `olympiad_registrations_${stamp}.xlsx`);
   }
 
   // ── Delete ──────────────────────────────────────────────────────────────────
@@ -2515,6 +2794,30 @@
       } else {
         allQuestions = qst.data || [];
       }
+
+      const pe = await sb
+        .from("paid_exam_registrations")
+        .select("id, exam_id, first_name, last_name, phone, grade, parent_phone, parent_name, amount, currency, payment_status, finik_transaction_id, created_at")
+        .order("created_at", { ascending: false });
+
+      if (pe.error) {
+        console.warn("paid_exam_registrations fetch error:", pe.error.message);
+        allPaidExamRegs = [];
+      } else {
+        allPaidExamRegs = pe.data || [];
+      }
+
+      const oly = await sb
+        .from("olympiad_registrations")
+        .select("id, first_name, last_name, phone, school, grade, lang, registered_at")
+        .order("registered_at", { ascending: false });
+
+      if (oly.error) {
+        console.warn("olympiad_registrations fetch error:", oly.error.message);
+        allOlympiadRegs = [];
+      } else {
+        allOlympiadRegs = oly.data || [];
+      }
     } catch (err) {
       // Network/CSP issue
       const errEl = document.getElementById("alert-error");
@@ -2528,6 +2831,8 @@
       allEvents = [];
       allExams = [];
       allQuestions = [];
+      allPaidExamRegs = [];
+      allOlympiadRegs = [];
     }
 
     renderAll();
@@ -2691,6 +2996,7 @@
         document.getElementById("ex-subject-ru").value = subjectMapRu[ex.subject] || ex.subject || "";
       }
       document.getElementById("ex-time-limit").value = Math.round((ex.time_limit_sec || 3600) / 60);
+      document.getElementById("ex-fee-kgs").value = ex.fee_kgs != null ? ex.fee_kgs : "";
       document.getElementById("ex-require-parent").checked = !!ex.require_parent_info;
       document.getElementById("ex-active").checked = !!ex.is_active;
     } else {
@@ -2726,6 +3032,8 @@
     const subjectRu = document.getElementById("ex-subject-ru").value.trim();
     const subject = `${subjectEn}|${subjectRu}`;
     const minutes = parseInt(document.getElementById("ex-time-limit").value, 10) || 60;
+    const feeRaw = document.getElementById("ex-fee-kgs").value;
+    const feeKgs = feeRaw.trim() ? parseInt(feeRaw, 10) : null;
     const requireParent = document.getElementById("ex-require-parent").checked;
     const isActive = document.getElementById("ex-active").checked;
 
@@ -2742,6 +3050,7 @@
       description_ru: descRu,
       subject: subject,
       time_limit_sec: minutes * 60,
+      fee_kgs: feeKgs,
       require_parent_info: requireParent,
       is_active: isActive
     };

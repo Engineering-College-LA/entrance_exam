@@ -10,6 +10,8 @@ import {
 import { useLang } from '../context/LangContext'
 import { useFormState, useIsMobile } from '../hooks/examHooks'
 import {
+  OLYMPIAD_EXTRA_FIELDS,
+  OLYMPIAD_GRADE_FIELD,
   OPEN_DOOR_EXTRA_FIELDS,
   PLACEMENT_EXTRA_FIELDS,
   REGISTRATION_FIELDS,
@@ -35,12 +37,18 @@ export function Register({
   const isMobile = useIsMobile()
   const isPlacement = examType === 'placement' || !!requireParentInfo
   const isOpenDoor = examType === 'openDoor'
+  const isOlympiad = examType === 'olympiad'
   const needsParentSection = isPlacement || isOpenDoor
-  const allFields = isOpenDoor
-    ? [...REGISTRATION_FIELDS, ...OPEN_DOOR_EXTRA_FIELDS]
-    : needsParentSection
-      ? [...REGISTRATION_FIELDS, ...PLACEMENT_EXTRA_FIELDS]
-      : REGISTRATION_FIELDS
+  const topGridFields = isOlympiad
+    ? [REGISTRATION_FIELDS[0]!, REGISTRATION_FIELDS[1]!, REGISTRATION_FIELDS[2]!, OLYMPIAD_GRADE_FIELD]
+    : REGISTRATION_FIELDS
+  const allFields = isOlympiad
+    ? [...topGridFields, ...OLYMPIAD_EXTRA_FIELDS]
+    : isOpenDoor
+      ? [...REGISTRATION_FIELDS, ...OPEN_DOOR_EXTRA_FIELDS]
+      : needsParentSection
+        ? [...REGISTRATION_FIELDS, ...PLACEMENT_EXTRA_FIELDS]
+        : REGISTRATION_FIELDS
   const { form, set } = useFormState(allFields)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [shakeKey, setShakeKey] = useState(0)
@@ -84,19 +92,23 @@ export function Register({
           {
             text: isOpenDoor
               ? (selectedEvent ? (lang === 'en' ? selectedEvent.title_en : selectedEvent.title_ru) : t('register.openDoor.breadcrumb'))
-              : isPlacement
-                ? t('register.placement.breadcrumb')
-                : t('register.breadcrumb.exam'),
+              : isOlympiad
+                ? t('register.olympiad.breadcrumb')
+                : isPlacement
+                  ? t('register.placement.breadcrumb')
+                  : t('register.breadcrumb.exam'),
             highlight: true,
           },
           {
             text: isOpenDoor
               ? t('register.openDoor.step')
-              : t('register.breadcrumb.step'),
+              : isOlympiad
+                ? t('register.olympiad.step')
+                : t('register.breadcrumb.step'),
           },
         ]}
       />
-      {!isOpenDoor && <StepBar current="register" />}
+      {!isOpenDoor && !isOlympiad && <StepBar current="register" />}
       <div style={{ ...Styles.card, overflow: 'hidden' }}>
         <div style={Styles.cardHeader}>
           <div
@@ -124,16 +136,20 @@ export function Register({
             >
               {isOpenDoor
                 ? (selectedEvent ? (lang === 'en' ? selectedEvent.title_en : selectedEvent.title_ru) : t('register.openDoor.header'))
-                : isPlacement
-                  ? t('register.placement.header')
-                  : t('register.header')}
+                : isOlympiad
+                  ? t('register.olympiad.header')
+                  : isPlacement
+                    ? t('register.placement.header')
+                    : t('register.header')}
             </div>
             <div style={{ color: '#8fa3c0', fontSize: 13, marginTop: 3 }}>
               {isOpenDoor
                 ? (selectedEvent ? (lang === 'en' ? selectedEvent.desc_en : selectedEvent.desc_ru) : t('register.openDoor.subheader'))
-                : isPlacement
-                  ? t('register.placement.subheader')
-                  : t('register.subheader')}
+                : isOlympiad
+                  ? t('register.olympiad.subheader')
+                  : isPlacement
+                    ? t('register.placement.subheader')
+                    : t('register.subheader')}
             </div>
             {isOpenDoor && (
               <div
@@ -157,9 +173,11 @@ export function Register({
             text={
               isOpenDoor
                 ? `${t('register.openDoor.info')} ${selectedEvent ? `${t('landing.title1') === 'Mathematics' ? selectedEvent.date_en : selectedEvent.date_ru}, ${t('landing.title1') === 'Mathematics' ? selectedEvent.time_en : selectedEvent.time_ru}` : t('openDoor.event.when')}`
-                : isPlacement
-                  ? t('register.placement.info')
-                  : t('register.info')
+                : isOlympiad
+                  ? t('register.olympiad.info')
+                  : isPlacement
+                    ? t('register.placement.info')
+                    : t('register.info')
             }
             bg="color-mix(in srgb, var(--c-blue) 10%, transparent)"
             borderColor="color-mix(in srgb, var(--c-blue) 30%, transparent)"
@@ -179,7 +197,7 @@ export function Register({
               }}
             >
               {pair.map((fi) => {
-                const f = REGISTRATION_FIELDS[fi]!
+                const f = topGridFields[fi]!
                 return (
                   <FormField
                     key={f.key}
@@ -193,6 +211,17 @@ export function Register({
               })}
             </div>
           ))}
+          {isOlympiad && (
+            <div style={{ marginBottom: 14 }}>
+              <FormField
+                field={OLYMPIAD_EXTRA_FIELDS[0]!}
+                value={form.school ?? ''}
+                onChange={handleChange('school')}
+                error={errors.school}
+                shakeKey={errors.school ? shakeKey : 0}
+              />
+            </div>
+          )}
           {needsParentSection && (
             <div
               style={{
@@ -286,7 +315,9 @@ export function Register({
             <button type="button" onClick={handleSubmit} style={Styles.btnPrimary()}>
               {isOpenDoor
                 ? t('register.openDoor.submit')
-                : t('register.continue')}
+                : isOlympiad
+                  ? t('register.olympiad.submit')
+                  : t('register.continue')}
             </button>
           </div>
           <div

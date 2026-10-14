@@ -64,6 +64,29 @@ export function EventIcon({ size = 20, ...props }: IconProps) {
   )
 }
 
+export function TrophyIcon({ size = 20, ...props }: IconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...props}
+    >
+      <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
+      <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
+      <path d="M6 4h12v6a6 6 0 0 1-12 0V4z" fill="currentColor" fillOpacity="0.1" />
+      <path d="M12 16v3" />
+      <path d="M8 21h8" />
+      <path d="M10 19h4v2h-4z" />
+    </svg>
+  )
+}
+
 export function FileTextIcon({ size = 20, ...props }: IconProps) {
   return (
     <svg

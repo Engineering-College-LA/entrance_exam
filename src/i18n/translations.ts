@@ -75,6 +75,46 @@ export const TRANSLATIONS = {
       "Thank you. We saved your details and look forward to seeing you at Project Fest.",
     "openDoor.thanks.home": "← Back to Home",
 
+    "register.olympiad.breadcrumb": "Math Olympiad",
+    "register.olympiad.step": "Registration",
+    "register.olympiad.header": "Math Olympiad Registration (9th Grade)",
+    "register.olympiad.subheader": "Fill in your details to register for the Math Olympiad",
+    "register.olympiad.info": "Your information is used only to register you for the Math Olympiad.",
+    "register.olympiad.submit": "Submit registration",
+    "register.olympiad.error":
+      "Could not save your registration. Please check your connection and try again.",
+
+    "olympiad.thanks.title": "You're registered!",
+    "olympiad.thanks.sub": "Math Olympiad — Engineering College",
+    "olympiad.thanks.body":
+      "Thank you. We saved your details for the Math Olympiad (9th grade). We'll be in touch with more details.",
+    "olympiad.thanks.home": "← Back to Home",
+
+    "register.paidExam.error":
+      "Could not start the payment. Please check your connection and try again.",
+
+    "payment.result.breadcrumb": "Entrance Exam",
+    "payment.result.step": "Payment",
+    "payment.result.checking": "Checking your payment status…",
+    "payment.result.processing":
+      "We're waiting for payment confirmation from Finik. This can take a moment — we'll check automatically, or you can check again now.",
+    "payment.result.refresh": "Check again",
+    "payment.result.student": "Student",
+    "payment.result.paid": "Payment confirmed! You can now start the entrance exam.",
+    "payment.result.start": "Start Entrance Exam →",
+    "payment.result.failed":
+      "The payment was not completed. Please register again to retry.",
+    "payment.result.tryAgain": "Try Again",
+    "payment.result.notFound":
+      "We couldn't find this payment. Please register again.",
+    "payment.result.retry": "← Register again",
+    "payment.result.orderId": "Order ID",
+    "payment.result.amount": "Amount",
+    "payment.result.invalid":
+      "Invalid or missing payment link. Please register again.",
+    "payment.result.networkError":
+      "Could not reach the server. Check your connection and try again.",
+
     "error.firstName": "First name is required",
     "error.firstName.invalid": "Enter a valid first name (letters only, min 2 characters)",
     "error.lastName": "Last name (surname) is required",
@@ -93,6 +133,9 @@ export const TRANSLATIONS = {
     "field.phone": "Phone Number",
     "field.grade": "Grade",
     "field.select": "Select",
+    "field.school": "School",
+    "field.school.ph": "School 5",
+    "error.school": "School is required",
     "field.parentPhone": "Parent's Phone Number",
     "field.parentName": "Parent's Full Name",
     "field.parentName.ph": "Aisuluu Bakytbekova",
@@ -213,6 +256,8 @@ export const TRANSLATIONS = {
     "landing.openDoor.req": "Requirement",
     "landing.openDoor.req.val": "Student & Parent",
     "page.subject": "Mathematics",
+    "page.olympiadThanks": "Math Olympiad",
+    "page.paymentResult": "Payment Result",
     "dashboard.subject.math.title": "Mathematics",
     "dashboard.subject.math.desc": "Admissions and trial tests in Mathematics.",
     "dashboard.subject.math.cta": "Select Subject",
@@ -226,6 +271,9 @@ export const TRANSLATIONS = {
     "landing.category.events.title": "Events & Fairs",
     "landing.category.events.desc": "Register for Project Fest, career guidance seminars, and student projects showcase.",
     "landing.category.events.cta": "Select Category",
+    "landing.category.olympiad.title": "Math Olympiad",
+    "landing.category.olympiad.desc": "Register for the Math Olympiad (9th grade). Free registration — no exam here.",
+    "landing.category.olympiad.cta": "Register",
     "landing.category.back": "← Back to Categories",
   },
 
@@ -306,6 +354,46 @@ export const TRANSLATIONS = {
       "Спасибо! Мы сохранили ваши данные и ждём вас на ярмарке профориентации, IT и проектов.",
     "openDoor.thanks.home": "← На главную",
 
+    "register.olympiad.breadcrumb": "Олимпиада по математике",
+    "register.olympiad.step": "Регистрация",
+    "register.olympiad.header": "Регистрация на олимпиаду по математике (9 класс)",
+    "register.olympiad.subheader": "Укажите свои данные для регистрации на олимпиаду",
+    "register.olympiad.info": "Ваши данные используются только для регистрации на олимпиаду по математике.",
+    "register.olympiad.submit": "Отправить регистрацию",
+    "register.olympiad.error":
+      "Не удалось сохранить регистрацию. Проверьте подключение и попробуйте снова.",
+
+    "olympiad.thanks.title": "Вы зарегистрированы!",
+    "olympiad.thanks.sub": "Олимпиада по математике — Инженерный колледж",
+    "olympiad.thanks.body":
+      "Спасибо! Мы сохранили ваши данные для олимпиады по математике (9 класс). Мы свяжемся с вами с дополнительной информацией.",
+    "olympiad.thanks.home": "← На главную",
+
+    "register.paidExam.error":
+      "Не удалось начать оплату. Проверьте подключение и попробуйте снова.",
+
+    "payment.result.breadcrumb": "Вступительный экзамен",
+    "payment.result.step": "Оплата",
+    "payment.result.checking": "Проверяем статус оплаты…",
+    "payment.result.processing":
+      "Ожидаем подтверждение оплаты от Finik. Это может занять некоторое время — мы проверим автоматически, либо вы можете проверить сейчас.",
+    "payment.result.refresh": "Проверить снова",
+    "payment.result.student": "Ученик",
+    "payment.result.paid": "Оплата подтверждена! Теперь вы можете начать вступительный экзамен.",
+    "payment.result.start": "Начать вступительный экзамен →",
+    "payment.result.failed":
+      "Оплата не была завершена. Пожалуйста, зарегистрируйтесь снова, чтобы повторить попытку.",
+    "payment.result.tryAgain": "Попробовать снова",
+    "payment.result.notFound":
+      "Мы не нашли эту оплату. Пожалуйста, зарегистрируйтесь снова.",
+    "payment.result.retry": "← Зарегистрироваться снова",
+    "payment.result.orderId": "Номер заказа",
+    "payment.result.amount": "Сумма",
+    "payment.result.invalid":
+      "Неверная или отсутствующая ссылка на оплату. Пожалуйста, зарегистрируйтесь снова.",
+    "payment.result.networkError":
+      "Не удалось связаться с сервером. Проверьте подключение и попробуйте снова.",
+
     "error.firstName": "Введите имя",
     "error.firstName.invalid": "Введите корректное имя (только буквы, минимум 2 символа)",
     "error.lastName": "Введите фамилию",
@@ -324,6 +412,9 @@ export const TRANSLATIONS = {
     "field.phone": "Номер телефона",
     "field.grade": "Класс",
     "field.select": "Выбрать",
+    "field.school": "Школа",
+    "field.school.ph": "Школа №5",
+    "error.school": "Укажите школу",
     "field.parentPhone": "Номер телефона родителя",
     "field.parentName": "ФИО родителя",
     "field.parentName.ph": "Айсулуу Бакытбекова",
@@ -444,6 +535,8 @@ export const TRANSLATIONS = {
     "landing.openDoor.req": "Требование",
     "landing.openDoor.req.val": "Ученик и родитель",
     "page.subject": "Математика",
+    "page.olympiadThanks": "Олимпиада по математике",
+    "page.paymentResult": "Результат оплаты",
     "dashboard.subject.math.title": "Математика",
     "dashboard.subject.math.desc": "Отборочный и пробный экзамены по математике.",
     "dashboard.subject.math.cta": "Выбрать предмет",
@@ -457,6 +550,9 @@ export const TRANSLATIONS = {
     "landing.category.events.title": "Мероприятия и выставки",
     "landing.category.events.desc": "Зарегистрируйтесь на Project Fest, семинары по профориентации и ярмарку студенческих проектов.",
     "landing.category.events.cta": "Выбрать категорию",
+    "landing.category.olympiad.title": "Олимпиада по математике",
+    "landing.category.olympiad.desc": "Регистрация на олимпиаду по математике (9 класс). Бесплатная регистрация — без экзамена.",
+    "landing.category.olympiad.cta": "Зарегистрироваться",
     "landing.category.back": "← Назад к категориям",
   },
 };
