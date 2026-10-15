@@ -129,7 +129,7 @@ Deno.serve(async (req) => {
       paymentId,
       table: 'paid_exam_registrations',
       amount,
-      itemName: exam.title_en || exam.title_ru || 'Exam registration fee',
+      itemName: exam.title_ru || exam.title_en || 'Оплата регистрации на экзамен',
     }
   } else {
     const { data: settingsRow, error: settingsError } = await admin
@@ -166,7 +166,7 @@ Deno.serve(async (req) => {
       paymentId,
       table: 'olympiad_registrations',
       amount,
-      itemName: 'Math Olympiad registration fee',
+      itemName: 'Регистрация на олимпиаду по математике',
     }
   }
 
@@ -184,6 +184,8 @@ Deno.serve(async (req) => {
       // "Item name" per Finik's validation error — the product being paid
       // for, not the merchant's own name. FINIK_MERCHANT_NAME is unused
       // (left unset); keeping the env var in case Finik wants it elsewhere.
+      // Field is literally called name_en in Finik's schema but just holds
+      // whatever text we send — Russian here since that's our audience.
       name_en: pending.itemName,
       webhookUrl: FINIK_WEBHOOK_URL,
       description: FINIK_MERCHANT_NAME ?? pending.itemName,
