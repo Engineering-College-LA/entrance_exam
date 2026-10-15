@@ -79,8 +79,8 @@ export const TRANSLATIONS = {
     "register.olympiad.step": "Registration",
     "register.olympiad.header": "Math Olympiad Registration (9th Grade)",
     "register.olympiad.subheader": "Fill in your details to register for the Math Olympiad",
-    "register.olympiad.info": "Your information is used only to register you for the Math Olympiad.",
-    "register.olympiad.submit": "Submit registration",
+    "register.olympiad.info": "After submitting, you'll be redirected to pay the registration fee via Finik — registration is confirmed once payment succeeds.",
+    "register.olympiad.submit": "Continue to Payment →",
     "register.olympiad.error":
       "Could not save your registration. Please check your connection and try again.",
 
@@ -101,6 +101,8 @@ export const TRANSLATIONS = {
     "payment.result.refresh": "Check again",
     "payment.result.student": "Student",
     "payment.result.paid": "Payment confirmed! You can now start the entrance exam.",
+    "payment.result.olympiadPaid": "Payment confirmed! Your Math Olympiad registration is complete.",
+    "payment.result.olympiadContinue": "Continue →",
     "payment.result.start": "Start Entrance Exam →",
     "payment.result.failed":
       "The payment was not completed. Please register again to retry.",
@@ -358,8 +360,8 @@ export const TRANSLATIONS = {
     "register.olympiad.step": "Регистрация",
     "register.olympiad.header": "Регистрация на олимпиаду по математике (9 класс)",
     "register.olympiad.subheader": "Укажите свои данные для регистрации на олимпиаду",
-    "register.olympiad.info": "Ваши данные используются только для регистрации на олимпиаду по математике.",
-    "register.olympiad.submit": "Отправить регистрацию",
+    "register.olympiad.info": "После отправки формы вы перейдёте к оплате регистрационного взноса через Finik — регистрация подтверждается после успешной оплаты.",
+    "register.olympiad.submit": "Перейти к оплате →",
     "register.olympiad.error":
       "Не удалось сохранить регистрацию. Проверьте подключение и попробуйте снова.",
 
@@ -380,6 +382,8 @@ export const TRANSLATIONS = {
     "payment.result.refresh": "Проверить снова",
     "payment.result.student": "Ученик",
     "payment.result.paid": "Оплата подтверждена! Теперь вы можете начать вступительный экзамен.",
+    "payment.result.olympiadPaid": "Оплата подтверждена! Регистрация на олимпиаду по математике завершена.",
+    "payment.result.olympiadContinue": "Продолжить →",
     "payment.result.start": "Начать вступительный экзамен →",
     "payment.result.failed":
       "Оплата не была завершена. Пожалуйста, зарегистрируйтесь снова, чтобы повторить попытку.",
