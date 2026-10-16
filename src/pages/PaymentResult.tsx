@@ -74,7 +74,14 @@ export function PaymentResult({
   const [paymentId] = useState(
     () => new URLSearchParams(window.location.search).get('paymentId') ?? '',
   )
+  // Prefer the id's own prefix ("pe_"/"oly_", set server-side when the row
+  // is created) over the separate ?type= param — Finik's redirect doesn't
+  // reliably preserve every query param, and a dropped `type` used to send
+  // this query to the wrong (empty) table, showing "payment not found" for
+  // a payment that actually succeeded.
   const [paymentType] = useState<PaymentType>(() => {
+    if (paymentId.startsWith('oly_')) return 'olympiad'
+    if (paymentId.startsWith('pe_')) return 'exam'
     const t = new URLSearchParams(window.location.search).get('type')
     return t === 'olympiad' ? 'olympiad' : 'exam'
   })

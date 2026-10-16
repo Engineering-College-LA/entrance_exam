@@ -71,12 +71,19 @@ Deno.serve(async (req) => {
   let table: 'paid_exam_registrations' | 'olympiad_registrations' | null = null
   let existingStatus: string | null = null
 
+  // A transient read error must NOT be treated the same as "no such row" —
+  // that previously fell through to a 404, which Finik won't retry, leaving
+  // the registration stuck on 'pending' forever even though the row exists.
   for (const t of tablesToTry) {
-    const { data: existing } = await admin
+    const { data: existing, error: selectError } = await admin
       .from(t)
       .select('id, payment_status')
       .eq('id', paymentId)
       .maybeSingle()
+    if (selectError) {
+      console.error(`[finik-webhook] select failed on ${t}:`, selectError.message)
+      return json({ error: 'Could not look up payment' }, 500)
+    }
     if (existing) {
       table = t
       existingStatus = existing.payment_status
@@ -92,7 +99,7 @@ Deno.serve(async (req) => {
     // webhook (success or failure) will resolve it, or it surfaces for
     // manual review instead of silently misreporting.
     if (resultStatus) {
-      await admin
+      const { error: updateError } = await admin
         .from(table)
         .update({
           payment_status: resultStatus,
@@ -100,6 +107,13 @@ Deno.serve(async (req) => {
           paid_at: resultStatus === 'paid' ? new Date().toISOString() : null,
         })
         .eq('id', paymentId)
+      // Must fail loudly: a 200 here tells Finik delivery succeeded, so it
+      // will never retry — a swallowed error here means the row is stuck on
+      // 'pending' with no further chance to self-heal.
+      if (updateError) {
+        console.error(`[finik-webhook] update failed on ${table}:`, updateError.message)
+        return json({ error: 'Could not update payment status' }, 500)
+      }
     }
   }
 
