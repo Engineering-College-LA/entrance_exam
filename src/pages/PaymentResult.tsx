@@ -138,6 +138,16 @@ export function PaymentResult({
     // eslint-disable-next-line react-hooks/exhaustive-deps -- run once for this paymentId
   }, [paymentId])
 
+  // Olympiad has nothing left for the user to decide once paid (unlike the
+  // exam flow, where "Continue" starts a timed exam) — jump straight to the
+  // animated confirmation screen instead of waiting for a manual click.
+  useEffect(() => {
+    if (status === 'paid' && paymentType === 'olympiad') {
+      onOlympiadConfirmed()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- onOlympiadConfirmed is a stable nav action, not a dep to re-run on
+  }, [status, paymentType])
+
   useEffect(() => {
     if (status !== 'pending') {
       pollAttempts.current = 0

@@ -277,8 +277,28 @@ export const OLYMPIAD_GRADE_FIELD = {
   key: "grade", labelKey: "field.grade", required: true, type: "select", options: ["9"], initialValue: "9",
 };
 
+// Kyrgyzstan regions (7 oblasts + Bishkek/Osh cities of republican status),
+// per CountriesNow's states-for-Kyrgyzstan data. Values are stable codes
+// stored in the form/DB; labels are translated via field.region.<code>.
+export const KG_REGIONS = [
+  "batken",
+  "bishkek",
+  "chuy",
+  "issykKul",
+  "jalalAbad",
+  "naryn",
+  "oshCity",
+  "oshRegion",
+  "talas",
+];
+
 export const OLYMPIAD_EXTRA_FIELDS = [
   { key: "school", labelKey: "field.school", required: true, placeholderKey: "field.school.ph", type: "text" },
+  { key: "region", labelKey: "field.region", required: true, type: "select", options: KG_REGIONS },
+  { key: "parentName", labelKey: "field.parentName", required: true, placeholderKey: "field.parentName.ph", type: "text" },
+  { key: "parentPhone", labelKey: "field.parentPhone", required: true, type: "phone", initialValue: "+996" },
+  { key: "teacherName", labelKey: "field.teacherName", required: true, placeholderKey: "field.teacherName.ph", type: "text" },
+  { key: "teacherPhone", labelKey: "field.teacherPhone", required: true, type: "phone", initialValue: "+996" },
 ];
 
 export const EXAM_RULES = [

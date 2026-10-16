@@ -1254,6 +1254,20 @@
       "paidExam.delete.confirm": "Delete this payment record?",
       "section.olympiadTitle":   "Math Olympiad registrations",
       "olympiad.col.school":     "School",
+      "olympiad.col.region":       "Region",
+      "olympiad.col.parentName":   "Parent",
+      "olympiad.col.parentPhone":  "Parent Phone",
+      "olympiad.col.teacherName":  "Teacher",
+      "olympiad.col.teacherPhone": "Teacher Phone",
+      "region.batken":     "Batken Region",
+      "region.bishkek":    "Bishkek",
+      "region.chuy":       "Chuy Region",
+      "region.issykKul":   "Issyk-Kul Region",
+      "region.jalalAbad":  "Jalal-Abad Region",
+      "region.naryn":      "Naryn Region",
+      "region.oshCity":    "Osh (city)",
+      "region.oshRegion":  "Osh Region",
+      "region.talas":      "Talas Region",
       "olympiad.export.btn":     "⬇ Export XLSX",
       "olympiad.empty.title":    "No Olympiad registrations yet",
       "olympiad.empty.desc":     "Sign-ups from the Math Olympiad form will appear here.",
@@ -1366,6 +1380,20 @@
       "paidExam.delete.confirm": "Удалить эту запись о платеже?",
       "section.olympiadTitle":   "Регистрации на олимпиаду по математике",
       "olympiad.col.school":     "Школа",
+      "olympiad.col.region":       "Регион",
+      "olympiad.col.parentName":   "Родитель",
+      "olympiad.col.parentPhone":  "Телефон родителя",
+      "olympiad.col.teacherName":  "Учитель",
+      "olympiad.col.teacherPhone": "Телефон учителя",
+      "region.batken":     "Баткенская область",
+      "region.bishkek":    "Бишкек",
+      "region.chuy":       "Чуйская область",
+      "region.issykKul":   "Иссык-Кульская область",
+      "region.jalalAbad":  "Джалал-Абадская область",
+      "region.naryn":      "Нарынская область",
+      "region.oshCity":    "Ош (город)",
+      "region.oshRegion":  "Ошская область",
+      "region.talas":      "Таласская область",
       "olympiad.export.btn":     "⬇ Экспорт XLSX",
       "olympiad.empty.title":    "Пока нет регистраций на олимпиаду",
       "olympiad.empty.desc":     "Здесь появятся данные из формы олимпиады по математике.",
@@ -2434,6 +2462,12 @@
 
     const rows = allOlympiadRegs.map((r, i) => {
       const idEnc = encodeURIComponent(String(r.id));
+      const parentCell = r.parent_name
+        ? '<div style="font-weight:600">' + r.parent_name + '</div><div style="color:#6b7a95;font-size:12px">' + (r.parent_phone || "—") + "</div>"
+        : "—";
+      const teacherCell = r.teacher_name
+        ? '<div style="font-weight:600">' + r.teacher_name + '</div><div style="color:#6b7a95;font-size:12px">' + (r.teacher_phone || "—") + "</div>"
+        : "—";
       return `
         <tr class="data-row data-row-od">
           <td style="color:#6b7a95;font-weight:600">${i + 1}</td>
@@ -2441,6 +2475,9 @@
           <td style="color:#526a8a">${r.phone || "—"}</td>
           <td>${r.school || "—"}</td>
           <td style="font-weight:600;color:#0b1f3a">${r.grade || "—"}</td>
+          <td>${r.region ? tAdmin("region." + r.region) : "—"}</td>
+          <td>${parentCell}</td>
+          <td>${teacherCell}</td>
           <td>${paidExamStatusBadge(r.payment_status || "paid")}</td>
           <td style="color:#526a8a">${r.amount != null ? r.amount + " " + (r.currency || "KGS") : "—"}</td>
           <td style="color:#6b7a95;font-size:12px">${formatDate(r.registered_at)}</td>
@@ -2456,6 +2493,9 @@
           <th>${tAdmin("col.phone")}</th>
           <th>${tAdmin("olympiad.col.school")}</th>
           <th>${tAdmin("col.grade")}</th>
+          <th>${tAdmin("olympiad.col.region")}</th>
+          <th>${tAdmin("olympiad.col.parentName")}</th>
+          <th>${tAdmin("olympiad.col.teacherName")}</th>
           <th>${tAdmin("paidExam.col.status")}</th>
           <th>${tAdmin("paidExam.col.amount")}</th>
           <th>${tAdmin("col.date")}</th>
@@ -2501,6 +2541,11 @@
       [tAdmin("col.phone")]: r.phone,
       [tAdmin("olympiad.col.school")]: r.school,
       [tAdmin("col.grade")]: r.grade,
+      [tAdmin("olympiad.col.region")]: r.region ? tAdmin("region." + r.region) : "",
+      [tAdmin("olympiad.col.parentName")]: r.parent_name || "",
+      [tAdmin("olympiad.col.parentPhone")]: r.parent_phone || "",
+      [tAdmin("olympiad.col.teacherName")]: r.teacher_name || "",
+      [tAdmin("olympiad.col.teacherPhone")]: r.teacher_phone || "",
       [tAdmin("paidExam.col.status")]: tAdmin("paidExam.status." + (r.payment_status || "paid")),
       [tAdmin("paidExam.col.amount")]: r.amount != null ? `${r.amount} ${r.currency || "KGS"}` : "",
       [tAdmin("col.date")]: formatDate(r.registered_at),
@@ -2872,7 +2917,7 @@
 
       const oly = await sb
         .from("olympiad_registrations")
-        .select("id, first_name, last_name, phone, school, grade, lang, registered_at, amount, currency, payment_status, finik_transaction_id")
+        .select("id, first_name, last_name, phone, school, grade, region, parent_name, parent_phone, teacher_name, teacher_phone, lang, registered_at, amount, currency, payment_status, finik_transaction_id")
         .order("registered_at", { ascending: false });
 
       if (oly.error) {
