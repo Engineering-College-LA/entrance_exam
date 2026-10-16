@@ -19,6 +19,7 @@ function validateForm(
   form: Record<string, unknown>,
   requireParentInfo: boolean,
   requireSchool: boolean,
+  requireOlympiadExtras: boolean,
 ): string | null {
   if (typeof form.firstName !== 'string' || !form.firstName.trim())
     return 'firstName is required'
@@ -35,6 +36,14 @@ function validateForm(
       return 'parentPhone is invalid'
     if (typeof form.parentName !== 'string' || !form.parentName.trim())
       return 'parentName is required'
+  }
+  if (requireOlympiadExtras) {
+    if (typeof form.region !== 'string' || !form.region.trim())
+      return 'region is required'
+    if (typeof form.teacherName !== 'string' || !form.teacherName.trim())
+      return 'teacherName is required'
+    if (typeof form.teacherPhone !== 'string' || !PHONE_RE.test(form.teacherPhone))
+      return 'teacherPhone is invalid'
   }
   return null
 }
@@ -105,7 +114,7 @@ Deno.serve(async (req) => {
       return json({ error: 'This exam does not require payment' }, 400)
     }
 
-    const validationError = validateForm(form, !!exam.require_parent_info, false)
+    const validationError = validateForm(form, !!exam.require_parent_info, false, false)
     if (validationError) return json({ error: validationError }, 400)
 
     const paymentId = `pe_${Date.now()}_${crypto.randomUUID().slice(0, 8)}`
@@ -144,7 +153,7 @@ Deno.serve(async (req) => {
       return json({ error: 'Olympiad registration price is not configured' }, 500)
     }
 
-    const validationError = validateForm(form, false, true)
+    const validationError = validateForm(form, false, true, true)
     if (validationError) return json({ error: validationError }, 400)
 
     const paymentId = `oly_${Date.now()}_${crypto.randomUUID().slice(0, 8)}`
@@ -155,6 +164,11 @@ Deno.serve(async (req) => {
       phone: form.phone,
       school: form.school,
       grade: form.grade,
+      region: form.region,
+      parent_name: form.parentName,
+      parent_phone: form.parentPhone,
+      teacher_name: form.teacherName,
+      teacher_phone: form.teacherPhone,
       lang,
       amount,
       currency: 'KGS',

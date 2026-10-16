@@ -133,7 +133,12 @@ export const ValidationService = {
       errs.phone = 'error.placementAlreadyTaken'
     }
     if (!form.grade) errs.grade = 'error.grade'
-    if (examType === 'placement' || examType === 'openDoor' || requireParentInfo) {
+    if (
+      examType === 'placement' ||
+      examType === 'openDoor' ||
+      examType === 'olympiad' ||
+      requireParentInfo
+    ) {
       const parentPhone = form.parentPhone ?? ''
       const isRussianParentPhone = parentPhone.startsWith('+7')
       const parentPhoneOk = isRussianParentPhone
@@ -154,8 +159,20 @@ export const ValidationService = {
     }
     if ((examType === 'placement' || requireParentInfo) && !form.attended)
       errs.attended = 'error.attended'
-    if (examType === 'olympiad' && !form.school?.trim())
-      errs.school = 'error.school'
+    if (examType === 'olympiad') {
+      if (!form.school?.trim()) errs.school = 'error.school'
+      if (!form.region) errs.region = 'error.region'
+      if (!form.teacherName?.trim()) errs.teacherName = 'error.teacherName'
+
+      const teacherPhone = form.teacherPhone ?? ''
+      const isRussianTeacherPhone = teacherPhone.startsWith('+7')
+      const teacherPhoneOk = isRussianTeacherPhone
+        ? /^\+7\d{10}$/.test(teacherPhone)
+        : /^\+996\d{9}$/.test(teacherPhone)
+      if (!teacherPhoneOk) {
+        errs.teacherPhone = isRussianTeacherPhone ? 'error.teacherPhone.ru' : 'error.teacherPhone.kg'
+      }
+    }
     return errs
   },
   registration(form: RegistrationForm, examType: string, requireParentInfo?: boolean) {

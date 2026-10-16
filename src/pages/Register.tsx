@@ -10,6 +10,7 @@ import {
 import { useLang } from '../context/LangContext'
 import { useFormState, useIsMobile } from '../hooks/examHooks'
 import {
+  KG_REGIONS,
   OLYMPIAD_EXTRA_FIELDS,
   OLYMPIAD_GRADE_FIELD,
   OPEN_DOOR_EXTRA_FIELDS,
@@ -82,6 +83,14 @@ export function Register({
     value: v,
     label: t(`field.attended.${v}`),
   }))
+
+  const regionOptions = KG_REGIONS.map((code) => ({
+    value: code,
+    label: t(`field.region.${code}`),
+  }))
+
+  const olympiadFieldByKey = (key: string) =>
+    OLYMPIAD_EXTRA_FIELDS.find((f) => f.key === key)!
 
   return (
     <div style={{ maxWidth: 660, margin: '0 auto', padding: '48px 20px' }}>
@@ -212,15 +221,143 @@ export function Register({
             </div>
           ))}
           {isOlympiad && (
-            <div style={{ marginBottom: 14 }}>
-              <FormField
-                field={OLYMPIAD_EXTRA_FIELDS[0]!}
-                value={form.school ?? ''}
-                onChange={handleChange('school')}
-                error={errors.school}
-                shakeKey={errors.school ? shakeKey : 0}
-              />
-            </div>
+            <>
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
+                  gap: 14,
+                  marginBottom: 14,
+                }}
+              >
+                <FormField
+                  field={olympiadFieldByKey('school')}
+                  value={form.school ?? ''}
+                  onChange={handleChange('school')}
+                  error={errors.school}
+                  shakeKey={errors.school ? shakeKey : 0}
+                />
+                <div>
+                  <label style={Styles.label}>
+                    {t('field.region')}
+                    <span style={{ color: COLORS.danger }}> *</span>
+                  </label>
+                  <select
+                    value={form.region ?? ''}
+                    onChange={handleChange('region')}
+                    style={{
+                      ...Styles.input,
+                      cursor: 'pointer',
+                      borderColor: errors.region ? COLORS.danger : COLORS.border,
+                    }}
+                  >
+                    <option value="">{t('field.select')}</option>
+                    {regionOptions.map((o) => (
+                      <option key={o.value} value={o.value}>
+                        {o.label}
+                      </option>
+                    ))}
+                  </select>
+                  {errors.region && (
+                    <div
+                      style={{
+                        fontSize: 12,
+                        color: COLORS.danger,
+                        marginTop: 4,
+                      }}
+                    >
+                      {t(errors.region)}
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div
+                style={{
+                  borderTop: `1px solid ${COLORS.border}`,
+                  marginTop: 8,
+                  paddingTop: 20,
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 700,
+                    color: COLORS.muted,
+                    textTransform: 'uppercase',
+                    letterSpacing: 1,
+                    marginBottom: 14,
+                  }}
+                >
+                  {t('register.parentInfo')}
+                </div>
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
+                    gap: 14,
+                    marginBottom: 14,
+                  }}
+                >
+                  <FormField
+                    field={olympiadFieldByKey('parentPhone')}
+                    value={form.parentPhone ?? ''}
+                    onChange={handleChange('parentPhone')}
+                    error={errors.parentPhone}
+                    shakeKey={errors.parentPhone ? shakeKey : 0}
+                  />
+                  <FormField
+                    field={olympiadFieldByKey('parentName')}
+                    value={form.parentName ?? ''}
+                    onChange={handleChange('parentName')}
+                    error={errors.parentName}
+                    shakeKey={errors.parentName ? shakeKey : 0}
+                  />
+                </div>
+              </div>
+              <div
+                style={{
+                  borderTop: `1px solid ${COLORS.border}`,
+                  marginTop: 8,
+                  paddingTop: 20,
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 700,
+                    color: COLORS.muted,
+                    textTransform: 'uppercase',
+                    letterSpacing: 1,
+                    marginBottom: 14,
+                  }}
+                >
+                  {t('register.teacherInfo')}
+                </div>
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
+                    gap: 14,
+                    marginBottom: 14,
+                  }}
+                >
+                  <FormField
+                    field={olympiadFieldByKey('teacherName')}
+                    value={form.teacherName ?? ''}
+                    onChange={handleChange('teacherName')}
+                    error={errors.teacherName}
+                    shakeKey={errors.teacherName ? shakeKey : 0}
+                  />
+                  <FormField
+                    field={olympiadFieldByKey('teacherPhone')}
+                    value={form.teacherPhone ?? ''}
+                    onChange={handleChange('teacherPhone')}
+                    error={errors.teacherPhone}
+                    shakeKey={errors.teacherPhone ? shakeKey : 0}
+                  />
+                </div>
+              </div>
+            </>
           )}
           {needsParentSection && (
             <div
