@@ -440,6 +440,17 @@ export function Landing({
             width: '100%',
           }}
         >
+          {/* ── Math Olympiad Card ── */}
+          <CategoryCard
+            icon={<TrophyIcon size={36} />}
+            title={t('landing.category.olympiad.title')}
+            desc={t('landing.category.olympiad.desc')}
+            ctaLabel={t('landing.category.olympiad.cta')}
+            accent="#e8a020"
+            countLabel={isEn ? 'Grade 9' : '9 класс'}
+            onClick={onRegisterOlympiad}
+          />
+
           {/* ── Exams Card ── */}
           <CategoryCard
             icon={<MathIcon size={36} />}
@@ -472,17 +483,6 @@ export function Landing({
                 : isEn ? 'Coming soon' : 'Скоро'
             }
             onClick={() => setViewMode('events')}
-          />
-
-          {/* ── Math Olympiad Card ── */}
-          <CategoryCard
-            icon={<TrophyIcon size={36} />}
-            title={t('landing.category.olympiad.title')}
-            desc={t('landing.category.olympiad.desc')}
-            ctaLabel={t('landing.category.olympiad.cta')}
-            accent="#e8a020"
-            countLabel={isEn ? 'Grade 9' : '9 класс'}
-            onClick={onRegisterOlympiad}
           />
         </div>
       </div>
