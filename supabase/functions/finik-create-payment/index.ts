@@ -40,9 +40,11 @@ function validateForm(
   if (requireOlympiadExtras) {
     if (typeof form.region !== 'string' || !form.region.trim())
       return 'region is required'
-    if (typeof form.teacherName !== 'string' || !form.teacherName.trim())
-      return 'teacherName is required'
-    if (typeof form.teacherPhone !== 'string' || !PHONE_RE.test(form.teacherPhone))
+    if (typeof form.classType !== 'string' || !form.classType.trim())
+      return 'classType is required'
+    // Teacher info is optional; only validate the phone if one was entered.
+    const teacherPhone = typeof form.teacherPhone === 'string' ? form.teacherPhone.trim() : ''
+    if (teacherPhone && teacherPhone !== '+996' && !PHONE_RE.test(teacherPhone))
       return 'teacherPhone is invalid'
   }
   return null
@@ -165,10 +167,15 @@ Deno.serve(async (req) => {
       school: form.school,
       grade: form.grade,
       region: form.region,
+      class_type: form.classType,
       parent_name: form.parentName,
       parent_phone: form.parentPhone,
-      teacher_name: form.teacherName,
-      teacher_phone: form.teacherPhone,
+      teacher_name: (typeof form.teacherName === 'string' && form.teacherName.trim()) || null,
+      teacher_phone:
+        (typeof form.teacherPhone === 'string' &&
+          form.teacherPhone.trim() !== '+996' &&
+          form.teacherPhone.trim()) ||
+        null,
       lang,
       amount,
       currency: 'KGS',

@@ -178,7 +178,7 @@ export function ExamCard({
                 fontWeight: 600,
               }}
             >
-              {lang === 'ru' ? 'СКОРО' : 'CLOSED'}
+              {lang === 'ru' ? 'СКОРО' : lang === 'ky' ? 'ЖАКЫНДА' : 'CLOSED'}
             </span>
           ) : (
             <span

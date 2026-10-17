@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { COLORS } from '../constants'
 import { Breadcrumb, InfoBanner } from '../components/primitives'
+import { SuccessOverlay } from '../components/SuccessOverlay'
 import { useLang } from '../context/LangContext'
 import { readCachedPaidExamStudent } from '../lib/paidExamPayment'
 import { supabase } from '../lib/supabase'
@@ -18,6 +19,10 @@ type PaymentRow = {
   parent_phone?: string | null
   parent_name?: string | null
   school?: string | null
+  region?: string | null
+  class_type?: string | null
+  teacher_name?: string | null
+  teacher_phone?: string | null
   amount: number | null
   currency: string | null
   payment_status: 'pending' | 'paid' | 'failed'
@@ -30,7 +35,8 @@ const TABLE_BY_TYPE: Record<PaymentType, 'paid_exam_registrations' | 'olympiad_r
 
 const SELECT_BY_TYPE: Record<PaymentType, string> = {
   exam: 'id, exam_id, first_name, last_name, phone, grade, parent_phone, parent_name, amount, currency, payment_status',
-  olympiad: 'id, first_name, last_name, phone, grade, school, amount, currency, payment_status',
+  olympiad:
+    'id, first_name, last_name, phone, grade, school, region, class_type, parent_name, parent_phone, teacher_name, teacher_phone, amount, currency, payment_status',
 }
 
 type Status =
@@ -57,13 +63,29 @@ function rowToStudent(row: PaymentRow): Record<string, string> {
   }
 }
 
+function olympiadRowToStudent(row: PaymentRow): Record<string, string> {
+  return {
+    firstName: row.first_name,
+    lastName: row.last_name,
+    phone: row.phone,
+    grade: row.grade,
+    school: row.school ?? '',
+    region: row.region ?? '',
+    classType: row.class_type ?? '',
+    parentName: row.parent_name ?? '',
+    parentPhone: row.parent_phone ?? '',
+    teacherName: row.teacher_name ?? '',
+    teacherPhone: row.teacher_phone ?? '',
+  }
+}
+
 export function PaymentResult({
   onStartExam,
   onOlympiadConfirmed,
   onHome,
 }: {
   onStartExam: (examId: string, student: Record<string, string>) => void
-  onOlympiadConfirmed: () => void
+  onOlympiadConfirmed: (student: Record<string, string>) => void
   onHome: () => void
 }) {
   const { t } = useLang()
@@ -89,6 +111,15 @@ export function PaymentResult({
   const [status, setStatus] = useState<Status>(paymentId ? 'loading' : 'invalid')
   const [row, setRow] = useState<PaymentRow | null>(null)
   const pollAttempts = useRef(0)
+  const [showSuccessOverlay, setShowSuccessOverlay] = useState(false)
+  const celebrated = useRef(false)
+
+  useEffect(() => {
+    if (status === 'paid' && paymentType === 'exam' && !celebrated.current) {
+      celebrated.current = true
+      setShowSuccessOverlay(true)
+    }
+  }, [status, paymentType])
 
   const fetchStatus = async () => {
     if (!paymentId || !supabase) {
@@ -149,11 +180,11 @@ export function PaymentResult({
   // exam flow, where "Continue" starts a timed exam) — jump straight to the
   // animated confirmation screen instead of waiting for a manual click.
   useEffect(() => {
-    if (status === 'paid' && paymentType === 'olympiad') {
-      onOlympiadConfirmed()
+    if (status === 'paid' && paymentType === 'olympiad' && row) {
+      onOlympiadConfirmed(olympiadRowToStudent(row))
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- onOlympiadConfirmed is a stable nav action, not a dep to re-run on
-  }, [status, paymentType])
+  }, [status, paymentType, row])
 
   useEffect(() => {
     if (status !== 'pending') {
@@ -171,7 +202,7 @@ export function PaymentResult({
 
   const handleStart = () => {
     if (paymentType === 'olympiad') {
-      onOlympiadConfirmed()
+      onOlympiadConfirmed(row ? olympiadRowToStudent(row) : {})
       return
     }
     if (!row?.exam_id) return
@@ -184,6 +215,11 @@ export function PaymentResult({
       {text}
     </div>
   )
+
+  // Olympiad registration has no "start exam" step after this, so its
+  // pending/paid states skip the order-id/amount ticket in favor of a
+  // plain animated congratulation.
+  const showTicket = paymentType !== 'olympiad'
 
   // Doubles as the student's registration ticket/receipt once paid — the
   // saved paid_exam_registrations row is the record of truth, this is just
@@ -243,8 +279,26 @@ export function PaymentResult({
           />
         )}
         {status === 'pending' && (
-          <>
-            {ticketDetails}
+          <div style={{ animation: 'fadeInUp 0.35s ease both' }}>
+            {showTicket && ticketDetails}
+            {!showTicket && (
+              <div
+                style={{
+                  width: 56,
+                  height: 56,
+                  margin: '0 auto 16px',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: 24,
+                  background: 'color-mix(in srgb, var(--c-accent) 12%, transparent)',
+                }}
+                className="live-pulse"
+              >
+                ⏳
+              </div>
+            )}
             <InfoBanner
               icon="⏳"
               text={t('payment.result.processing')}
@@ -259,11 +313,18 @@ export function PaymentResult({
             >
               {t('payment.result.refresh')}
             </button>
-          </>
+          </div>
         )}
         {status === 'paid' && (
-          <>
-            {ticketDetails}
+          <div style={{ animation: 'fadeInUp 0.35s ease both' }}>
+            {showSuccessOverlay && (
+              <SuccessOverlay
+                title={t('payment.result.successTitle')}
+                subtitle={t('payment.result.paid')}
+                onDone={() => setShowSuccessOverlay(false)}
+              />
+            )}
+            {showTicket && ticketDetails}
             <InfoBanner
               icon="✅"
               text={
@@ -280,7 +341,7 @@ export function PaymentResult({
                 ? t('payment.result.olympiadContinue')
                 : t('payment.result.start')}
             </button>
-          </>
+          </div>
         )}
         {status === 'failed' && (
           <>

@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Header } from './components/Header'
+import { LanguagePrompt } from './components/LanguagePrompt'
+import { LoginModal } from './components/LoginModal'
 import { LangProvider, useLang } from './context/LangContext'
 import { usePageNav } from './hooks/examHooks'
 import { startOlympiadPayment } from './lib/olympiadRegistration'
@@ -13,6 +15,7 @@ import { SubjectLanding } from './pages/SubjectLanding'
 import { OlympiadThanks } from './pages/OlympiadThanks'
 import { OpenDoorThanks } from './pages/OpenDoorThanks'
 import { PaymentResult } from './pages/PaymentResult'
+import { Profile } from './pages/Profile'
 import { Register } from './pages/Register'
 import { Report } from './pages/Report'
 import {
@@ -86,6 +89,23 @@ function AppInner() {
   const [dbQuestions, setDbQuestions] = useState<ExamQuestion[] | null>(null)
   const [dbExams, setDbExams] = useState<any[] | null>(null)
   const [activeExam, setActiveExam] = useState<any | null>(null)
+
+  const [accountPhone, setAccountPhone] = useState<string | null>(() => {
+    if (typeof window === 'undefined') return null
+    return localStorage.getItem('ec_account_phone')
+  })
+  const [loginModalOpen, setLoginModalOpen] = useState(false)
+
+  const handleLoginSuccess = (phone: string) => {
+    localStorage.setItem('ec_account_phone', phone)
+    setAccountPhone(phone)
+    setLoginModalOpen(false)
+  }
+
+  const handleAccountLogout = () => {
+    localStorage.removeItem('ec_account_phone')
+    setAccountPhone(null)
+  }
 
   useEffect(() => {
     const fetchQuestions = async () => {
@@ -388,12 +408,20 @@ function AppInner() {
 
   return (
     <div style={Styles.page}>
+      <LanguagePrompt />
       <Header
         page={nav.page}
         onLogoClick={() => nav.go('landing')}
         student={nav.student}
         onLogout={handleLogout}
+        accountPhone={accountPhone}
+        onLoginClick={() => setLoginModalOpen(true)}
+        onAccountLogout={handleAccountLogout}
+        onProfileClick={() => nav.go('profile')}
       />
+      {loginModalOpen && (
+        <LoginModal onClose={() => setLoginModalOpen(false)} onSuccess={handleLoginSuccess} />
+      )}
       {nav.page === 'landing' && (
         <Landing
           onSelectSubject={(subject) => nav.go('subject', { subject })}
@@ -460,12 +488,18 @@ function AppInner() {
         />
       )}
       {nav.page === 'olympiadThanks' && (
-        <OlympiadThanks onHome={() => nav.go('landing')} />
+        <OlympiadThanks student={nav.student} onHome={() => nav.go('landing')} />
+      )}
+      {nav.page === 'profile' && (
+        <Profile student={nav.student} accountPhone={accountPhone} />
       )}
       {nav.page === 'paymentResult' && (
         <PaymentResult
           onStartExam={handleStartPaidExamAfterPayment}
-          onOlympiadConfirmed={() => nav.go('olympiadThanks')}
+          onOlympiadConfirmed={(student) => {
+            nav.setStudent(student)
+            nav.go('olympiadThanks')
+          }}
           onHome={() => nav.go('landing')}
         />
       )}
