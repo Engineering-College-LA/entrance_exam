@@ -27,7 +27,10 @@ Deno.serve(async (req) => {
   }
 
   const signature = req.headers.get('signature')
-  if (!signature) return json({ error: 'Missing signature header' }, 400)
+  if (!signature) {
+    console.error('[finik-webhook] rejected: missing signature header')
+    return json({ error: 'Missing signature header' }, 400)
+  }
 
   const apiHeaders: Record<string, string> = {}
   for (const [key, value] of req.headers.entries()) {
@@ -43,8 +46,10 @@ Deno.serve(async (req) => {
   const data = canonicalString('POST', webhookPath, webhookHost, apiHeaders, body)
 
   if (!verify(data, signature, webhookPublicKey)) {
+    console.error('[finik-webhook] rejected: invalid signature. canonicalString was:', data)
     return json({ error: 'Invalid signature' }, 400)
   }
+  console.log('[finik-webhook] signature verified ok')
 
   // Confirmed against a real webhook call (see diagnostic logs): our own
   // reference is in `transactionId`, Finik's own id is the top-level `id`,
@@ -54,7 +59,10 @@ Deno.serve(async (req) => {
   const paymentId = typeof body.transactionId === 'string' ? body.transactionId : undefined
   const finikTransactionId = typeof body.id === 'string' ? body.id : undefined
 
-  if (!paymentId) return json({ error: 'Missing transactionId in webhook payload' }, 400)
+  if (!paymentId) {
+    console.error('[finik-webhook] rejected: missing transactionId. body was:', rawBody)
+    return json({ error: 'Missing transactionId in webhook payload' }, 400)
+  }
 
   const admin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
     auth: { persistSession: false },
@@ -91,7 +99,10 @@ Deno.serve(async (req) => {
     }
   }
 
-  if (!table) return json({ error: 'Unknown payment id' }, 404)
+  if (!table) {
+    console.error(`[finik-webhook] rejected: unknown payment id ${paymentId}`)
+    return json({ error: 'Unknown payment id' }, 404)
+  }
 
   if (existingStatus === 'pending') {
     const resultStatus = resolveStatus(body)
@@ -114,7 +125,12 @@ Deno.serve(async (req) => {
         console.error(`[finik-webhook] update failed on ${table}:`, updateError.message)
         return json({ error: 'Could not update payment status' }, 500)
       }
+      console.log(`[finik-webhook] updated ${table} ${paymentId} -> ${resultStatus}`)
+    } else {
+      console.log(`[finik-webhook] unrecognized status, left pending:`, body.status)
     }
+  } else {
+    console.log(`[finik-webhook] ${paymentId} already ${existingStatus}, no-op`)
   }
 
   return json({ ok: true })
