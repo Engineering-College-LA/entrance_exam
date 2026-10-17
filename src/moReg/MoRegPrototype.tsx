@@ -309,6 +309,17 @@ function MoRegInner() {
             </button>
             <button
               type="button"
+              onClick={() => setLang('ky')}
+              style={{
+                ...Styles.langBtn,
+                background: lang === 'ky' ? COLORS.blue : 'rgba(255,255,255,.08)',
+                color: lang === 'ky' ? COLORS.white : '#8fa3c0',
+              }}
+            >
+              KY
+            </button>
+            <button
+              type="button"
               onClick={() => setLang('en')}
               style={{
                 ...Styles.langBtn,

@@ -8,16 +8,30 @@ import type { PageId } from '../types/exam'
 
 const LOGO_SRC = '/assets/app_logo.png'
 
+const LANGS: { code: 'ru' | 'ky' | 'en'; label: string; flag: string }[] = [
+  { code: 'ru', label: 'RU', flag: '🇷🇺' },
+  { code: 'ky', label: 'KY', flag: '🇰🇬' },
+  { code: 'en', label: 'EN', flag: '🇬🇧' },
+]
+
 export function Header({
   page,
   onLogoClick,
   student,
   onLogout,
+  accountPhone,
+  onLoginClick,
+  onAccountLogout,
+  onProfileClick,
 }: {
   page: PageId
   onLogoClick: () => void
   student?: Record<string, string> | null
   onLogout?: () => void
+  accountPhone?: string | null
+  onLoginClick?: () => void
+  onAccountLogout?: () => void
+  onProfileClick?: () => void
 }) {
   const { lang, setLang, t } = useLang()
   const { theme, toggleTheme } = useTheme()
@@ -26,6 +40,8 @@ export function Header({
   const menuRef = useRef<HTMLDivElement>(null)
   const [profileOpen, setProfileOpen] = useState(false)
   const profileRef = useRef<HTMLDivElement>(null)
+  const [langMenuOpen, setLangMenuOpen] = useState(false)
+  const langMenuRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -34,6 +50,9 @@ export function Header({
       }
       if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
         setProfileOpen(false)
+      }
+      if (langMenuRef.current && !langMenuRef.current.contains(event.target as Node)) {
+        setLangMenuOpen(false)
       }
     }
     document.addEventListener('mousedown', handleClickOutside)
@@ -108,6 +127,172 @@ export function Header({
           <span style={Styles.badge}>{t(PAGES[page]?.labelKey)}</span>
         )}
 
+        {/* Language Switcher */}
+        {isMobile ? (
+          <div style={{ position: 'relative', display: 'inline-block' }} ref={langMenuRef}>
+            <button
+              type="button"
+              onClick={() => setLangMenuOpen(!langMenuOpen)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 5,
+                height: 32,
+                padding: '0 10px',
+                borderRadius: 16,
+                background: langMenuOpen
+                  ? 'color-mix(in srgb, var(--t-text) 12%, transparent)'
+                  : 'color-mix(in srgb, var(--t-text) 8%, transparent)',
+                border: '1px solid color-mix(in srgb, var(--t-text) 12%, transparent)',
+                color: 'var(--t-text)',
+                fontSize: 12,
+                fontWeight: 700,
+                cursor: 'pointer',
+                transition: 'all 0.25s ease',
+              }}
+              title={lang === 'ru' ? 'Язык' : lang === 'ky' ? 'Тил' : 'Language'}
+            >
+              <span>{LANGS.find((l) => l.code === lang)?.flag}</span>
+              <span>{LANGS.find((l) => l.code === lang)?.label}</span>
+            </button>
+            {langMenuOpen && (
+              <div
+                style={{
+                  position: 'absolute',
+                  top: 38,
+                  right: 0,
+                  background: 'var(--t-card-bg)',
+                  border: '1px solid var(--t-border)',
+                  borderRadius: 8,
+                  boxShadow: 'var(--t-shadow)',
+                  padding: 6,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 4,
+                  minWidth: 110,
+                  zIndex: 1000,
+                  animation: 'fadeInDown 0.15s ease both',
+                }}
+              >
+                {LANGS.map((l) => (
+                  <button
+                    key={l.code}
+                    type="button"
+                    onClick={() => {
+                      setLang(l.code)
+                      setLangMenuOpen(false)
+                    }}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8,
+                      padding: '7px 10px',
+                      borderRadius: 5,
+                      border: 'none',
+                      background:
+                        lang === l.code
+                          ? COLORS.blue
+                          : 'transparent',
+                      color: lang === l.code ? 'var(--c-white)' : 'var(--t-text)',
+                      fontSize: 13,
+                      fontWeight: 600,
+                      textAlign: 'left',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <span>{l.flag}</span>
+                    <span>{l.label}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        ) : (
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 2,
+              padding: 3,
+              borderRadius: 18,
+              background: 'color-mix(in srgb, var(--t-text) 6%, transparent)',
+              border: '1px solid color-mix(in srgb, var(--t-text) 10%, transparent)',
+            }}
+            title={lang === 'ru' ? 'Язык' : lang === 'ky' ? 'Тил' : 'Language'}
+          >
+            {LANGS.map((l) => (
+              <button
+                key={l.code}
+                type="button"
+                onClick={() => setLang(l.code)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 5,
+                  height: 26,
+                  padding: '0 10px',
+                  borderRadius: 14,
+                  border: 'none',
+                  background: lang === l.code ? COLORS.blue : 'transparent',
+                  color: lang === l.code ? 'var(--c-white)' : 'var(--t-muted)',
+                  fontSize: 12,
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                <span>{l.flag}</span>
+                <span>{l.label}</span>
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Account login/logout */}
+        {accountPhone ? (
+          <button
+            type="button"
+            onClick={onAccountLogout}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              height: 32,
+              padding: '0 12px',
+              borderRadius: 16,
+              background: 'color-mix(in srgb, var(--c-success) 14%, transparent)',
+              border: '1px solid color-mix(in srgb, var(--c-success) 25%, transparent)',
+              color: 'var(--c-success)',
+              fontSize: 12,
+              fontWeight: 700,
+              cursor: 'pointer',
+              fontFamily: 'monospace',
+            }}
+            title={lang === 'ru' ? 'Выйти из аккаунта' : lang === 'ky' ? 'Аккаунттан чыгуу' : 'Log out'}
+          >
+            <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--c-success)' }} />
+            {accountPhone}
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={onLoginClick}
+            style={{
+              height: 32,
+              padding: '0 14px',
+              borderRadius: 16,
+              background: COLORS.blue,
+              border: 'none',
+              color: 'var(--c-white)',
+              fontSize: 12,
+              fontWeight: 700,
+              cursor: 'pointer',
+            }}
+          >
+            {lang === 'ru' ? 'Войти' : lang === 'ky' ? 'Кирүү' : 'Log in'}
+          </button>
+        )}
+
         {/* Profile Dropdown Trigger */}
         <div style={{ position: 'relative', display: 'inline-block' }} ref={profileRef}>
           <button
@@ -179,7 +364,7 @@ export function Header({
                 >
                   {student?.firstName || student?.lastName
                     ? `${student.firstName ?? ''} ${student.lastName ?? ''}`.trim()
-                    : (lang === 'ru' ? 'Абитуриент' : 'Applicant')}
+                    : (lang === 'ru' ? 'Абитуриент' : lang === 'ky' ? 'Талапкер' : 'Applicant')}
                 </span>
                 <span
                   style={{
@@ -188,7 +373,7 @@ export function Header({
                     color: 'var(--t-muted)',
                   }}
                 >
-                  ID: {student?.phone ? `2026-${student.phone.slice(-4)}` : (lang === 'ru' ? 'Временный' : 'Temporary')}
+                  ID: {student?.phone ? `2026-${student.phone.slice(-4)}` : (lang === 'ru' ? 'Временный' : lang === 'ky' ? 'Убактылуу' : 'Temporary')}
                 </span>
               </div>
 
@@ -213,7 +398,7 @@ export function Header({
                     letterSpacing: 0.5,
                   }}
                 >
-                  {lang === 'ru' ? 'Документы' : 'Documents'}
+                  {lang === 'ru' ? 'Документы' : lang === 'ky' ? 'Документтер' : 'Documents'}
                 </span>
                 <span
                   style={{
@@ -235,8 +420,8 @@ export function Header({
                     }}
                   />
                   {student?.firstName
-                    ? (lang === 'ru' ? 'На проверке' : 'Under review')
-                    : (lang === 'ru' ? 'Не загружены' : 'Not uploaded')}
+                    ? (lang === 'ru' ? 'На проверке' : lang === 'ky' ? 'Текшерилип жатат' : 'Under review')
+                    : (lang === 'ru' ? 'Не загружены' : lang === 'ky' ? 'Жүктөлгөн эмес' : 'Not uploaded')}
                 </span>
               </div>
 
@@ -244,6 +429,29 @@ export function Header({
 
               {/* Action Buttons */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {onProfileClick && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onProfileClick()
+                      setProfileOpen(false)
+                    }}
+                    style={{
+                      background: 'color-mix(in srgb, var(--c-blue) 10%, transparent)',
+                      color: 'var(--c-blue)',
+                      border: '1px solid color-mix(in srgb, var(--c-blue) 20%, transparent)',
+                      padding: '6px 12px',
+                      fontSize: 12,
+                      fontWeight: 700,
+                      borderRadius: 4,
+                      textAlign: 'center',
+                      width: '100%',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {lang === 'ru' ? 'Личный кабинет' : lang === 'ky' ? 'Жеке кабинет' : 'My Profile'}
+                  </button>
+                )}
                 {student?.firstName && onLogout && (
                   <button
                     type="button"
@@ -271,7 +479,7 @@ export function Header({
                       e.currentTarget.style.background = 'color-mix(in srgb, var(--c-danger) 10%, transparent)'
                     }}
                   >
-                    {lang === 'ru' ? 'Выйти из системы' : 'Sign Out'}
+                    {lang === 'ru' ? 'Выйти из системы' : lang === 'ky' ? 'Чыгуу' : 'Sign Out'}
                   </button>
                 )}
                 
@@ -289,7 +497,7 @@ export function Header({
                   onMouseEnter={(e) => e.currentTarget.style.color = 'var(--t-text)'}
                   onMouseLeave={(e) => e.currentTarget.style.color = 'var(--t-muted)'}
                 >
-                  ⚙ {lang === 'ru' ? 'Панель администратора' : 'Admin Dashboard'}
+                  ⚙ {lang === 'ru' ? 'Панель администратора' : lang === 'ky' ? 'Админ панели' : 'Admin Dashboard'}
                 </a>
               </div>
             </div>
@@ -344,60 +552,6 @@ export function Header({
                 animation: 'fadeInDown 0.15s ease both',
               }}
             >
-              {/* Language Section */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                <span
-                  style={{
-                    fontSize: 10,
-                    fontWeight: 700,
-                    color: 'var(--t-muted)',
-                    textTransform: 'uppercase',
-                    letterSpacing: 0.5,
-                  }}
-                >
-                  {lang === 'ru' ? 'Язык' : 'Language'}
-                </span>
-                <div style={{ display: 'flex', gap: 6 }}>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setLang('ru')
-                    }}
-                    style={{
-                      ...Styles.langBtn,
-                      flex: 1,
-                      textAlign: 'center',
-                      background: lang === 'ru' ? COLORS.blue : 'color-mix(in srgb, var(--t-text) 6%, transparent)',
-                      color: lang === 'ru' ? 'var(--c-white)' : 'var(--t-muted)',
-                      border: '1px solid color-mix(in srgb, var(--t-text) 10%, transparent)',
-                      padding: '5px 0',
-                    }}
-                  >
-                    RU
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setLang('en')
-                    }}
-                    style={{
-                      ...Styles.langBtn,
-                      flex: 1,
-                      textAlign: 'center',
-                      background: lang === 'en' ? COLORS.blue : 'color-mix(in srgb, var(--t-text) 6%, transparent)',
-                      color: lang === 'en' ? 'var(--c-white)' : 'var(--t-muted)',
-                      border: '1px solid color-mix(in srgb, var(--t-text) 10%, transparent)',
-                      padding: '5px 0',
-                    }}
-                  >
-                    EN
-                  </button>
-                </div>
-              </div>
-
-              {/* Divider */}
-              <div style={{ height: 1, background: 'var(--t-border)' }} />
-
               {/* Theme Section */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                 <span
@@ -409,7 +563,7 @@ export function Header({
                     letterSpacing: 0.5,
                   }}
                 >
-                  {lang === 'ru' ? 'Тема' : 'Theme'}
+                  {lang === 'ru' ? 'Тема' : lang === 'ky' ? 'Тема' : 'Theme'}
                 </span>
                 <button
                   type="button"
@@ -431,8 +585,8 @@ export function Header({
                 >
                   {theme === 'light' ? '🌙' : '☀️'}{' '}
                   {theme === 'light'
-                    ? lang === 'ru' ? 'Тёмная' : 'Dark'
-                    : lang === 'ru' ? 'Светлая' : 'Light'}
+                    ? lang === 'ru' ? 'Тёмная' : lang === 'ky' ? 'Караңгы' : 'Dark'
+                    : lang === 'ru' ? 'Светлая' : lang === 'ky' ? 'Жарык' : 'Light'}
                 </button>
               </div>
             </div>

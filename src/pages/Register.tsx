@@ -10,6 +10,7 @@ import {
 import { useLang } from '../context/LangContext'
 import { useFormState, useIsMobile } from '../hooks/examHooks'
 import {
+  CLASS_TYPES,
   KG_REGIONS,
   OLYMPIAD_EXTRA_FIELDS,
   OLYMPIAD_GRADE_FIELD,
@@ -87,6 +88,11 @@ export function Register({
   const regionOptions = KG_REGIONS.map((code) => ({
     value: code,
     label: t(`field.region.${code}`),
+  }))
+
+  const classTypeOptions = CLASS_TYPES.map((code) => ({
+    value: code,
+    label: t(`field.classType.${code}`),
   }))
 
   const olympiadFieldByKey = (key: string) =>
@@ -267,6 +273,39 @@ export function Register({
                       }}
                     >
                       {t(errors.region)}
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <label style={Styles.label}>
+                    {t('field.classType')}
+                    <span style={{ color: COLORS.danger }}> *</span>
+                  </label>
+                  <select
+                    value={form.classType ?? ''}
+                    onChange={handleChange('classType')}
+                    style={{
+                      ...Styles.input,
+                      cursor: 'pointer',
+                      borderColor: errors.classType ? COLORS.danger : COLORS.border,
+                    }}
+                  >
+                    <option value="">{t('field.select')}</option>
+                    {classTypeOptions.map((o) => (
+                      <option key={o.value} value={o.value}>
+                        {o.label}
+                      </option>
+                    ))}
+                  </select>
+                  {errors.classType && (
+                    <div
+                      style={{
+                        fontSize: 12,
+                        color: COLORS.danger,
+                        marginTop: 4,
+                      }}
+                    >
+                      {t(errors.classType)}
                     </div>
                   )}
                 </div>

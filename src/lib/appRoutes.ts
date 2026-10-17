@@ -13,6 +13,9 @@ export const OLYMPIAD_PATH = '/olympiad'
 
 export const OLYMPIAD_THANKS_PATH = '/olympiad/thanks'
 
+/** Logged-in student's profile page. */
+export const PROFILE_PATH = '/profile'
+
 export function normalizeBrowserPath(pathname: string): string {
   const t = pathname.trim()
   if (t.endsWith('/') && t.length > 1) return t.slice(0, -1)
@@ -27,6 +30,7 @@ export function resolveRoute(pathname: string): { page: PageId; examType: ExamTy
   if (p === PAYMENT_RESULT_PATH) return { page: 'paymentResult', examType: '' }
   if (p === OLYMPIAD_THANKS_PATH) return { page: 'olympiadThanks', examType: 'olympiad' }
   if (p === OLYMPIAD_PATH) return { page: 'register', examType: 'olympiad' }
+  if (p === PROFILE_PATH) return { page: 'profile', examType: '' }
   if (p === '/mathematics' || p === '/subject/math') return { page: 'subject', examType: 'trial', subject: 'math' }
   if (p.startsWith('/subject/')) {
     const s = decodeURIComponent(p.split('/')[2])
@@ -47,5 +51,6 @@ export function pathForPage(page: PageId, examType: ExamType, eventId?: string |
   if (page === 'paymentResult') return PAYMENT_RESULT_PATH
   if (page === 'olympiadThanks' && examType === 'olympiad') return OLYMPIAD_THANKS_PATH
   if (page === 'register' && examType === 'olympiad') return OLYMPIAD_PATH
+  if (page === 'profile') return PROFILE_PATH
   return '/'
 }

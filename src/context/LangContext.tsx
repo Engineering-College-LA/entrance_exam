@@ -8,24 +8,35 @@ import {
 } from 'react'
 import { TRANSLATIONS } from '../i18n/translations'
 
-export type Lang = 'en' | 'ru'
+export type Lang = 'en' | 'ru' | 'ky'
 
 type LangContextValue = {
   lang: Lang
   setLang: (l: Lang) => void
   t: (key: string, vars?: Record<string, string | number>) => string
+  hasChosenLang: boolean
 }
 
 const LangContext = createContext<LangContextValue | null>(null)
 
+function isSavedLang(v: string | null): v is Lang {
+  return v === 'ru' || v === 'en' || v === 'ky'
+}
+
 export function LangProvider({ children }: { children: ReactNode }) {
   const [lang, setLangState] = useState<Lang>(() => {
     const saved = localStorage.getItem('ec_admin_lang')
-    return (saved === 'ru' || saved === 'en') ? saved : 'ru'
+    return isSavedLang(saved) ? saved : 'ru'
   })
+  // Tracks whether the visitor has explicitly picked a language (vs. just
+  // getting the 'ru' default) — drives the first-visit language prompt.
+  const [hasChosenLang, setHasChosenLang] = useState(() =>
+    isSavedLang(localStorage.getItem('ec_admin_lang')),
+  )
 
   const setLang = useCallback((l: Lang) => {
     setLangState(l)
+    setHasChosenLang(true)
     localStorage.setItem('ec_admin_lang', l)
   }, [])
 
@@ -53,7 +64,7 @@ export function LangProvider({ children }: { children: ReactNode }) {
   )
 
   return (
-    <LangContext.Provider value={{ lang, setLang, t }}>
+    <LangContext.Provider value={{ lang, setLang, t, hasChosenLang }}>
       {children}
     </LangContext.Provider>
   )

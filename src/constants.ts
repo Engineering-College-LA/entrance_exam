@@ -43,6 +43,13 @@ export const TOPIC_NAMES = [
 
 export const LETTERS = ['A', 'B', 'C', 'D'] as const
 
+// "November 31" isn't a real date — defaults to Nov 30 until an admin sets
+// a real one from the dashboard (settings key "exam_countdown_at").
+export const DEFAULT_COUNTDOWN_AT = '2026-11-30T00:00:00+06:00'
+
+// TODO: replace with the real WhatsApp channel invite link.
+export const WHATSAPP_CHANNEL_URL = 'https://whatsapp.com/channel/REPLACE_ME'
+
 export const PAGES = {
   landing: { labelKey: 'page.landing', step: -1 },
   register: { labelKey: 'page.register', step: 0 },
@@ -53,6 +60,7 @@ export const PAGES = {
   subject: { labelKey: 'page.subject', step: -1 },
   paymentResult: { labelKey: 'page.paymentResult', step: -1 },
   olympiadThanks: { labelKey: 'page.olympiadThanks', step: -1 },
+  profile: { labelKey: 'page.profile', step: -1 },
 } as const
 
 export const STEP_KEYS = [

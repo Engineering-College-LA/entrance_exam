@@ -38,5 +38,6 @@ export type PageId =
   | 'subject'
   | 'paymentResult'
   | 'olympiadThanks'
+  | 'profile'
 
 export type ExamType = string

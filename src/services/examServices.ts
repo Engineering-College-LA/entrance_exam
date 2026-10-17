@@ -162,15 +162,19 @@ export const ValidationService = {
     if (examType === 'olympiad') {
       if (!form.school?.trim()) errs.school = 'error.school'
       if (!form.region) errs.region = 'error.region'
-      if (!form.teacherName?.trim()) errs.teacherName = 'error.teacherName'
+      if (!form.classType) errs.classType = 'error.classType'
 
-      const teacherPhone = form.teacherPhone ?? ''
-      const isRussianTeacherPhone = teacherPhone.startsWith('+7')
-      const teacherPhoneOk = isRussianTeacherPhone
-        ? /^\+7\d{10}$/.test(teacherPhone)
-        : /^\+996\d{9}$/.test(teacherPhone)
-      if (!teacherPhoneOk) {
-        errs.teacherPhone = isRussianTeacherPhone ? 'error.teacherPhone.ru' : 'error.teacherPhone.kg'
+      // Teacher info is optional; only validate the phone if the user
+      // actually entered digits beyond the pre-filled country code.
+      const teacherPhone = (form.teacherPhone ?? '').trim()
+      if (teacherPhone && teacherPhone !== '+996' && teacherPhone !== '+7') {
+        const isRussianTeacherPhone = teacherPhone.startsWith('+7')
+        const teacherPhoneOk = isRussianTeacherPhone
+          ? /^\+7\d{10}$/.test(teacherPhone)
+          : /^\+996\d{9}$/.test(teacherPhone)
+        if (!teacherPhoneOk) {
+          errs.teacherPhone = isRussianTeacherPhone ? 'error.teacherPhone.ru' : 'error.teacherPhone.kg'
+        }
       }
     }
     return errs

@@ -426,6 +426,24 @@
       </div>
     </div>
 
+    <!-- Countdown date -->
+    <div class="section" style="margin-bottom: 20px;">
+      <div class="section-header">
+        <div>
+          <span class="section-title" id="lbl-countdown-title">Exam Countdown</span>
+        </div>
+      </div>
+      <div style="padding: 16px 22px; display:flex; align-items:flex-end; gap:12px; flex-wrap:wrap;">
+        <div style="display:flex; flex-direction:column; gap:4px;">
+          <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;" id="lbl-countdown-label">Exam date &amp; time</label>
+          <input type="datetime-local" id="countdown-input" class="search-input" style="width:220px; height:38px;" />
+        </div>
+        <button type="button" class="filter-btn active-all" id="countdown-save-btn" style="background:#1565c0;color:#fff;border-color:#1565c0;" onclick="saveCountdown()">
+          <span id="lbl-countdown-save-btn">Save</span>
+        </button>
+      </div>
+    </div>
+
     <!-- Table -->
     <div class="section overflow-visible">
       <div class="section-header">
@@ -1275,6 +1293,9 @@
       "olympiad.price.title":   "Registration Fee",
       "olympiad.price.label":   "Fee (KGS)",
       "olympiad.price.save":    "Save",
+      "countdown.title":        "Exam Countdown",
+      "countdown.label":        "Exam date & time",
+      "countdown.save":         "Save",
       "nav.settings":       "Settings",
       "nav.placement":      "Placement Test",
       "nav.logout":         "Log Out",
@@ -1401,6 +1422,9 @@
       "olympiad.price.title":   "Регистрационный взнос",
       "olympiad.price.label":   "Взнос (сом)",
       "olympiad.price.save":    "Сохранить",
+      "countdown.title":        "Обратный отсчёт до экзамена",
+      "countdown.label":        "Дата и время экзамена",
+      "countdown.save":         "Сохранить",
       "nav.settings":       "Настройки",
       "nav.placement":      "Отборочный экзамен",
       "nav.logout":         "Выйти",
@@ -1563,6 +1587,12 @@
     document.getElementById("lbl-olympiad-price-title").textContent = tAdmin("olympiad.price.title");
     document.getElementById("lbl-olympiad-price-label").textContent = tAdmin("olympiad.price.label");
     document.getElementById("lbl-olympiad-fee-save-btn").textContent = tAdmin("olympiad.price.save");
+    const lblCountdownTitle = document.getElementById("lbl-countdown-title");
+    if (lblCountdownTitle) lblCountdownTitle.textContent = tAdmin("countdown.title");
+    const lblCountdownLabel = document.getElementById("lbl-countdown-label");
+    if (lblCountdownLabel) lblCountdownLabel.textContent = tAdmin("countdown.label");
+    const lblCountdownSaveBtn = document.getElementById("lbl-countdown-save-btn");
+    if (lblCountdownSaveBtn) lblCountdownSaveBtn.textContent = tAdmin("countdown.save");
     document.getElementById("lbl-logout").textContent         = tAdmin("nav.logout");
     // Events elements
     const lblEventsSecTitle = document.getElementById("lbl-events-section-title");
@@ -2566,6 +2596,45 @@
     } catch(e) {}
   }
 
+  function toDatetimeLocalValue(isoString) {
+    const d = new Date(isoString);
+    if (Number.isNaN(d.getTime())) return "";
+    const pad = (n) => String(n).padStart(2, "0");
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  }
+
+  async function loadCountdown() {
+    try {
+      const sb = await getSB();
+      const { data } = await sb.from("settings").select("value").eq("key", "exam_countdown_at").maybeSingle();
+      const input = document.getElementById("countdown-input");
+      if (input && data && data.value) input.value = toDatetimeLocalValue(data.value);
+    } catch(e) {}
+  }
+
+  async function saveCountdown() {
+    const input = document.getElementById("countdown-input");
+    if (!input.value) {
+      alert("❌ Pick a date and time.");
+      return;
+    }
+    const iso = new Date(input.value).toISOString();
+    try {
+      const sb = await getSB();
+      const { error } = await sb.from("settings").upsert(
+        { key: "exam_countdown_at", value: iso },
+        { onConflict: "key" }
+      );
+      if (error) {
+        alert("❌ Failed to save date: " + error.message);
+        return;
+      }
+      alert("✅ Countdown date saved");
+    } catch(e) {
+      alert("❌ Could not connect to Supabase: " + (e.message || e));
+    }
+  }
+
   async function saveOlympiadFee() {
     const input = document.getElementById("olympiad-fee-input");
     const value = Number.parseInt(input.value, 10);
@@ -2944,6 +3013,7 @@
     }
 
     await loadOlympiadFee();
+    await loadCountdown();
     renderAll();
   }
 

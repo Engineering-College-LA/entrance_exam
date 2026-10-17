@@ -292,13 +292,16 @@ export const KG_REGIONS = [
   "talas",
 ];
 
+export const CLASS_TYPES = ["russian", "kyrgyz"];
+
 export const OLYMPIAD_EXTRA_FIELDS = [
   { key: "school", labelKey: "field.school", required: true, placeholderKey: "field.school.ph", type: "text" },
   { key: "region", labelKey: "field.region", required: true, type: "select", options: KG_REGIONS },
+  { key: "classType", labelKey: "field.classType", required: true, type: "select", options: CLASS_TYPES },
   { key: "parentName", labelKey: "field.parentName", required: true, placeholderKey: "field.parentName.ph", type: "text" },
   { key: "parentPhone", labelKey: "field.parentPhone", required: true, type: "phone", initialValue: "+996" },
-  { key: "teacherName", labelKey: "field.teacherName", required: true, placeholderKey: "field.teacherName.ph", type: "text" },
-  { key: "teacherPhone", labelKey: "field.teacherPhone", required: true, type: "phone", initialValue: "+996" },
+  { key: "teacherName", labelKey: "field.teacherName", required: false, placeholderKey: "field.teacherName.ph", type: "text" },
+  { key: "teacherPhone", labelKey: "field.teacherPhone", required: false, type: "phone", initialValue: "+996" },
 ];
 
 export const EXAM_RULES = [

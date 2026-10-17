@@ -1,111 +1,289 @@
-import { COLORS } from '../constants'
+import { useEffect, useState } from 'react'
+import { COLORS, DEFAULT_COUNTDOWN_AT, WHATSAPP_CHANNEL_URL } from '../constants'
 import { Styles } from '../styles'
 import { useLang } from '../context/LangContext'
+import { SuccessOverlay } from '../components/SuccessOverlay'
+import { Countdown } from '../components/Countdown'
+import { getSetting } from '../lib/settings'
 
-const CONFETTI = [
-  { left: '8%', delay: '0s', color: COLORS.accent },
-  { left: '22%', delay: '0.15s', color: COLORS.blue },
-  { left: '38%', delay: '0.05s', color: COLORS.success },
-  { left: '58%', delay: '0.2s', color: COLORS.blueLight },
-  { left: '74%', delay: '0.1s', color: COLORS.accent },
-  { left: '90%', delay: '0.25s', color: COLORS.blue },
-]
+function initials(firstName: string, lastName: string) {
+  return `${firstName.trim().charAt(0)}${lastName.trim().charAt(0)}`.toUpperCase()
+}
 
-export function OlympiadThanks({ onHome }: { onHome: () => void }) {
+export function OlympiadThanks({
+  onHome,
+  student,
+}: {
+  onHome: () => void
+  student: Record<string, string>
+}) {
   const { t } = useLang()
-  return (
-    <div style={{ maxWidth: 560, margin: '0 auto', padding: '56px 20px' }}>
+  const [countdownAt, setCountdownAt] = useState(DEFAULT_COUNTDOWN_AT)
+
+  useEffect(() => {
+    let cancelled = false
+    void getSetting('exam_countdown_at').then((value) => {
+      if (!cancelled && value) setCountdownAt(value)
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  const fullName = `${student.firstName ?? ''} ${student.lastName ?? ''}`.trim()
+  const hasParent = !!(student.parentName || student.parentPhone)
+  const hasTeacher = !!(student.teacherName || student.teacherPhone)
+
+  const detailRow = (label: string, value: string) => (
+    <div>
       <div
         style={{
-          ...Styles.card,
-          overflow: 'hidden',
-          textAlign: 'center',
-          animation: 'fadeInUp 0.35s ease both',
+          fontSize: 11,
+          color: COLORS.muted,
+          fontWeight: 600,
+          textTransform: 'uppercase',
+          letterSpacing: 0.8,
+          marginBottom: 4,
         }}
       >
-        <div style={{ ...Styles.cardHeader, justifyContent: 'center' }}>
-          <div style={{ textAlign: 'left', flex: 1 }}>
+        {label}
+      </div>
+      <div style={{ fontSize: 14, fontWeight: 600, color: COLORS.text }}>
+        {value || '—'}
+      </div>
+    </div>
+  )
+
+  return (
+    <div style={{ maxWidth: 560, margin: '0 auto', padding: '56px 20px' }}>
+      <SuccessOverlay title={t('olympiad.thanks.title')} subtitle={t('olympiad.thanks.sub')} />
+
+      <div style={{ ...Styles.card, overflow: 'hidden', animation: 'fadeInUp 0.4s ease both' }}>
+        <div style={Styles.cardHeader}>
+          <div
+            style={{
+              width: 56,
+              height: 56,
+              borderRadius: '50%',
+              background: 'rgba(255,255,255,.12)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: 20,
+              fontWeight: 800,
+              color: COLORS.white,
+              flexShrink: 0,
+            }}
+          >
+            {initials(student.firstName ?? '', student.lastName ?? '') || '🎓'}
+          </div>
+          <div>
             <div style={{ fontWeight: 700, fontSize: 18, color: COLORS.white }}>
-              {t('olympiad.thanks.title')}
+              {fullName || t('olympiad.profile.header')}
             </div>
             <div style={{ color: '#8fa3c0', fontSize: 13, marginTop: 4 }}>
-              {t('olympiad.thanks.sub')}
+              {t('olympiad.profile.registered')}
             </div>
           </div>
         </div>
-        <div style={{ padding: '40px 28px 32px' }}>
+        <div style={{ padding: 28 }}>
           <div
             style={{
-              position: 'relative',
-              width: 84,
-              height: 84,
-              margin: '0 auto 20px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 12,
+              border: `1px solid ${COLORS.border}`,
+              borderRadius: 6,
+              padding: '12px 16px',
+              marginBottom: 20,
             }}
           >
-            <span className="success-ring" />
-            <span
-              className="success-ring"
-              style={{ animationDelay: '0.4s' }}
-            />
-            {CONFETTI.map((c, i) => (
-              <span
-                key={i}
-                className="success-confetti"
+            <div>
+              <div
                 style={{
-                  left: c.left,
-                  width: 6,
-                  height: 6,
-                  background: c.color,
-                  animationDelay: c.delay,
+                  fontSize: 11,
+                  color: COLORS.muted,
+                  fontWeight: 600,
+                  textTransform: 'uppercase',
+                  letterSpacing: 0.8,
+                  marginBottom: 4,
                 }}
-              />
-            ))}
-            <svg
-              viewBox="0 0 84 84"
-              width={84}
-              height={84}
+              >
+                {t('field.phone')}
+              </div>
+              <div
+                style={{
+                  fontSize: 16,
+                  fontWeight: 700,
+                  color: COLORS.text,
+                  fontFamily: 'monospace',
+                }}
+              >
+                {student.phone || '—'}
+              </div>
+            </div>
+            <div
               style={{
-                position: 'relative',
-                animation: 'successPop 0.5s cubic-bezier(.34,1.56,.64,1) both',
+                fontSize: 11,
+                color: COLORS.accent,
+                fontWeight: 600,
+                maxWidth: 170,
+                textAlign: 'right',
+                lineHeight: 1.4,
               }}
             >
-              <circle
-                cx="42"
-                cy="42"
-                r="40"
-                fill="color-mix(in srgb, var(--c-success) 12%, transparent)"
-                stroke={COLORS.success}
-                strokeWidth="2"
-              />
-              <path
-                d="M26 43 L37 54 L58 30"
-                fill="none"
-                stroke={COLORS.success}
-                strokeWidth="5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                pathLength={1}
-                style={{
-                  strokeDasharray: 1,
-                  strokeDashoffset: 1,
-                  animation: 'checkDraw 0.4s ease 0.35s forwards',
-                }}
-              />
-            </svg>
+              {t('olympiad.profile.phoneHint')}
+            </div>
           </div>
-          <p
+
+          <div
             style={{
-              fontSize: 15,
-              color: COLORS.muted,
-              lineHeight: 1.65,
-              marginBottom: 28,
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: 16,
+              marginBottom: hasParent || hasTeacher ? 20 : 0,
             }}
           >
-            {t('olympiad.thanks.body')}
-          </p>
-          <button type="button" onClick={onHome} style={Styles.btnPrimary()}>
-            {t('olympiad.thanks.home')}
-          </button>
+            {detailRow(t('field.grade'), student.grade)}
+            {detailRow(t('field.school'), student.school)}
+            {detailRow(
+              t('field.region'),
+              student.region ? t(`field.region.${student.region}`) : '',
+            )}
+            {detailRow(
+              t('field.classType'),
+              student.classType ? t(`field.classType.${student.classType}`) : '',
+            )}
+          </div>
+
+          {hasParent && (
+            <div
+              style={{
+                borderTop: `1px solid ${COLORS.border}`,
+                paddingTop: 16,
+                marginBottom: hasTeacher ? 16 : 0,
+              }}
+            >
+              <div
+                style={{
+                  fontSize: 11,
+                  fontWeight: 700,
+                  color: COLORS.muted,
+                  textTransform: 'uppercase',
+                  letterSpacing: 1,
+                  marginBottom: 12,
+                }}
+              >
+                {t('register.parentInfo')}
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                {detailRow(t('field.parentName'), student.parentName)}
+                {detailRow(t('field.parentPhone'), student.parentPhone)}
+              </div>
+            </div>
+          )}
+
+          {hasTeacher && (
+            <div style={{ borderTop: `1px solid ${COLORS.border}`, paddingTop: 16 }}>
+              <div
+                style={{
+                  fontSize: 11,
+                  fontWeight: 700,
+                  color: COLORS.muted,
+                  textTransform: 'uppercase',
+                  letterSpacing: 1,
+                  marginBottom: 12,
+                }}
+              >
+                {t('register.teacherInfo')}
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                {detailRow(t('field.teacherName'), student.teacherName)}
+                {detailRow(t('field.teacherPhone'), student.teacherPhone)}
+              </div>
+            </div>
+          )}
+
+          <div style={{ borderTop: `1px solid ${COLORS.border}`, paddingTop: 20, marginTop: 20 }}>
+            <Countdown targetDate={countdownAt} />
+          </div>
+
+          <div style={{ borderTop: `1px solid ${COLORS.border}`, paddingTop: 20, marginTop: 20 }}>
+            <div
+              style={{
+                fontSize: 11,
+                fontWeight: 700,
+                color: COLORS.muted,
+                textTransform: 'uppercase',
+                letterSpacing: 1,
+                marginBottom: 10,
+              }}
+            >
+              {t('profile.whatsapp.title')}
+            </div>
+            <div style={{ fontSize: 13, color: COLORS.muted, marginBottom: 12 }}>
+              {t('profile.whatsapp.sub')}
+            </div>
+            <a
+              href={WHATSAPP_CHANNEL_URL}
+              target="_blank"
+              rel="noreferrer"
+              style={{
+                ...Styles.btnPrimary('#25D366'),
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 8,
+                textDecoration: 'none',
+              }}
+            >
+              <span>💬</span>
+              {t('profile.whatsapp.cta')}
+            </a>
+          </div>
+
+          <div style={{ borderTop: `1px solid ${COLORS.border}`, paddingTop: 20, marginTop: 20 }}>
+            <div
+              style={{
+                fontSize: 11,
+                fontWeight: 700,
+                color: COLORS.muted,
+                textTransform: 'uppercase',
+                letterSpacing: 1,
+                marginBottom: 10,
+              }}
+            >
+              {t('profile.examLink.title')}
+            </div>
+            <div style={{ fontSize: 13, color: COLORS.muted }}>{t('profile.examLink.body')}</div>
+          </div>
+
+          <div style={{ borderTop: `1px solid ${COLORS.border}`, paddingTop: 20, marginTop: 20 }}>
+            <div
+              style={{
+                fontSize: 11,
+                fontWeight: 700,
+                color: COLORS.muted,
+                textTransform: 'uppercase',
+                letterSpacing: 1,
+                marginBottom: 10,
+              }}
+            >
+              {t('profile.report.title')}
+            </div>
+            <div style={{ fontSize: 13, color: COLORS.muted, marginBottom: 12 }}>
+              {t('profile.report.sub')}
+            </div>
+            <button type="button" disabled style={{ ...Styles.btnOutline, opacity: 0.5, cursor: 'not-allowed' }}>
+              {t('profile.report.cta')}
+            </button>
+          </div>
+
+          <div style={{ marginTop: 28, textAlign: 'center' }}>
+            <button type="button" onClick={onHome} style={Styles.btnPrimary()}>
+              {t('olympiad.thanks.home')}
+            </button>
+          </div>
         </div>
       </div>
     </div>
