@@ -200,6 +200,7 @@ Deno.serve(async (req) => {
     CardType: 'FINIK_QR',
     PaymentId: pending.paymentId,
     RedirectUrl: `${FINIK_RETURN_BASE_URL}/payment/result?paymentId=${pending.paymentId}&type=${product}`,
+    Lang: lang,
     Data: {
       accountId: FINIK_ACCOUNT_ID,
       // "Item name" per Finik's validation error — the product being paid
