@@ -93,7 +93,7 @@ function phpEscape(json: string): string {
 }
 
 export function sign(data: string, privateKeyPem: string): string {
-  return createSign('RSA-SHA256').update(data).end().sign(privateKeyPem, 'base64')
+  return createSign('RSA-SHA256').update(data).end().sign(normalizePem(privateKeyPem, 'PRIVATE KEY'), 'base64')
 }
 
 export function verify(
@@ -108,7 +108,7 @@ export function verify(
       .end()
       .verify(
         {
-          key: publicKeyPem,
+          key: normalizePem(publicKeyPem, 'PUBLIC KEY'),
           padding: padding === 'pss' ? constants.RSA_PKCS1_PSS_PADDING : constants.RSA_PKCS1_PADDING,
         },
         signatureBase64,
@@ -119,6 +119,21 @@ export function verify(
   }
 }
 
+// Secret-manager UIs/CLIs routinely mangle multi-line PEM values: the real
+// newlines get flattened to literal "\n" text, or the -----BEGIN/END-----
+// wrapper gets stripped leaving bare base64. Node's crypto rejects any of
+// that outright ("invalid PEM ...") rather than tolerating it, so normalize
+// before every use instead of assuming the stored secret is well-formed.
+function normalizePem(value: string, label: 'PUBLIC KEY' | 'PRIVATE KEY'): string {
+  let pem = value.trim().replace(/\\n/g, '\n').replace(/\r\n/g, '\n')
+  if (!pem.includes('-----BEGIN')) {
+    const body = pem.replace(/\s+/g, '')
+    const lines = body.match(/.{1,64}/g) ?? []
+    pem = `-----BEGIN ${label}-----\n${lines.join('\n')}\n-----END ${label}-----`
+  }
+  return pem
+}
+
 // Diagnostic only, never logs the key itself — confirms FINIK_WEBHOOK_PUBLIC_KEY
 // actually parses as a usable RSA public key, its size, and a SHA-256
 // fingerprint of its DER encoding. The fingerprint is safe to share (it's a
@@ -127,7 +142,7 @@ export function verify(
 // without either side pasting the actual key anywhere.
 export function describeKey(publicKeyPem: string): string {
   try {
-    const key = createPublicKey(publicKeyPem)
+    const key = createPublicKey(normalizePem(publicKeyPem, 'PUBLIC KEY'))
     const details = key.asymmetricKeyDetails
     const der = key.export({ type: 'spki', format: 'der' })
     const fingerprint = createHash('sha256').update(der).digest('hex')
