@@ -1,4 +1,4 @@
-import { constants, createPublicKey, createSign, createVerify } from 'node:crypto'
+import { constants, createHash, createPublicKey, createSign, createVerify } from 'node:crypto'
 
 /**
  * Finik RSA-SHA256 request/webhook signing — ported 1:1 from the official
@@ -120,14 +120,18 @@ export function verify(
 }
 
 // Diagnostic only, never logs the key itself — confirms FINIK_WEBHOOK_PUBLIC_KEY
-// actually parses as a usable RSA public key, and its size, so a malformed or
-// swapped-in secret shows up as a clear signal instead of every verify() just
-// silently returning false.
+// actually parses as a usable RSA public key, its size, and a SHA-256
+// fingerprint of its DER encoding. The fingerprint is safe to share (it's a
+// one-way hash, like an SSH key fingerprint) — send it to Finik support and
+// ask them to confirm it matches the public key their webhook signer uses,
+// without either side pasting the actual key anywhere.
 export function describeKey(publicKeyPem: string): string {
   try {
     const key = createPublicKey(publicKeyPem)
     const details = key.asymmetricKeyDetails
-    return `type=${key.asymmetricKeyType} modulusBits=${details?.modulusLength ?? '?'}`
+    const der = key.export({ type: 'spki', format: 'der' })
+    const fingerprint = createHash('sha256').update(der).digest('hex')
+    return `type=${key.asymmetricKeyType} modulusBits=${details?.modulusLength ?? '?'} sha256=${fingerprint}`
   } catch (err) {
     return `unparseable: ${String(err)}`
   }
