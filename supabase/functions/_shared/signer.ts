@@ -1,4 +1,4 @@
-import { createSign, createVerify } from 'node:crypto'
+import { constants, createPublicKey, createSign, createVerify } from 'node:crypto'
 
 /**
  * Finik RSA-SHA256 request/webhook signing — ported 1:1 from the official
@@ -19,13 +19,39 @@ export function canonicalString(
   apiHeaders: Record<string, string>,
   body: Record<string, unknown>,
   queryParams: Record<string, string> = {},
+  bodyEncoding: 'raw' | 'php' = 'raw',
 ): string {
   const parts = [method.toLowerCase(), decodeURIComponent(path), headersLine(host, apiHeaders)]
 
   const query = queryLine(queryParams)
   if (query !== '') parts.push(query)
 
-  parts.push(jsonBody(body))
+  parts.push(jsonBody(body, bodyEncoding))
+
+  return parts.join('\n')
+}
+
+// Same as canonicalString, but for verifying an INBOUND request (the Finik
+// webhook): uses the exact bytes of the body as received, with no
+// re-sorting/re-serialization. A sender's signature is computed over what
+// it actually transmitted — the webhook's real body isn't top-level-key-
+// sorted the way canonicalString()'s reconstruction assumes (confirmed from
+// production logs: raw payload leads with "fields", not alphabetically
+// first "amount") — so for verification we must sign the literal text.
+export function canonicalStringLiteral(
+  method: string,
+  path: string,
+  host: string,
+  apiHeaders: Record<string, string>,
+  rawBody: string,
+  queryParams: Record<string, string> = {},
+): string {
+  const parts = [method.toLowerCase(), decodeURIComponent(path), headersLine(host, apiHeaders)]
+
+  const query = queryLine(queryParams)
+  if (query !== '') parts.push(query)
+
+  parts.push(rawBody)
 
   return parts.join('\n')
 }
@@ -45,12 +71,25 @@ function queryLine(queryParams: Record<string, string>): string {
     .join('&')
 }
 
-function jsonBody(body: Record<string, unknown>): string {
+function jsonBody(body: Record<string, unknown>, encoding: 'raw' | 'php'): string {
   const keys = Object.keys(body)
   if (keys.length === 0) return ''
   const sorted: Record<string, unknown> = {}
   for (const key of keys.sort()) sorted[key] = body[key]
-  return JSON.stringify(sorted)
+  const json = JSON.stringify(sorted)
+  return encoding === 'php' ? phpEscape(json) : json
+}
+
+// PHP's json_encode() escapes "/" as "\/" and all non-ASCII as "\uXXXX" by
+// default — unlike JS's JSON.stringify, which leaves both alone. If Finik's
+// webhook signer runs on a PHP-ish backend, our literal re-serialization
+// won't byte-match what they actually signed whenever the body contains a
+// URL (slashes) or non-Latin text (Cyrillic names), so verify() tries both
+// encodings before rejecting.
+function phpEscape(json: string): string {
+  return json
+    .replace(/[\u0080-￿]/g, (c) => `\\u${c.charCodeAt(0).toString(16).padStart(4, '0')}`)
+    .replace(/\//g, '\\/')
 }
 
 export function sign(data: string, privateKeyPem: string): string {
@@ -61,13 +100,35 @@ export function verify(
   data: string,
   signatureBase64: string,
   publicKeyPem: string,
+  padding: 'pkcs1' | 'pss' = 'pkcs1',
 ): boolean {
   try {
     return createVerify('RSA-SHA256')
       .update(data)
       .end()
-      .verify(publicKeyPem, signatureBase64, 'base64')
+      .verify(
+        {
+          key: publicKeyPem,
+          padding: padding === 'pss' ? constants.RSA_PKCS1_PSS_PADDING : constants.RSA_PKCS1_PADDING,
+        },
+        signatureBase64,
+        'base64',
+      )
   } catch {
     return false
+  }
+}
+
+// Diagnostic only, never logs the key itself — confirms FINIK_WEBHOOK_PUBLIC_KEY
+// actually parses as a usable RSA public key, and its size, so a malformed or
+// swapped-in secret shows up as a clear signal instead of every verify() just
+// silently returning false.
+export function describeKey(publicKeyPem: string): string {
+  try {
+    const key = createPublicKey(publicKeyPem)
+    const details = key.asymmetricKeyDetails
+    return `type=${key.asymmetricKeyType} modulusBits=${details?.modulusLength ?? '?'}`
+  } catch (err) {
+    return `unparseable: ${String(err)}`
   }
 }
