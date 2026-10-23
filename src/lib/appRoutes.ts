@@ -8,7 +8,7 @@ export const OPEN_DOORS_THANKS_PATH = '/open_doors/thanks'
 /** Finik RedirectUrl target after the hosted payment page. */
 export const PAYMENT_RESULT_PATH = '/payment/result'
 
-/** Shareable URL for the Math Olympiad (9th grade) registration. */
+/** Shareable URL for the Math Olympiad (grades 7–9) registration. */
 export const OLYMPIAD_PATH = '/olympiad'
 
 export const OLYMPIAD_THANKS_PATH = '/olympiad/thanks'

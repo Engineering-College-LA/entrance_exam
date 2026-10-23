@@ -77,7 +77,7 @@ export const TRANSLATIONS = {
 
     "register.olympiad.breadcrumb": "Math Olympiad",
     "register.olympiad.step": "Registration",
-    "register.olympiad.header": "Math Olympiad Registration (9th Grade)",
+    "register.olympiad.header": "Math Olympiad Registration (Grades 7–9)",
     "register.olympiad.subheader": "Fill in your details to register for the Math Olympiad",
     "register.olympiad.info": "After submitting, you'll be redirected to pay the registration fee via Finik — registration is confirmed once payment succeeds.",
     "register.olympiad.submit": "Continue to Payment →",
@@ -87,7 +87,7 @@ export const TRANSLATIONS = {
     "olympiad.thanks.title": "You're registered!",
     "olympiad.thanks.sub": "Math Olympiad — Engineering College",
     "olympiad.thanks.body":
-      "Thank you. We saved your details for the Math Olympiad (9th grade). We'll be in touch with more details.",
+      "Thank you. We saved your details for the Math Olympiad (grades 7–9). We'll be in touch with more details.",
     "olympiad.thanks.home": "← Back to Home",
     "olympiad.profile.header": "Student Profile",
     "olympiad.profile.registered": "Registration confirmed",
@@ -323,7 +323,7 @@ export const TRANSLATIONS = {
     "landing.category.events.desc": "Register for Project Fest, career guidance seminars, and student projects showcase.",
     "landing.category.events.cta": "Select Category",
     "landing.category.olympiad.title": "Math Olympiad",
-    "landing.category.olympiad.desc": "Register for the Math Olympiad (9th grade). Free registration — no exam here.",
+    "landing.category.olympiad.desc": "Register for the Math Olympiad (grades 7–9). Free registration — no exam here.",
     "landing.category.olympiad.cta": "Register",
     "landing.category.back": "← Back to Categories",
 
@@ -332,7 +332,7 @@ export const TRANSLATIONS = {
     "error.email": "Enter a valid email address",
     "moReg.title": "Math Olympiad Registration",
     "moReg.badge": "PROTOTYPE",
-    "moReg.subtitle": "Register your 9th-grade student for the Math Olympiad.",
+    "moReg.subtitle": "Register your 7th–9th grade student for the Math Olympiad.",
     "moReg.back": "← Back",
     "moReg.next": "Continue →",
     "moReg.step.student": "Student",
@@ -471,7 +471,7 @@ export const TRANSLATIONS = {
 
     "register.olympiad.breadcrumb": "Олимпиада по математике",
     "register.olympiad.step": "Регистрация",
-    "register.olympiad.header": "Регистрация на олимпиаду по математике (9 класс)",
+    "register.olympiad.header": "Регистрация на олимпиаду по математике (7–9 классы)",
     "register.olympiad.subheader": "Укажите свои данные для регистрации на олимпиаду",
     "register.olympiad.info": "После отправки формы вы перейдёте к оплате регистрационного взноса через Finik — регистрация подтверждается после успешной оплаты.",
     "register.olympiad.submit": "Перейти к оплате →",
@@ -484,7 +484,7 @@ export const TRANSLATIONS = {
     "olympiad.profile.registered": "Регистрация подтверждена",
     "olympiad.profile.phoneHint": "Этот номер будет использоваться для входа, когда появится личный кабинет",
     "olympiad.thanks.body":
-      "Спасибо! Мы сохранили ваши данные для олимпиады по математике (9 класс). Мы свяжемся с вами с дополнительной информацией.",
+      "Спасибо! Мы сохранили ваши данные для олимпиады по математике (7–9 классы). Мы свяжемся с вами с дополнительной информацией.",
     "olympiad.thanks.home": "← На главную",
 
     "page.profile": "Личный кабинет",
@@ -717,7 +717,7 @@ export const TRANSLATIONS = {
     "landing.category.events.desc": "Зарегистрируйтесь на Project Fest, семинары по профориентации и ярмарку студенческих проектов.",
     "landing.category.events.cta": "Выбрать категорию",
     "landing.category.olympiad.title": "Олимпиада по математике",
-    "landing.category.olympiad.desc": "Регистрация на олимпиаду по математике (9 класс). Бесплатная регистрация — без экзамена.",
+    "landing.category.olympiad.desc": "Регистрация на олимпиаду по математике (7–9 классы). Бесплатная регистрация — без экзамена.",
     "landing.category.olympiad.cta": "Зарегистрироваться",
     "landing.category.back": "← Назад к категориям",
 
@@ -726,7 +726,7 @@ export const TRANSLATIONS = {
     "error.email": "Введите корректный email",
     "moReg.title": "Регистрация на олимпиаду по математике",
     "moReg.badge": "ПРОТОТИП",
-    "moReg.subtitle": "Зарегистрируйте ученика 9 класса на олимпиаду по математике.",
+    "moReg.subtitle": "Зарегистрируйте ученика 7–9 класса на олимпиаду по математике.",
     "moReg.back": "← Назад",
     "moReg.next": "Продолжить →",
     "moReg.step.student": "Ученик",
@@ -864,7 +864,7 @@ export const TRANSLATIONS = {
 
     "register.olympiad.breadcrumb": "Математика олимпиадасы",
     "register.olympiad.step": "Каттоо",
-    "register.olympiad.header": "Математика олимпиадасына каттоо (9-класс)",
+    "register.olympiad.header": "Математика олимпиадасына каттоо (7–9-класстар)",
     "register.olympiad.subheader": "Олимпиадага катталуу үчүн маалыматтарыңызды толтуруңуз",
     "register.olympiad.info": "Жибергенден кийин Finik аркылуу каттоо акысын төлөөгө багыттала турган болосуз — төлөм ийгиликтүү болгондон кийин каттоо ырасталат.",
     "register.olympiad.submit": "Төлөмгө өтүү →",
@@ -1110,7 +1110,7 @@ export const TRANSLATIONS = {
     "landing.category.events.desc": "Project Fest, кесипке багыттоо семинарлары жана студенттик долбоорлор көргөзмөсүнө катталыңыз.",
     "landing.category.events.cta": "Категорияны тандоо",
     "landing.category.olympiad.title": "Математика олимпиадасы",
-    "landing.category.olympiad.desc": "Математика олимпиадасына каттоо (9-класс). Акысыз каттоо — бул жерде экзамен жок.",
+    "landing.category.olympiad.desc": "Математика олимпиадасына каттоо (7–9-класстар). Акысыз каттоо — бул жерде экзамен жок.",
     "landing.category.olympiad.cta": "Катталуу",
     "landing.category.back": "← Категорияларга кайтуу",
 
@@ -1119,7 +1119,7 @@ export const TRANSLATIONS = {
     "error.email": "Туура email дарегин киргизиңиз",
     "moReg.title": "Математика олимпиадасына каттоо",
     "moReg.badge": "ПРОТОТИП",
-    "moReg.subtitle": "9-класстагы окуучуңузду математика олимпиадасына каттаңыз.",
+    "moReg.subtitle": "7–9-класстагы окуучуңузду математика олимпиадасына каттаңыз.",
     "moReg.back": "← Артка",
     "moReg.next": "Улантуу →",
     "moReg.step.student": "Окуучу",
