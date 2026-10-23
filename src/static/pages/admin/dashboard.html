@@ -1231,7 +1231,10 @@
   document.body.style.visibility = "hidden";
 
   (async function authGuard() {
-    const sb = await getSB();
+    // Inlined (not getSB()): that helper reads a `let _sb` declared later in
+    // this same script, which is still in its temporal dead zone this early.
+    const { createClient } = await import("https://esm.sh/@supabase/supabase-js@2");
+    const sb = createClient("https://jeipvqyetmcqsxvliwpp.supabase.co", "sb_publishable_xLw_44i9tOTEfWTGcDQ41Q_DLWbaC1o");
     const { data: { session } } = await sb.auth.getSession();
     if (!session) {
       window.location.replace("login.html");
