@@ -111,27 +111,36 @@
     <h1 id="lbl-sign-in">Sign In</h1>
     <p class="subtitle" id="lbl-subtitle">Access the admin dashboard</p>
 
-    <label for="username" id="lbl-username">Username</label>
-    <input type="text" id="username" placeholder="Enter username" autocomplete="username" />
+    <label for="email" id="lbl-username">Email</label>
+    <input type="email" id="email" placeholder="Enter email" autocomplete="username" />
 
     <label for="password" id="lbl-password">Password</label>
     <input type="password" id="password" placeholder="Enter password" autocomplete="current-password" />
-    <div class="error-msg" id="error-msg">Incorrect username or password.</div>
+    <div class="error-msg" id="error-msg">Incorrect email or password.</div>
 
     <button class="btn" id="login-btn" onclick="handleLogin()">Sign In</button>
     <a class="back-link" href="../../index.html" id="lbl-back">← Back to Trial Test</a>
   </div>
 
-  <script>
-    // Redirect if already authenticated
-    if (sessionStorage.getItem("ec_admin_auth") === "1") {
-      window.location.replace("dashboard.html");
-    }
+  <script type="module">
+    import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+    const sb = createClient("https://jeipvqyetmcqsxvliwpp.supabase.co", "sb_publishable_xLw_44i9tOTEfWTGcDQ41Q_DLWbaC1o");
 
-    const ADMIN_USER = "admin";
-    const ADMIN_PASS = "ZloyAdmin";
-    const STAFF_USER = "staff";
-    const STAFF_PASS = "Staff_EC@2025";
+    // Redirect if already authenticated with a known admin role
+    const { data: { session } } = await sb.auth.getSession();
+    if (session) {
+      const { data: roleRow } = await sb
+        .from("admin_users")
+        .select("role")
+        .eq("user_id", session.user.id)
+        .maybeSingle();
+      if (roleRow) {
+        sessionStorage.setItem("ec_admin_role", roleRow.role);
+        window.location.replace("dashboard.html");
+      } else {
+        await sb.auth.signOut();
+      }
+    }
 
     // ── Localization ────────────────────────────────────────────────────────────
     const LOGIN_STRINGS = {
@@ -139,28 +148,28 @@
         adminPortal:     "Admin Portal",
         signIn:          "Sign In",
         subtitle:        "Access the admin dashboard",
-        username:        "Username",
+        username:        "Email",
         password:        "Password",
         btnSignIn:       "Sign In",
         backLink:        "← Back to Trial Test",
-        errInvalid:      "Incorrect username or password.",
-        errBothRequired: "Please enter both username and password.",
+        errInvalid:      "Incorrect email or password.",
+        errBothRequired: "Please enter both email and password.",
         pageTitle:       "Admin Login — E|C Engineering College",
-        userPlaceholder: "Enter username",
+        userPlaceholder: "Enter email",
         passPlaceholder: "Enter password",
       },
       ru: {
         adminPortal:     "Панель администратора",
         signIn:          "Вход",
         subtitle:        "Доступ к панели администратора",
-        username:        "Имя пользователя",
+        username:        "Email",
         password:        "Пароль",
         btnSignIn:       "Войти",
         backLink:        "← Назад к пробному экзамену",
-        errInvalid:      "Неверное имя пользователя или пароль.",
-        errBothRequired: "Введите имя пользователя и пароль.",
+        errInvalid:      "Неверный email или пароль.",
+        errBothRequired: "Введите email и пароль.",
         pageTitle:       "Вход — E|C Engineering College",
-        userPlaceholder: "Введите логин",
+        userPlaceholder: "Введите email",
         passPlaceholder: "Введите пароль",
       },
     };
@@ -177,7 +186,7 @@
     document.getElementById("lbl-password").textContent            = S.password;
     document.getElementById("login-btn").textContent               = S.btnSignIn;
     document.getElementById("lbl-back").textContent                = S.backLink;
-    document.getElementById("username").placeholder                = S.userPlaceholder;
+    document.getElementById("email").placeholder                   = S.userPlaceholder;
     document.getElementById("password").placeholder                = S.passPlaceholder;
     document.getElementById("error-msg").textContent               = S.errInvalid;
 
@@ -191,41 +200,61 @@
     }
 
     // ── Auth ────────────────────────────────────────────────────────────────────
-    function handleLogin() {
-      const username = document.getElementById("username").value.trim();
+    window.handleLogin = async function handleLogin() {
+      const email    = document.getElementById("email").value.trim();
       const password = document.getElementById("password").value;
       const errMsg   = document.getElementById("error-msg");
       const passEl   = document.getElementById("password");
-      const userEl   = document.getElementById("username");
+      const userEl   = document.getElementById("email");
 
       errMsg.classList.remove("visible");
       userEl.classList.remove("error");
       passEl.classList.remove("error");
 
-      if (!username || !password) {
+      if (!email || !password) {
         errMsg.textContent = S.errBothRequired;
         errMsg.classList.add("visible");
-        if (!username) userEl.classList.add("error");
+        if (!email) userEl.classList.add("error");
         if (!password) passEl.classList.add("error");
         return;
       }
 
-      if (username === ADMIN_USER && password === ADMIN_PASS) {
-        sessionStorage.setItem("ec_admin_auth", "1");
-        sessionStorage.setItem("ec_admin_role", "superadmin");
-        window.location.replace("dashboard.html");
-      } else if (username === STAFF_USER && password === STAFF_PASS) {
-        sessionStorage.setItem("ec_admin_auth", "1");
-        sessionStorage.setItem("ec_admin_role", "staff");
-        window.location.replace("dashboard.html");
-      } else {
+      const loginBtn = document.getElementById("login-btn");
+      loginBtn.disabled = true;
+
+      const { data: signInData, error: signInError } = await sb.auth.signInWithPassword({ email, password });
+
+      if (signInError || !signInData.session) {
+        loginBtn.disabled = false;
         errMsg.textContent = S.errInvalid;
         errMsg.classList.add("visible");
         passEl.classList.add("error");
         passEl.value = "";
         passEl.focus();
+        return;
       }
-    }
+
+      const { data: roleRow } = await sb
+        .from("admin_users")
+        .select("role")
+        .eq("user_id", signInData.session.user.id)
+        .maybeSingle();
+
+      loginBtn.disabled = false;
+
+      if (!roleRow) {
+        await sb.auth.signOut();
+        errMsg.textContent = S.errInvalid;
+        errMsg.classList.add("visible");
+        passEl.classList.add("error");
+        passEl.value = "";
+        passEl.focus();
+        return;
+      }
+
+      sessionStorage.setItem("ec_admin_role", roleRow.role);
+      window.location.replace("dashboard.html");
+    };
 
     document.addEventListener("keydown", e => {
       if (e.key === "Enter") handleLogin();
