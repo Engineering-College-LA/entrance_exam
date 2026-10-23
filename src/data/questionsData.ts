@@ -272,9 +272,8 @@ export const PLACEMENT_EXTRA_FIELDS = [
   { key: "attended", labelKey: "field.attended", required: true, type: "select", options: ["attended", "not_attended"] },
 ];
 
-// Grade is locked to 9th for now — Olympiad has no other grades open yet.
 export const OLYMPIAD_GRADE_FIELD = {
-  key: "grade", labelKey: "field.grade", required: true, type: "select", options: ["9"], initialValue: "9",
+  key: "grade", labelKey: "field.grade", required: true, type: "select", options: ["7", "8", "9"], initialValue: "9",
 };
 
 // Kyrgyzstan regions (7 oblasts + Bishkek/Osh cities of republican status),
