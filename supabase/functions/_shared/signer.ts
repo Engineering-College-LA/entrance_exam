@@ -1,23 +1,13 @@
 import { constants, createHash, createPublicKey, createSign, createVerify } from 'node:crypto'
 
 /**
- * Finik RSA-SHA256 request/webhook signing — ported 1:1 from Finik's own
- * reference PHP Signer class (verified: their sample payload + beta pubkey
- * + signature round-trips through this exact algorithm). Canonical format:
+ * Finik RSA-SHA256 request/webhook signing. Canonical format:
  *
  *   {method lowercase}\n
  *   {urldecode(path)}\n
  *   host:{host}&{sorted x-api-* headers, lowercased key, joined by &}\n
  *   [query params line, only present when non-empty]\n
- *   {JSON body with only TOP-LEVEL keys sorted alphabetically; nested
- *    objects like "fields" keep their original key order; empty body -> '';
- *    slashes/unicode left unescaped — matches PHP's
- *    JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE, which JSON.stringify
- *    already does by default}
- *
- * Finik always re-sorts top-level body keys before signing, regardless of
- * what order the body is actually transmitted in — so verification must
- * reconstruct the same sorted JSON, not hash the literal received bytes.
+ *   {body}
  */
 export function canonicalString(
   method: string,
@@ -33,6 +23,31 @@ export function canonicalString(
   if (query !== '') parts.push(query)
 
   parts.push(jsonBody(body))
+
+  return parts.join('\n')
+}
+
+// Same as canonicalString, but for verifying an INBOUND request (the Finik
+// webhook): uses the exact bytes of the body as received, with no
+// re-sorting/re-serialization. A sender's signature is computed over what
+// it actually transmitted — the webhook's real body isn't top-level-key-
+// sorted the way canonicalString()'s reconstruction assumes (confirmed from
+// production logs: raw payload leads with "fields", not alphabetically
+// first "amount") — so for verification we must sign the literal text.
+export function canonicalStringLiteral(
+  method: string,
+  path: string,
+  host: string,
+  apiHeaders: Record<string, string>,
+  rawBody: string,
+  queryParams: Record<string, string> = {},
+): string {
+  const parts = [method.toLowerCase(), decodeURIComponent(path), headersLine(host, apiHeaders)]
+
+  const query = queryLine(queryParams)
+  if (query !== '') parts.push(query)
+
+  parts.push(rawBody)
 
   return parts.join('\n')
 }
@@ -64,7 +79,12 @@ export function sign(data: string, privateKeyPem: string): string {
   return createSign('RSA-SHA256').update(data).end().sign(normalizePem(privateKeyPem, 'PRIVATE KEY'), 'base64')
 }
 
-export function verify(data: string, signatureBase64: string, publicKeyPem: string): boolean {
+export function verify(
+  data: string,
+  signatureBase64: string,
+  publicKeyPem: string,
+  padding: 'pkcs1' | 'pss' = 'pkcs1',
+): boolean {
   try {
     return createVerify('RSA-SHA256')
       .update(data)
@@ -72,7 +92,7 @@ export function verify(data: string, signatureBase64: string, publicKeyPem: stri
       .verify(
         {
           key: normalizePem(publicKeyPem, 'PUBLIC KEY'),
-          padding: constants.RSA_PKCS1_PADDING,
+          padding: padding === 'pss' ? constants.RSA_PKCS1_PSS_PADDING : constants.RSA_PKCS1_PADDING,
         },
         signatureBase64,
         'base64',

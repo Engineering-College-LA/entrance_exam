@@ -1,5 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
-import { canonicalString, describeKey, verify } from '../_shared/signer.ts'
+import { canonicalStringLiteral, describeKey, verify } from '../_shared/signer.ts'
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -44,8 +44,19 @@ Deno.serve(async (req) => {
   const actualRequestHost = req.headers.get('host')
 
   const body = JSON.parse(rawBody || '{}') as Record<string, unknown>
-  const data = canonicalString('POST', webhookPath, webhookHost, apiHeaders, body)
-  const verified = verify(data, signature, webhookPublicKey)
+  const data = canonicalStringLiteral('POST', webhookPath, webhookHost, apiHeaders, rawBody)
+
+  // Padding mode was never confirmed against a real signature after the PEM
+  // normalization fix, so still try both rather than guessing one.
+  let verified = false
+  let matchedPadding = ''
+  for (const padding of ['pkcs1', 'pss'] as const) {
+    if (verify(data, signature, webhookPublicKey, padding)) {
+      verified = true
+      matchedPadding = padding
+      break
+    }
+  }
 
   // One structured line per request — everything needed to reproduce/debug
   // a signature mismatch without cross-referencing several separate logs.
@@ -53,6 +64,7 @@ Deno.serve(async (req) => {
     '[finik-webhook] debug:',
     JSON.stringify({
       verified,
+      matchedPadding,
       requestUrl: req.url,
       actualRequestHost,
       signingHost: webhookHost,
