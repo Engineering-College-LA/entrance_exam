@@ -1,16 +1,23 @@
 import { constants, createHash, createPublicKey, createSign, createVerify } from 'node:crypto'
 
 /**
- * Finik RSA-SHA256 request/webhook signing — ported 1:1 from the official
- * Finik npm package's canonical-string algorithm (confirmed against a real
- * working integration), NOT a generic guess. Canonical format:
+ * Finik RSA-SHA256 request/webhook signing — ported 1:1 from Finik's own
+ * reference PHP Signer class (verified: their sample payload + beta pubkey
+ * + signature round-trips through this exact algorithm). Canonical format:
  *
  *   {method lowercase}\n
- *   {rawurldecode(path)}\n
+ *   {urldecode(path)}\n
  *   host:{host}&{sorted x-api-* headers, lowercased key, joined by &}\n
  *   [query params line, only present when non-empty]\n
  *   {JSON body with only TOP-LEVEL keys sorted alphabetically; nested
- *    objects like "Data" keep their original key order; empty body -> ''}
+ *    objects like "fields" keep their original key order; empty body -> '';
+ *    slashes/unicode left unescaped — matches PHP's
+ *    JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE, which JSON.stringify
+ *    already does by default}
+ *
+ * Finik always re-sorts top-level body keys before signing, regardless of
+ * what order the body is actually transmitted in — so verification must
+ * reconstruct the same sorted JSON, not hash the literal received bytes.
  */
 export function canonicalString(
   method: string,
@@ -19,39 +26,13 @@ export function canonicalString(
   apiHeaders: Record<string, string>,
   body: Record<string, unknown>,
   queryParams: Record<string, string> = {},
-  bodyEncoding: 'raw' | 'php' = 'raw',
 ): string {
   const parts = [method.toLowerCase(), decodeURIComponent(path), headersLine(host, apiHeaders)]
 
   const query = queryLine(queryParams)
   if (query !== '') parts.push(query)
 
-  parts.push(jsonBody(body, bodyEncoding))
-
-  return parts.join('\n')
-}
-
-// Same as canonicalString, but for verifying an INBOUND request (the Finik
-// webhook): uses the exact bytes of the body as received, with no
-// re-sorting/re-serialization. A sender's signature is computed over what
-// it actually transmitted — the webhook's real body isn't top-level-key-
-// sorted the way canonicalString()'s reconstruction assumes (confirmed from
-// production logs: raw payload leads with "fields", not alphabetically
-// first "amount") — so for verification we must sign the literal text.
-export function canonicalStringLiteral(
-  method: string,
-  path: string,
-  host: string,
-  apiHeaders: Record<string, string>,
-  rawBody: string,
-  queryParams: Record<string, string> = {},
-): string {
-  const parts = [method.toLowerCase(), decodeURIComponent(path), headersLine(host, apiHeaders)]
-
-  const query = queryLine(queryParams)
-  if (query !== '') parts.push(query)
-
-  parts.push(rawBody)
+  parts.push(jsonBody(body))
 
   return parts.join('\n')
 }
@@ -71,37 +52,19 @@ function queryLine(queryParams: Record<string, string>): string {
     .join('&')
 }
 
-function jsonBody(body: Record<string, unknown>, encoding: 'raw' | 'php'): string {
+function jsonBody(body: Record<string, unknown>): string {
   const keys = Object.keys(body)
   if (keys.length === 0) return ''
   const sorted: Record<string, unknown> = {}
   for (const key of keys.sort()) sorted[key] = body[key]
-  const json = JSON.stringify(sorted)
-  return encoding === 'php' ? phpEscape(json) : json
-}
-
-// PHP's json_encode() escapes "/" as "\/" and all non-ASCII as "\uXXXX" by
-// default — unlike JS's JSON.stringify, which leaves both alone. If Finik's
-// webhook signer runs on a PHP-ish backend, our literal re-serialization
-// won't byte-match what they actually signed whenever the body contains a
-// URL (slashes) or non-Latin text (Cyrillic names), so verify() tries both
-// encodings before rejecting.
-function phpEscape(json: string): string {
-  return json
-    .replace(/[\u0080-￿]/g, (c) => `\\u${c.charCodeAt(0).toString(16).padStart(4, '0')}`)
-    .replace(/\//g, '\\/')
+  return JSON.stringify(sorted)
 }
 
 export function sign(data: string, privateKeyPem: string): string {
   return createSign('RSA-SHA256').update(data).end().sign(normalizePem(privateKeyPem, 'PRIVATE KEY'), 'base64')
 }
 
-export function verify(
-  data: string,
-  signatureBase64: string,
-  publicKeyPem: string,
-  padding: 'pkcs1' | 'pss' = 'pkcs1',
-): boolean {
+export function verify(data: string, signatureBase64: string, publicKeyPem: string): boolean {
   try {
     return createVerify('RSA-SHA256')
       .update(data)
@@ -109,7 +72,7 @@ export function verify(
       .verify(
         {
           key: normalizePem(publicKeyPem, 'PUBLIC KEY'),
-          padding: padding === 'pss' ? constants.RSA_PKCS1_PSS_PADDING : constants.RSA_PKCS1_PADDING,
+          padding: constants.RSA_PKCS1_PADDING,
         },
         signatureBase64,
         'base64',

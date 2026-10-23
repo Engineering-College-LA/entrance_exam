@@ -1,5 +1,5 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
-import { canonicalString, canonicalStringLiteral, describeKey, verify } from '../_shared/signer.ts'
+import { canonicalString, describeKey, verify } from '../_shared/signer.ts'
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -14,8 +14,6 @@ Deno.serve(async (req) => {
   // TEMPORARY diagnostic logging — remove once we've confirmed Finik's real
   // webhook shape (headers/body aren't secrets, safe to log).
   const rawBody = await req.text()
-  console.log('[finik-webhook] headers:', JSON.stringify(Object.fromEntries(req.headers.entries())))
-  console.log('[finik-webhook] rawBody:', rawBody)
 
   const webhookPublicKey = Deno.env.get('FINIK_WEBHOOK_PUBLIC_KEY')
   const webhookUrl = Deno.env.get('FINIK_WEBHOOK_URL')
@@ -25,11 +23,10 @@ Deno.serve(async (req) => {
   if (!webhookPublicKey || !webhookUrl || !SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
     return json({ error: 'Webhook is not configured' }, 500)
   }
-  console.log('[finik-webhook] FINIK_WEBHOOK_PUBLIC_KEY:', describeKey(webhookPublicKey))
 
   const signature = req.headers.get('signature')
   if (!signature) {
-    console.error('[finik-webhook] rejected: missing signature header')
+    console.error('[finik-webhook] rejected: missing signature header. req.url was:', req.url)
     return json({ error: 'Missing signature header' }, 400)
   }
 
@@ -40,40 +37,36 @@ Deno.serve(async (req) => {
 
   // webhookUrl is OUR domain (configured, not the request host) — Finik
   // signs against the webhookUrl we gave them when creating the payment.
+  // actualRequestHost (the real inbound Host header) is logged alongside it
+  // purely to catch a host mismatch at a glance — it is NOT used for signing.
   const webhookPath = new URL(webhookUrl).pathname
   const webhookHost = new URL(webhookUrl).host
+  const actualRequestHost = req.headers.get('host')
 
   const body = JSON.parse(rawBody || '{}') as Record<string, unknown>
-  const dataLiteral = canonicalStringLiteral('POST', webhookPath, webhookHost, apiHeaders, rawBody)
-  const dataRaw = canonicalString('POST', webhookPath, webhookHost, apiHeaders, body)
-  const dataPhp = canonicalString('POST', webhookPath, webhookHost, apiHeaders, body, {}, 'php')
+  const data = canonicalString('POST', webhookPath, webhookHost, apiHeaders, body)
+  const verified = verify(data, signature, webhookPublicKey)
 
-  // Try several candidate encodings (see signer.ts) — whichever one actually
-  // matches Finik's signature tells us how their backend builds the string
-  // to sign, so TEMPORARY: keep all log lines until we know which one
-  // consistently wins, then delete the others.
-  let verified = false
-  let matched = ''
-  outer: for (const [bodyLabel, data] of [
-    ['literal', dataLiteral],
-    ['raw', dataRaw],
-    ['php-escaped', dataPhp],
-  ] as const) {
-    for (const padding of ['pkcs1', 'pss'] as const) {
-      if (verify(data, signature, webhookPublicKey, padding)) {
-        verified = true
-        matched = `${bodyLabel}+${padding}`
-        break outer
-      }
-    }
-  }
+  // One structured line per request — everything needed to reproduce/debug
+  // a signature mismatch without cross-referencing several separate logs.
+  console.log(
+    '[finik-webhook] debug:',
+    JSON.stringify({
+      verified,
+      requestUrl: req.url,
+      actualRequestHost,
+      signingHost: webhookHost,
+      signingPath: webhookPath,
+      apiHeaders,
+      canonicalString: data,
+      signature,
+      publicKeyFingerprint: describeKey(webhookPublicKey),
+      rawBody,
+    }),
+  )
 
-  if (verified) {
-    console.log(`[finik-webhook] signature verified ok (encoding: ${matched})`)
-  } else {
-    console.error('[finik-webhook] rejected: invalid signature. canonicalString (literal) was:', dataLiteral)
-    console.error('[finik-webhook] rejected: invalid signature. canonicalString (raw) was:', dataRaw)
-    console.error('[finik-webhook] rejected: invalid signature. canonicalString (php) was:', dataPhp)
+  if (!verified) {
+    console.error('[finik-webhook] rejected: invalid signature')
     return json({ error: 'Invalid signature' }, 400)
   }
 
