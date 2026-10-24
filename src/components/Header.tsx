@@ -481,6 +481,7 @@ export function Header({
                   </button>
                 )}
                 
+                {/* Admin login entry point — commented out for now
                 <a
                   href="/pages/admin/login.html"
                   onClick={() => setProfileOpen(false)}
@@ -497,6 +498,7 @@ export function Header({
                 >
                   ⚙ {lang === 'ru' ? 'Панель администратора' : lang === 'ky' ? 'Админ панели' : 'Admin Dashboard'}
                 </a>
+                */}
               </div>
             </div>
           )}

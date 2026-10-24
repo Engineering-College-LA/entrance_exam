@@ -212,7 +212,12 @@ export function OlympiadThanks({
 
           {student.id && (
             <div style={{ borderTop: `1px solid ${COLORS.border}`, paddingTop: 20, marginTop: 20 }}>
-              <TicketQr ticketId={student.id} fullName={fullName} phone={student.phone ?? ''} />
+              <TicketQr
+                ticketId={student.id}
+                fullName={fullName}
+                grade={student.grade}
+                school={student.school}
+              />
             </div>
           )}
 
