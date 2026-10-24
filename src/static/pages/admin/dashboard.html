@@ -8,6 +8,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="icon" type="image/png" href="../../assets/app_logo.png" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -373,6 +374,10 @@
       <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
       <span id="lbl-nav-olympiad">Math Olympiad</span>
     </button>
+    <button type="button" class="nav-item" id="nav-tab-scanner" onclick="setAdminTab('scanner')" title="Ticket Scanner">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M4 4h6v2H6v4H4V4zm10 0h6v6h-2V6h-4V4zM4 14h2v4h4v2H4v-6zm16 0h2v6h-6v-2h4v-4zM8 8h2v2H8V8zm6 0h2v2h-2V8zM8 14h2v2H8v-2zm6 0h2v2h-2v-2z"/></svg>
+      <span id="lbl-nav-scanner">Ticket Scanner</span>
+    </button>
 
     <div class="sidebar-lang">
       <button class="sidebar-lang-btn active" id="lang-btn-ru" onclick="setAdminLang('ru')">RU</button>
@@ -661,15 +666,45 @@
             <span class="section-title" id="lbl-olympiad-section-title">Math Olympiad registrations</span>
             <span class="section-count" id="olympiad-count"></span>
           </div>
-          <button type="button" class="filter-btn" id="olympiad-export-btn" style="color:#1b8c5e;" onclick="exportOlympiadXlsx()">
-            <span id="lbl-olympiad-export-btn">⬇ Export XLSX</span>
-          </button>
+          <div style="display:flex; gap:8px;">
+            <button type="button" class="filter-btn active-all" id="olympiad-add-btn" style="background:#1565c0;color:#fff;border-color:#1565c0;" onclick="openOlympiadAddModal()">
+              <span id="lbl-olympiad-add-btn">+ Add Registration</span>
+            </button>
+            <button type="button" class="filter-btn" id="olympiad-export-btn" style="color:#1b8c5e;" onclick="exportOlympiadXlsx()">
+              <span id="lbl-olympiad-export-btn">⬇ Export XLSX</span>
+            </button>
+          </div>
         </div>
         <div id="olympiad-table-container">
           <div class="spinner-wrap">
             <div class="spinner"></div>
             <div style="font-size:13px;color:#6b7a95">Loading…</div>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ticket Scanner -->
+    <div id="panel-scanner" class="content-panel">
+      <div class="section">
+        <div class="section-header">
+          <div>
+            <span class="section-title" id="lbl-scanner-section-title">Ticket Scanner</span>
+          </div>
+        </div>
+        <div style="padding: 22px; display:flex; flex-direction:column; align-items:center; gap:16px;">
+          <div id="scanner-video-wrap" style="position:relative; width:100%; max-width:420px; aspect-ratio:1/1; background:#0b1f3a; border-radius:12px; overflow:hidden; display:none;">
+            <video id="scanner-video" autoplay playsinline muted style="width:100%; height:100%; object-fit:cover;"></video>
+            <div style="position:absolute; inset:15%; border:3px solid rgba(255,255,255,.5); border-radius:12px; pointer-events:none;"></div>
+          </div>
+          <div id="scanner-idle-state" style="text-align:center; color:#6b7a95; padding: 20px 0;">
+            <div style="font-size:40px; margin-bottom:8px;">📷</div>
+            <div id="lbl-scanner-idle">Start the scanner to check a student's ticket.</div>
+          </div>
+          <div id="scanner-error" style="display:none; color:#c0392b; font-size:13px; text-align:center; max-width:360px;"></div>
+          <button type="button" class="filter-btn active-all" id="btn-scanner-toggle" style="background:#1565c0;color:#fff;border-color:#1565c0;" onclick="toggleTicketScanner()">
+            <span id="lbl-scanner-toggle">Start Scanner</span>
+          </button>
         </div>
       </div>
     </div>
@@ -932,6 +967,107 @@
         <button type="button" class="od-btn-secondary" id="btn-qr-download" onclick="downloadQrCode()" style="padding: 10px 20px; font-weight: 600; background: #1565c0; color: #fff; border-color: #1565c0;">Download PNG</button>
         <button type="button" class="od-btn-secondary" onclick="closeQrModal()" style="padding: 10px 20px;">Close</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Olympiad Manual Add Modal -->
+<div class="modal-overlay hidden" id="olympiad-add-modal-overlay" onclick="handleOlympiadAddOverlayClick(event)">
+  <div class="open-door-detail-card" style="max-width: 600px; margin: 0 auto;" role="dialog" aria-modal="true" aria-labelledby="olympiad-add-modal-title" onclick="event.stopPropagation()">
+    <div class="od-modal-hero">
+      <button type="button" class="od-modal-close" onclick="closeOlympiadAddModal()" title="Close">✕</button>
+      <div class="od-modal-title" id="olympiad-add-modal-title">Add Registration</div>
+      <div class="od-modal-sub" id="olympiad-add-modal-sub">Register a walk-in student manually</div>
+    </div>
+    <form id="olympiad-add-form" onsubmit="saveOlympiadManualRegistration(event)" style="display:flex; flex-direction:column; gap:12px; padding:20px 22px;">
+      <div style="display:flex; flex-direction:column; gap:12px; max-height: 60vh; overflow-y: auto; padding-right: 6px;">
+        <div id="olympiad-add-error" style="display:none; color:#c0392b; font-size:12px; background:#fdecea; border:1px solid #f5c6c0; border-radius:6px; padding:8px 10px;"></div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;" id="lbl-oa-firstName">First Name</label>
+            <input type="text" id="oa-firstName" class="search-input" style="width:100%; height:38px;" required />
+          </div>
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;" id="lbl-oa-lastName">Last Name</label>
+            <input type="text" id="oa-lastName" class="search-input" style="width:100%; height:38px;" required />
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;" id="lbl-oa-phone">Phone</label>
+            <input type="text" id="oa-phone" class="search-input" style="width:100%; height:38px;" placeholder="+996" required />
+          </div>
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;" id="lbl-oa-grade">Grade</label>
+            <select id="oa-grade" class="search-input" style="width:100%; height:38px;" required>
+              <option value="7">7</option>
+              <option value="8">8</option>
+              <option value="9" selected>9</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:4px;">
+          <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;" id="lbl-oa-school">School</label>
+          <input type="text" id="oa-school" class="search-input" style="width:100%; height:38px;" required />
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;" id="lbl-oa-region">Region</label>
+            <select id="oa-region" class="search-input" style="width:100%; height:38px;" required></select>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;" id="lbl-oa-classType">Class Language</label>
+            <select id="oa-classType" class="search-input" style="width:100%; height:38px;" required></select>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;" id="lbl-oa-parentName">Parent Name</label>
+            <input type="text" id="oa-parentName" class="search-input" style="width:100%; height:38px;" required />
+          </div>
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;" id="lbl-oa-parentPhone">Parent Phone</label>
+            <input type="text" id="oa-parentPhone" class="search-input" style="width:100%; height:38px;" placeholder="+996" required />
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;" id="lbl-oa-teacherName">Teacher Name (optional)</label>
+            <input type="text" id="oa-teacherName" class="search-input" style="width:100%; height:38px;" />
+          </div>
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;" id="lbl-oa-teacherPhone">Teacher Phone (optional)</label>
+            <input type="text" id="oa-teacherPhone" class="search-input" style="width:100%; height:38px;" placeholder="+996" />
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:4px; border-top:1px solid #f0f3f9; padding-top:14px; display:flex; gap:10px; justify-content:flex-end;">
+        <button type="button" class="od-btn-secondary" onclick="closeOlympiadAddModal()" id="btn-oa-cancel">Cancel</button>
+        <button type="submit" class="od-btn-secondary" style="background:#1565c0; color:#fff; border-color:#1565c0;" id="btn-oa-submit">Save &amp; Generate Ticket</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Ticket Scan Result Modal -->
+<div class="modal-overlay hidden" id="scan-result-modal-overlay" onclick="handleScanResultOverlayClick(event)">
+  <div class="open-door-detail-card" role="dialog" aria-modal="true" aria-labelledby="scan-modal-title" onclick="event.stopPropagation()">
+    <div class="od-modal-hero" id="scan-modal-hero">
+      <button type="button" class="od-modal-close" onclick="closeScanResultModal()" title="Close">✕</button>
+      <div class="od-modal-title" id="scan-modal-title">Ticket</div>
+      <div class="od-modal-sub" id="scan-modal-sub"></div>
+    </div>
+    <div class="od-detail-body" id="scan-modal-body"></div>
+    <div class="od-modal-footer">
+      <button type="button" class="od-btn-secondary" id="btn-scan-rescan" onclick="rescanTicket()">Scan next</button>
+      <button type="button" class="od-btn-secondary" id="btn-scan-close" onclick="closeScanResultModal()">Close</button>
     </div>
   </div>
 </div>
@@ -1293,6 +1429,7 @@
       "nav.quizzes":        "Exams",
       "nav.paidExam":       "Entrance Exam Payments",
       "nav.olympiad":       "Math Olympiad",
+      "nav.scanner":        "Ticket Scanner",
       "paidExam.col.status":     "Payment",
       "paidExam.col.amount":     "Amount",
       "paidExam.col.exam":       "Exam",
@@ -1403,6 +1540,40 @@
       "subject.title":      "Filter by subject",
       "topbar.date.locale": "en-US",
       "accessDenied":       "Access Denied: Staff members cannot delete records.",
+      "scanner.section.title": "Ticket Scanner",
+      "scanner.idle":       "Start the scanner to check a student's ticket.",
+      "scanner.start":      "Start Scanner",
+      "scanner.stop":       "Stop Scanner",
+      "scanner.verified":   "Registration found",
+      "scanner.rescan":     "Scan next",
+      "scanner.notFound.title": "Ticket not recognized",
+      "scanner.notFound.desc":  "This QR code doesn't match any Math Olympiad registration.",
+      "scanner.camera.unsupported": "Camera not supported in this browser.",
+      "scanner.camera.denied":      "Camera access denied. Allow camera permission and try again.",
+      "field.firstName":    "First Name",
+      "field.lastName":     "Last Name",
+      "field.phone":        "Phone",
+      "field.grade":        "Grade",
+      "field.school":       "School",
+      "field.region":       "Region",
+      "field.classType":    "Class Language",
+      "field.parentName":   "Parent Name",
+      "field.parentPhone":  "Parent Phone",
+      "field.teacherNameOpt":  "Teacher Name (optional)",
+      "field.teacherPhoneOpt": "Teacher Phone (optional)",
+      "classType.russian":  "Russian",
+      "classType.kyrgyz":   "Kyrgyz",
+      "classType.english":  "English",
+      "olympiad.add.btn":   "+ Add Registration",
+      "olympiad.add.title": "Add Registration",
+      "olympiad.add.sub":   "Register a walk-in student manually",
+      "olympiad.add.save":  "Save & Generate Ticket",
+      "olympiad.add.cancel": "Cancel",
+      "olympiad.add.error.required": "Please fill in all required fields.",
+      "olympiad.add.error.save": "Could not save the registration. Please try again.",
+      "olympiad.qr.btn":    "QR",
+      "olympiad.qr.title":  "Entrance Ticket",
+      "olympiad.qr.download": "Download PNG",
     },
     ru: {
       "topbar.title":       "Абитуриенты",
@@ -1422,6 +1593,7 @@
       "nav.quizzes":        "Экзамены",
       "nav.paidExam":       "Оплата вступительных",
       "nav.olympiad":       "Олимпиада по математике",
+      "nav.scanner":        "Сканер билетов",
       "paidExam.col.status":     "Оплата",
       "paidExam.col.amount":     "Сумма",
       "paidExam.col.exam":       "Экзамен",
@@ -1532,6 +1704,40 @@
       "subject.title":      "Фильтр по предмету",
       "topbar.date.locale": "ru-RU",
       "accessDenied":       "Доступ запрещен: Сотрудники не могут удалять записи.",
+      "scanner.section.title": "Сканер билетов",
+      "scanner.idle":       "Запустите сканер, чтобы проверить билет ученика.",
+      "scanner.start":      "Запустить сканер",
+      "scanner.stop":       "Остановить сканер",
+      "scanner.verified":   "Регистрация найдена",
+      "scanner.rescan":     "Сканировать следующий",
+      "scanner.notFound.title": "Билет не распознан",
+      "scanner.notFound.desc":  "Этот QR-код не соответствует ни одной регистрации на олимпиаду.",
+      "scanner.camera.unsupported": "Браузер не поддерживает камеру.",
+      "scanner.camera.denied":      "Нет доступа к камере. Разрешите доступ и попробуйте снова.",
+      "field.firstName":    "Имя",
+      "field.lastName":     "Фамилия",
+      "field.phone":        "Телефон",
+      "field.grade":        "Класс",
+      "field.school":       "Школа",
+      "field.region":       "Регион",
+      "field.classType":    "Язык обучения",
+      "field.parentName":   "ФИО родителя",
+      "field.parentPhone":  "Телефон родителя",
+      "field.teacherNameOpt":  "ФИО учителя (необязательно)",
+      "field.teacherPhoneOpt": "Телефон учителя (необязательно)",
+      "classType.russian":  "Русский",
+      "classType.kyrgyz":   "Кыргызский",
+      "classType.english":  "Английский",
+      "olympiad.add.btn":   "+ Добавить регистрацию",
+      "olympiad.add.title": "Добавить регистрацию",
+      "olympiad.add.sub":   "Зарегистрировать ученика вручную",
+      "olympiad.add.save":  "Сохранить и создать билет",
+      "olympiad.add.cancel": "Отмена",
+      "olympiad.add.error.required": "Пожалуйста, заполните все обязательные поля.",
+      "olympiad.add.error.save": "Не удалось сохранить регистрацию. Попробуйте снова.",
+      "olympiad.qr.btn":    "QR",
+      "olympiad.qr.title":  "Входной билет",
+      "olympiad.qr.download": "Скачать PNG",
     },
   };
 
@@ -1557,6 +1763,8 @@
       title = tAdmin("nav.paidExam");
     } else if (activeAdminTab === "olympiad") {
       title = tAdmin("nav.olympiad");
+    } else if (activeAdminTab === "scanner") {
+      title = tAdmin("nav.scanner");
     }
     document.getElementById("topbar-title").textContent = title;
   }
@@ -1568,11 +1776,14 @@
     document.getElementById("nav-tab-quizzes").classList.toggle("active", tab === "quizzes");
     document.getElementById("nav-tab-paid-exam").classList.toggle("active", tab === "paidExam");
     document.getElementById("nav-tab-olympiad").classList.toggle("active", tab === "olympiad");
+    document.getElementById("nav-tab-scanner").classList.toggle("active", tab === "scanner");
     document.getElementById("panel-applicants").classList.toggle("visible", tab === "applicants");
     document.getElementById("panel-open-doors").classList.toggle("visible", tab === "openDoors");
     document.getElementById("panel-quizzes").classList.toggle("visible", tab === "quizzes");
     document.getElementById("panel-paid-exam").classList.toggle("visible", tab === "paidExam");
     document.getElementById("panel-olympiad").classList.toggle("visible", tab === "olympiad");
+    document.getElementById("panel-scanner").classList.toggle("visible", tab === "scanner");
+    if (tab !== "scanner") stopTicketScanner();
     if (tab === "quizzes") {
       activeQuizSubView = "exams";
       selectedExamId = null;
@@ -1581,6 +1792,8 @@
     closeModal();
     closeOpenDoorModal();
     closeEventModal();
+    closeOlympiadAddModal();
+    closeScanResultModal();
   }
 
   function setAdminLang(lang) {
@@ -1615,7 +1828,16 @@
     if (lblNavEvents) lblNavEvents.textContent = tAdmin("nav.events");
     document.getElementById("lbl-nav-paid-exam").textContent  = tAdmin("nav.paidExam");
     document.getElementById("lbl-nav-olympiad").textContent   = tAdmin("nav.olympiad");
+    document.getElementById("lbl-nav-scanner").textContent    = tAdmin("nav.scanner");
     document.getElementById("lbl-olympiad-export-btn").textContent = tAdmin("olympiad.export.btn");
+    document.getElementById("lbl-olympiad-add-btn").textContent = tAdmin("olympiad.add.btn");
+    document.getElementById("lbl-scanner-section-title").textContent = tAdmin("scanner.section.title");
+    document.getElementById("lbl-scanner-idle").textContent = tAdmin("scanner.idle");
+    document.getElementById("lbl-scanner-toggle").textContent = scannerActive ? tAdmin("scanner.stop") : tAdmin("scanner.start");
+    const lblScanRescan = document.getElementById("btn-scan-rescan");
+    if (lblScanRescan) lblScanRescan.textContent = tAdmin("scanner.rescan");
+    const lblScanClose = document.getElementById("btn-scan-close");
+    if (lblScanClose) lblScanClose.textContent = tAdmin("openDoor.modal.close");
     document.getElementById("lbl-olympiad-price-title").textContent = tAdmin("olympiad.price.title");
     document.getElementById("lbl-olympiad-price-label").textContent = tAdmin("olympiad.price.label");
     document.getElementById("lbl-olympiad-fee-save-btn").textContent = tAdmin("olympiad.price.save");
@@ -1931,6 +2153,9 @@
   let allQuestions = [];
   let allPaidExamRegs = [];
   let allOlympiadRegs = [];
+  let scannerActive = false;
+  const KG_REGION_CODES = ["batken", "bishkek", "chuy", "issykKul", "jalalAbad", "naryn", "oshCity", "oshRegion", "talas"];
+  const CLASS_TYPE_CODES = ["russian", "kyrgyz", "english"];
   let activeQuizFilter = "all";
   let activeQuizSubView = "exams";
   let activeExamFilter = "all";
@@ -2543,7 +2768,10 @@
           <td>${paidExamStatusBadge(r.payment_status || "paid")}</td>
           <td style="color:#526a8a">${r.amount != null ? r.amount + " " + (r.currency || "KGS") : "—"}</td>
           <td style="color:#6b7a95;font-size:12px">${formatDate(r.registered_at)}</td>
-          <td><button type="button" class="delete-btn" style="opacity:1" data-oly-delete-id="${idEnc}" title="Delete">✕</button></td>
+          <td style="white-space:nowrap;">
+            <button type="button" class="od-btn-secondary" style="padding:6px 10px;font-size:12px;margin-right:6px;" data-oly-qr-id="${idEnc}" title="${tAdmin("olympiad.qr.btn")}">📱 ${tAdmin("olympiad.qr.btn")}</button>
+            <button type="button" class="delete-btn" style="opacity:1" data-oly-delete-id="${idEnc}" title="Delete">✕</button>
+          </td>
         </tr>`;
     }).join("");
 
@@ -2570,6 +2798,12 @@
     if (wrap && wrap.dataset.olyDelegated !== "1") {
       wrap.dataset.olyDelegated = "1";
       wrap.addEventListener("click", (ev) => {
+        const qrBtn = ev.target.closest("button[data-oly-qr-id]");
+        if (qrBtn) {
+          ev.preventDefault();
+          showOlympiadTicketQr(qrBtn.getAttribute("data-oly-qr-id"));
+          return;
+        }
         const delBtn = ev.target.closest("button[data-oly-delete-id]");
         if (!delBtn) return;
         ev.preventDefault();
@@ -2617,6 +2851,163 @@
     XLSX.utils.book_append_sheet(book, sheet, "Olympiad");
     const stamp = new Date().toISOString().slice(0, 10);
     XLSX.writeFile(book, `olympiad_registrations_${stamp}.xlsx`);
+  }
+
+  // ── Olympiad: manual add ────────────────────────────────────────────────────
+  function generateManualOlympiadId() {
+    return `oly_manual_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+  }
+
+  function openOlympiadAddModal() {
+    document.getElementById("olympiad-add-modal-title").textContent = tAdmin("olympiad.add.title");
+    document.getElementById("olympiad-add-modal-sub").textContent = tAdmin("olympiad.add.sub");
+    document.getElementById("lbl-oa-firstName").textContent = tAdmin("field.firstName");
+    document.getElementById("lbl-oa-lastName").textContent = tAdmin("field.lastName");
+    document.getElementById("lbl-oa-phone").textContent = tAdmin("field.phone");
+    document.getElementById("lbl-oa-grade").textContent = tAdmin("field.grade");
+    document.getElementById("lbl-oa-school").textContent = tAdmin("field.school");
+    document.getElementById("lbl-oa-region").textContent = tAdmin("field.region");
+    document.getElementById("lbl-oa-classType").textContent = tAdmin("field.classType");
+    document.getElementById("lbl-oa-parentName").textContent = tAdmin("field.parentName");
+    document.getElementById("lbl-oa-parentPhone").textContent = tAdmin("field.parentPhone");
+    document.getElementById("lbl-oa-teacherName").textContent = tAdmin("field.teacherNameOpt");
+    document.getElementById("lbl-oa-teacherPhone").textContent = tAdmin("field.teacherPhoneOpt");
+    document.getElementById("btn-oa-cancel").textContent = tAdmin("olympiad.add.cancel");
+    document.getElementById("btn-oa-submit").textContent = tAdmin("olympiad.add.save");
+
+    const regionSelect = document.getElementById("oa-region");
+    regionSelect.innerHTML = KG_REGION_CODES.map((code) =>
+      `<option value="${code}">${tAdmin("region." + code)}</option>`
+    ).join("");
+
+    const classTypeSelect = document.getElementById("oa-classType");
+    classTypeSelect.innerHTML = CLASS_TYPE_CODES.map((code) =>
+      `<option value="${code}">${tAdmin("classType." + code)}</option>`
+    ).join("");
+
+    document.getElementById("olympiad-add-form").reset();
+    document.getElementById("oa-phone").value = "+996";
+    document.getElementById("oa-parentPhone").value = "+996";
+    document.getElementById("oa-teacherPhone").value = "+996";
+    const errEl = document.getElementById("olympiad-add-error");
+    errEl.style.display = "none";
+    errEl.textContent = "";
+
+    document.getElementById("olympiad-add-modal-overlay").classList.remove("hidden");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeOlympiadAddModal() {
+    const overlay = document.getElementById("olympiad-add-modal-overlay");
+    if (!overlay) return;
+    overlay.classList.add("hidden");
+    const otherOpen = !document.getElementById("modal-overlay").classList.contains("hidden") ||
+                      !document.getElementById("open-door-modal-overlay").classList.contains("hidden") ||
+                      !document.getElementById("event-modal-overlay").classList.contains("hidden") ||
+                      !document.getElementById("qr-modal-overlay").classList.contains("hidden");
+    if (!otherOpen) document.body.style.overflow = "";
+  }
+
+  function handleOlympiadAddOverlayClick(e) {
+    if (e.target.id === "olympiad-add-modal-overlay") closeOlympiadAddModal();
+  }
+
+  async function saveOlympiadManualRegistration(e) {
+    e.preventDefault();
+    const errEl = document.getElementById("olympiad-add-error");
+    errEl.style.display = "none";
+
+    const val = (id) => document.getElementById(id).value.trim();
+    const firstName = val("oa-firstName");
+    const lastName = val("oa-lastName");
+    const phone = val("oa-phone");
+    const grade = val("oa-grade");
+    const school = val("oa-school");
+    const region = val("oa-region");
+    const classType = val("oa-classType");
+    const parentName = val("oa-parentName");
+    const parentPhone = val("oa-parentPhone");
+    const teacherName = val("oa-teacherName");
+    const teacherPhone = val("oa-teacherPhone");
+
+    if (!firstName || !lastName || !phone || !grade || !school || !region || !classType || !parentName || !parentPhone) {
+      errEl.textContent = tAdmin("olympiad.add.error.required");
+      errEl.style.display = "block";
+      return;
+    }
+
+    const row = {
+      id: generateManualOlympiadId(),
+      first_name: firstName,
+      last_name: lastName,
+      phone,
+      grade,
+      school,
+      region,
+      class_type: classType,
+      parent_name: parentName,
+      parent_phone: parentPhone,
+      teacher_name: teacherName || null,
+      teacher_phone: teacherPhone || null,
+      lang: adminLang,
+      registered_at: new Date().toISOString(),
+    };
+
+    const submitBtn = document.getElementById("btn-oa-submit");
+    submitBtn.disabled = true;
+    try {
+      const sb = await getSB();
+      const { error } = await sb.from("olympiad_registrations").insert(row);
+      if (error) {
+        errEl.textContent = tAdmin("olympiad.add.error.save");
+        errEl.style.display = "block";
+        submitBtn.disabled = false;
+        return;
+      }
+    } catch (err) {
+      errEl.textContent = tAdmin("olympiad.add.error.save");
+      errEl.style.display = "block";
+      submitBtn.disabled = false;
+      return;
+    }
+    submitBtn.disabled = false;
+
+    allOlympiadRegs = [row, ...allOlympiadRegs];
+    renderAll();
+    closeOlympiadAddModal();
+    showOlympiadTicketQr(encodeURIComponent(row.id));
+  }
+
+  // ── Olympiad: ticket QR (view/download) ─────────────────────────────────────
+  let currentQrDownloadName = "";
+
+  function showOlympiadTicketQr(encodedId) {
+    const id = decodeURIComponent(encodedId);
+    const r = allOlympiadRegs.find((x) => String(x.id) === id);
+    if (!r) return;
+
+    const fullName = `${r.first_name} ${r.last_name}`.trim();
+    const payload = ["EC Olympiad Ticket", `ID: ${r.id}`, `Name: ${fullName}`, `Phone: ${r.phone || ""}`].join("\n");
+
+    document.getElementById("qr-modal-title").textContent = tAdmin("olympiad.qr.title");
+    document.getElementById("qr-modal-sub").textContent = fullName;
+    document.getElementById("qr-url-text").textContent = r.id;
+    document.getElementById("btn-qr-download").textContent = tAdmin("olympiad.qr.download");
+    currentQrDownloadName = `olympiad-ticket-${r.id}.png`;
+
+    const qrContainer = document.getElementById("qr-code-container");
+    qrContainer.innerHTML = "";
+    qrGenerator = new QRCode(qrContainer, {
+      text: payload,
+      width: 220,
+      height: 220,
+      colorDark: "#0b1f3a",
+      colorLight: "#ffffff",
+      correctLevel: QRCode.CorrectLevel.H,
+    });
+
+    document.getElementById("qr-modal-overlay").classList.remove("hidden");
+    document.body.style.overflow = "hidden";
   }
 
   async function loadOlympiadFee() {
@@ -4381,7 +4772,8 @@
   function showEventQr(encodedId) {
     const id = decodeURIComponent(encodedId);
     currentQrEventId = id;
-    
+    currentQrDownloadName = `event_${id}_qr.png`;
+
     // Determine target registration URL
     const origin = window.location.origin;
     const targetUrl = `${origin}/open_doors?event=${encodeURIComponent(id)}`;
@@ -4415,6 +4807,7 @@
 
   function showProjectFestQr() {
     currentQrEventId = "project-fest";
+    currentQrDownloadName = "event_project-fest_qr.png";
     const origin = window.location.origin;
     const targetUrl = `${origin}/open_doors`;
 
@@ -4519,9 +4912,151 @@
     const img = document.querySelector("#qr-code-container img");
     if (!img || !img.src) return;
     const link = document.createElement("a");
-    link.download = `event_${currentQrEventId}_qr.png`;
+    link.download = currentQrDownloadName || `event_${currentQrEventId}_qr.png`;
     link.href = img.src;
     link.click();
+  }
+
+  // ── Ticket scanner ──────────────────────────────────────────────────────────
+  let scannerStream = null;
+  let scannerRAF = null;
+  let scannerCanvas = null;
+  let scannerCtx = null;
+  let scannerPaused = false;
+
+  async function toggleTicketScanner() {
+    if (scannerActive) {
+      stopTicketScanner();
+    } else {
+      await startTicketScanner();
+    }
+  }
+
+  async function startTicketScanner() {
+    const errEl = document.getElementById("scanner-error");
+    errEl.style.display = "none";
+    if (typeof jsQR === "undefined") {
+      errEl.textContent = tAdmin("scanner.camera.unsupported");
+      errEl.style.display = "block";
+      return;
+    }
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      errEl.textContent = tAdmin("scanner.camera.unsupported");
+      errEl.style.display = "block";
+      return;
+    }
+    try {
+      scannerStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+    } catch (e) {
+      errEl.textContent = tAdmin("scanner.camera.denied");
+      errEl.style.display = "block";
+      return;
+    }
+    const video = document.getElementById("scanner-video");
+    video.srcObject = scannerStream;
+    try { await video.play(); } catch (e) {}
+    document.getElementById("scanner-video-wrap").style.display = "block";
+    document.getElementById("scanner-idle-state").style.display = "none";
+    scannerActive = true;
+    scannerPaused = false;
+    document.getElementById("lbl-scanner-toggle").textContent = tAdmin("scanner.stop");
+    if (!scannerCanvas) {
+      scannerCanvas = document.createElement("canvas");
+      scannerCtx = scannerCanvas.getContext("2d", { willReadFrequently: true });
+    }
+    scannerTick();
+  }
+
+  function scannerTick() {
+    if (!scannerActive) return;
+    const video = document.getElementById("scanner-video");
+    if (!scannerPaused && video && video.readyState === video.HAVE_ENOUGH_DATA) {
+      scannerCanvas.width = video.videoWidth;
+      scannerCanvas.height = video.videoHeight;
+      scannerCtx.drawImage(video, 0, 0, scannerCanvas.width, scannerCanvas.height);
+      const imageData = scannerCtx.getImageData(0, 0, scannerCanvas.width, scannerCanvas.height);
+      const code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: "dontInvert" });
+      if (code && code.data) {
+        handleScannedTicket(code.data);
+      }
+    }
+    scannerRAF = requestAnimationFrame(scannerTick);
+  }
+
+  function stopTicketScanner() {
+    scannerActive = false;
+    scannerPaused = false;
+    if (scannerRAF) cancelAnimationFrame(scannerRAF);
+    scannerRAF = null;
+    if (scannerStream) {
+      scannerStream.getTracks().forEach((t) => t.stop());
+      scannerStream = null;
+    }
+    const video = document.getElementById("scanner-video");
+    if (video) video.srcObject = null;
+    const wrap = document.getElementById("scanner-video-wrap");
+    if (wrap) wrap.style.display = "none";
+    const idle = document.getElementById("scanner-idle-state");
+    if (idle) idle.style.display = "block";
+    const toggleLbl = document.getElementById("lbl-scanner-toggle");
+    if (toggleLbl) toggleLbl.textContent = tAdmin("scanner.start");
+  }
+
+  function handleScannedTicket(text) {
+    scannerPaused = true;
+    const m = text.match(/ID:\s*(\S+)/i);
+    const ticketId = m ? m[1] : text.trim();
+    showScanResult(ticketId);
+  }
+
+  function showScanResult(ticketId) {
+    const r = allOlympiadRegs.find((x) => String(x.id) === String(ticketId));
+    const body = document.getElementById("scan-modal-body");
+    const hero = document.getElementById("scan-modal-hero");
+    if (!r) {
+      hero.style.background = "linear-gradient(135deg, #c0392b 0%, #922b21 100%)";
+      document.getElementById("scan-modal-title").textContent = tAdmin("scanner.notFound.title");
+      document.getElementById("scan-modal-sub").textContent = ticketId;
+      body.innerHTML = `<div style="padding:4px 0;color:#6b7a95;">${tAdmin("scanner.notFound.desc")}</div>`;
+    } else {
+      hero.style.background = "";
+      document.getElementById("scan-modal-title").textContent = `${r.first_name} ${r.last_name}`;
+      document.getElementById("scan-modal-sub").textContent = tAdmin("scanner.verified");
+      const field = (label, value) => `
+        <div class="od-field">
+          <div class="od-field-label">${label}</div>
+          <div class="od-field-value">${value != null && value !== "" ? value : "—"}</div>
+        </div>`;
+      body.innerHTML = [
+        field(tAdmin("col.phone"), r.phone),
+        field(tAdmin("col.grade"), r.grade),
+        field(tAdmin("olympiad.col.school"), r.school),
+        field(tAdmin("olympiad.col.region"), r.region ? tAdmin("region." + r.region) : ""),
+        field(tAdmin("field.classType"), r.class_type ? tAdmin("classType." + r.class_type) : ""),
+        field(tAdmin("olympiad.col.parentName"), r.parent_name ? `${r.parent_name} (${r.parent_phone || "—"})` : ""),
+        field(tAdmin("olympiad.col.teacherName"), r.teacher_name ? `${r.teacher_name} (${r.teacher_phone || "—"})` : ""),
+        field(tAdmin("paidExam.col.status"), tAdmin("paidExam.status." + (r.payment_status || "paid"))),
+        field(tAdmin("col.date"), formatDate(r.registered_at)),
+      ].join("");
+    }
+    document.getElementById("scan-result-modal-overlay").classList.remove("hidden");
+    document.body.style.overflow = "hidden";
+  }
+
+  function rescanTicket() {
+    closeScanResultModal();
+    scannerPaused = false;
+  }
+
+  function closeScanResultModal() {
+    const overlay = document.getElementById("scan-result-modal-overlay");
+    if (!overlay) return;
+    overlay.classList.add("hidden");
+    if (!scannerActive) document.body.style.overflow = "";
+  }
+
+  function handleScanResultOverlayClick(e) {
+    if (e.target.id === "scan-result-modal-overlay") closeScanResultModal();
   }
 
   window.openOpenDoorModal = openOpenDoorModal;
@@ -4546,6 +5081,15 @@
   window.showEventRegistrations = showEventRegistrations;
   window.closeEventRegsModal = closeEventRegsModal;
   window.handleEventRegsOverlayClick = handleEventRegsOverlayClick;
+  window.openOlympiadAddModal = openOlympiadAddModal;
+  window.closeOlympiadAddModal = closeOlympiadAddModal;
+  window.handleOlympiadAddOverlayClick = handleOlympiadAddOverlayClick;
+  window.saveOlympiadManualRegistration = saveOlympiadManualRegistration;
+  window.showOlympiadTicketQr = showOlympiadTicketQr;
+  window.toggleTicketScanner = toggleTicketScanner;
+  window.rescanTicket = rescanTicket;
+  window.closeScanResultModal = closeScanResultModal;
+  window.handleScanResultOverlayClick = handleScanResultOverlayClick;
 
   // Quiz & Exam callbacks
   window.openExamModal = openExamModal;
