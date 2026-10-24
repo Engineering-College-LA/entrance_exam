@@ -65,6 +65,7 @@ function rowToStudent(row: PaymentRow): Record<string, string> {
 
 function olympiadRowToStudent(row: PaymentRow): Record<string, string> {
   return {
+    id: row.id,
     firstName: row.first_name,
     lastName: row.last_name,
     phone: row.phone,

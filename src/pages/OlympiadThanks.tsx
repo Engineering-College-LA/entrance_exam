@@ -4,6 +4,7 @@ import { Styles } from '../styles'
 import { useLang } from '../context/LangContext'
 import { SuccessOverlay } from '../components/SuccessOverlay'
 import { Countdown } from '../components/Countdown'
+import { TicketQr } from '../components/TicketQr'
 import { getSetting } from '../lib/settings'
 
 function initials(firstName: string, lastName: string) {
@@ -208,6 +209,12 @@ export function OlympiadThanks({
           <div style={{ borderTop: `1px solid ${COLORS.border}`, paddingTop: 20, marginTop: 20 }}>
             <Countdown targetDate={countdownAt} />
           </div>
+
+          {student.id && (
+            <div style={{ borderTop: `1px solid ${COLORS.border}`, paddingTop: 20, marginTop: 20 }}>
+              <TicketQr ticketId={student.id} fullName={fullName} phone={student.phone ?? ''} />
+            </div>
+          )}
 
           <div style={{ borderTop: `1px solid ${COLORS.border}`, paddingTop: 20, marginTop: 20 }}>
             <div
