@@ -415,7 +415,6 @@ function AppInner() {
         student={nav.student}
         onLogout={handleLogout}
         accountPhone={accountPhone}
-        onLoginClick={() => setLoginModalOpen(true)}
         onAccountLogout={handleAccountLogout}
         onProfileClick={() => nav.go('profile')}
       />
