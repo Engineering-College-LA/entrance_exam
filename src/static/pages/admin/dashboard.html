@@ -332,12 +332,20 @@
     [id$="table-container"] { overflow-x: auto; -webkit-overflow-scrolling: touch; }
     [id$="table-container"] table { min-width: 560px; }
 
+    /* ── Mobile nav toggle / overlay (hidden on desktop) ── */
+    .mobile-nav-toggle { display: none; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 6px; border: 1px solid #dde3ed; background: #ffffff; color: #0b1f3a; cursor: pointer; flex-shrink: 0; }
+    .mobile-nav-toggle:hover { background: #f0f3f9; }
+    .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(11,31,58,.45); z-index: 149; }
+    .sidebar-overlay.open { display: block; }
+
     /* ── Responsive ── */
     @media (max-width: 768px) {
-      .sidebar { width: 60px; }
-      .sidebar-brand-text,.sidebar-brand-sub,.nav-item span,.nav-section-label,.logout-btn span,.sidebar-lang { display: none; }
-      .main { margin-left: 60px; }
-      .topbar { padding: 0 14px; }
+      .sidebar { width: 240px; transform: translateX(-100%); transition: transform .25s ease; z-index: 150; box-shadow: 2px 0 16px rgba(0,0,0,.2); }
+      .sidebar.mobile-open { transform: translateX(0); }
+      .main { margin-left: 0; }
+      .mobile-nav-toggle { display: flex; }
+      .topbar { padding: 0 14px; gap: 10px; }
+      .topbar-title { flex: 1; }
       .topbar-date { display: none; }
       .content { padding: 14px; }
       .stats-row { grid-template-columns: repeat(2,1fr); gap: 10px; }
@@ -365,8 +373,11 @@
 </head>
 <body>
 
+<!-- Mobile sidebar overlay -->
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeMobileNav()"></div>
+
 <!-- Sidebar -->
-<aside class="sidebar">
+<aside class="sidebar" id="sidebar">
   <div class="sidebar-brand">
     <img src="../../assets/app_logo.png" alt="E|C" onerror="this.style.display='none'" />
     <div>
@@ -417,6 +428,9 @@
 <!-- Main -->
 <div class="main">
   <div class="topbar">
+    <button type="button" class="mobile-nav-toggle" id="mobile-nav-toggle" onclick="toggleMobileNav()" aria-label="Menu">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3 6h18v2H3V6zm0 5h18v2H3v-2zm0 5h18v2H3v-2z"/></svg>
+    </button>
     <div class="topbar-title" id="topbar-title">Applicants</div>
     <div class="topbar-right">
       <span class="topbar-date" id="topbar-date"></span>
@@ -1791,8 +1805,19 @@
     document.getElementById("topbar-title").textContent = title;
   }
 
+  function toggleMobileNav() {
+    document.getElementById("sidebar").classList.toggle("mobile-open");
+    document.getElementById("sidebar-overlay").classList.toggle("open");
+  }
+
+  function closeMobileNav() {
+    document.getElementById("sidebar").classList.remove("mobile-open");
+    document.getElementById("sidebar-overlay").classList.remove("open");
+  }
+
   function setAdminTab(tab) {
     activeAdminTab = tab;
+    closeMobileNav();
     document.getElementById("nav-tab-applicants").classList.toggle("active", tab === "applicants");
     document.getElementById("nav-tab-open-doors").classList.toggle("active", tab === "openDoors");
     document.getElementById("nav-tab-quizzes").classList.toggle("active", tab === "quizzes");
