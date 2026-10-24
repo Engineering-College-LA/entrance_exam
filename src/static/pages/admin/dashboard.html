@@ -328,16 +328,38 @@
     .date-option-count { font-size: 11px; font-weight: 600; background: #f0f3f9; border-radius: 10px; padding: 2px 8px; color: #6b7a95; flex-shrink: 0; }
     .date-option.selected .date-option-count { background: #c8deff; color: #1045a0; }
 
+    /* Horizontal scroll for data tables so they never blow out the layout on narrow screens */
+    [id$="table-container"] { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    [id$="table-container"] table { min-width: 560px; }
+
     /* ── Responsive ── */
     @media (max-width: 768px) {
       .sidebar { width: 60px; }
       .sidebar-brand-text,.sidebar-brand-sub,.nav-item span,.nav-section-label,.logout-btn span,.sidebar-lang { display: none; }
       .main { margin-left: 60px; }
-      .stats-row { grid-template-columns: repeat(2,1fr); }
+      .topbar { padding: 0 14px; }
+      .topbar-date { display: none; }
+      .content { padding: 14px; }
+      .stats-row { grid-template-columns: repeat(2,1fr); gap: 10px; }
       .search-input { width: 140px; }
       .rpt-stats { grid-template-columns: repeat(2,1fr); }
       .rpt-hero { padding: 12px 14px 10px; border-radius: 8px; }
       .rpt-strip { padding: 5px 14px; border-radius: 6px; }
+
+      /* Section header control rows: force wrap even on rows styled inline with no wrap */
+      .section-header { flex-direction: column; align-items: stretch; }
+      .section-header > div { flex-wrap: wrap !important; width: 100%; }
+      .search-input { flex: 1 1 140px; width: auto; }
+
+      .modal-overlay { padding: 16px 10px 40px; }
+    }
+
+    @media (max-width: 480px) {
+      .stats-row { grid-template-columns: 1fr 1fr; gap: 8px; }
+      .stat-card { padding: 14px; }
+      .stat-card-val { font-size: 22px; }
+      .od-detail-body { padding: 16px; }
+      .od-modal-footer { padding: 12px 16px 16px; }
     }
   </style>
 </head>

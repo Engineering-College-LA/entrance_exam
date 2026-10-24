@@ -244,13 +244,21 @@ export function PaymentResult({
         </div>
       )}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-        <div>
+        <div style={{ minWidth: 0 }}>
           {fieldLabel(t('payment.result.orderId'))}
-          <div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text, fontFamily: 'monospace' }}>
+          <div
+            style={{
+              fontSize: 13,
+              fontWeight: 600,
+              color: COLORS.text,
+              fontFamily: 'monospace',
+              wordBreak: 'break-all',
+            }}
+          >
             {paymentId || '—'}
           </div>
         </div>
-        <div>
+        <div style={{ minWidth: 0 }}>
           {fieldLabel(t('payment.result.amount'))}
           <div style={{ fontSize: 13, fontWeight: 600, color: COLORS.text }}>
             {row?.amount != null ? `${row.amount} ${row.currency ?? 'KGS'}` : '—'}

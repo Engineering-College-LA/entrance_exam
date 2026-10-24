@@ -19,7 +19,6 @@ export function Header({
   student,
   onLogout,
   accountPhone,
-  onLoginClick,
   onAccountLogout,
   onProfileClick,
 }: {
@@ -27,7 +26,6 @@ export function Header({
   student?: Record<string, string> | null
   onLogout?: () => void
   accountPhone?: string | null
-  onLoginClick?: () => void
   onAccountLogout?: () => void
   onProfileClick?: () => void
 }) {
@@ -91,7 +89,7 @@ export function Header({
           </span>
         )}
       </a>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
         {page === 'landing' ? (
           <a
             href="https://college.edu.kg/"
@@ -106,9 +104,13 @@ export function Header({
               alignItems: 'center',
               gap: 4,
               transition: 'all 0.25s ease',
+              minWidth: 0,
+              overflow: 'hidden',
             }}
           >
-            <span>{t(PAGES[page]?.labelKey)}</span>
+            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {t(PAGES[page]?.labelKey)}
+            </span>
             <span className="site-arrow" style={{
               display: 'inline-block',
               transition: 'transform 0.25s ease, opacity 0.25s ease, width 0.25s ease',
@@ -116,13 +118,26 @@ export function Header({
               transform: 'translate(-4px, 4px)',
               fontSize: 10,
               width: 0,
-              overflow: 'hidden'
+              overflow: 'hidden',
+              flexShrink: 0,
             }}>
               ↗
             </span>
           </a>
         ) : (
-          <span style={Styles.badge}>{t(PAGES[page]?.labelKey)}</span>
+          <span
+            style={{
+              ...Styles.badge,
+              minWidth: 0,
+              maxWidth: isMobile ? 130 : undefined,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              display: 'inline-block',
+            }}
+          >
+            {t(PAGES[page]?.labelKey)}
+          </span>
         )}
 
         {/* Language Switcher */}
@@ -246,8 +261,8 @@ export function Header({
           </div>
         )}
 
-        {/* Account login/logout */}
-        {accountPhone ? (
+        {/* Account logout (shown only once logged in — no login button in the appbar) */}
+        {accountPhone && (
           <button
             type="button"
             onClick={onAccountLogout}
@@ -270,24 +285,6 @@ export function Header({
           >
             <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--c-success)' }} />
             {accountPhone}
-          </button>
-        ) : (
-          <button
-            type="button"
-            onClick={onLoginClick}
-            style={{
-              height: 32,
-              padding: '0 14px',
-              borderRadius: 16,
-              background: COLORS.blue,
-              border: 'none',
-              color: 'var(--c-white)',
-              fontSize: 12,
-              fontWeight: 700,
-              cursor: 'pointer',
-            }}
-          >
-            {lang === 'ru' ? 'Войти' : lang === 'ky' ? 'Кирүү' : 'Log in'}
           </button>
         )}
 
