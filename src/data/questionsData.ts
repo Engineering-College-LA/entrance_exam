@@ -291,7 +291,7 @@ export const KG_REGIONS = [
   "talas",
 ];
 
-export const CLASS_TYPES = ["russian", "kyrgyz"];
+export const CLASS_TYPES = ["russian", "kyrgyz", "english"];
 
 export const OLYMPIAD_EXTRA_FIELDS = [
   { key: "school", labelKey: "field.school", required: true, placeholderKey: "field.school.ph", type: "text" },

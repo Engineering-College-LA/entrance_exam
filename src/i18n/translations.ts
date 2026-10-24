@@ -189,6 +189,7 @@ export const TRANSLATIONS = {
     "field.classType": "Class Language",
     "field.classType.russian": "Russian",
     "field.classType.kyrgyz": "Kyrgyz",
+    "field.classType.english": "English",
     "error.classType": "Please select a class language",
     "field.teacherName": "Teacher's Full Name",
     "field.teacherName.ph": "Aigerim Sadykova",
@@ -390,6 +391,13 @@ export const TRANSLATIONS = {
     "moReg.confirm.body": "Your registration for the Math Olympiad has been received. Save your registration ID below.",
     "moReg.confirm.id": "Registration ID",
     "moReg.confirm.restart": "Start a New Registration",
+
+    "footer.about.title": "About",
+    "footer.about.college": "College website",
+    "footer.partners.title": "Partners",
+    "footer.contacts.title": "Contacts",
+    "footer.contacts.instagram": "Instagram",
+    "footer.rights": "© {year} E|C Engineering College. All rights reserved.",
   },
 
   ru: {
@@ -583,6 +591,7 @@ export const TRANSLATIONS = {
     "field.classType": "Язык обучения",
     "field.classType.russian": "Русский",
     "field.classType.kyrgyz": "Кыргызский",
+    "field.classType.english": "Английский",
     "error.classType": "Пожалуйста, выберите язык обучения",
     "field.teacherName": "ФИО учителя",
     "field.teacherName.ph": "Айгерим Садыкова",
@@ -784,6 +793,13 @@ export const TRANSLATIONS = {
     "moReg.confirm.body": "Ваша регистрация на олимпиаду по математике принята. Сохраните номер регистрации ниже.",
     "moReg.confirm.id": "Номер регистрации",
     "moReg.confirm.restart": "Новая регистрация",
+
+    "footer.about.title": "О колледже",
+    "footer.about.college": "Сайт колледжа",
+    "footer.partners.title": "Партнёры",
+    "footer.contacts.title": "Контакты",
+    "footer.contacts.instagram": "Instagram",
+    "footer.rights": "© {year} E|C Engineering College. Все права защищены.",
   },
 
   ky: {
@@ -943,6 +959,7 @@ export const TRANSLATIONS = {
     "field.classType": "Окутуу тили",
     "field.classType.russian": "Орус",
     "field.classType.kyrgyz": "Кыргыз",
+    "field.classType.english": "Англис",
     "error.classType": "Сураныч, окутуу тилин тандаңыз",
     "field.firstName": "Атыңыз",
     "field.firstName.ph": "Айбек",
@@ -1177,5 +1194,12 @@ export const TRANSLATIONS = {
     "moReg.confirm.body": "Сиздин математика олимпиадасына каттооңуз кабыл алынды. Төмөндөгү каттоо номериңизди сактаңыз.",
     "moReg.confirm.id": "Каттоо номери",
     "moReg.confirm.restart": "Жаңы каттоо",
+
+    "footer.about.title": "Колледж жөнүндө",
+    "footer.about.college": "Колледждин сайты",
+    "footer.partners.title": "Өнөктөштөр",
+    "footer.contacts.title": "Байланыш",
+    "footer.contacts.instagram": "Instagram",
+    "footer.rights": "© {year} E|C Engineering College. Бардык укуктар корголгон.",
   },
 };

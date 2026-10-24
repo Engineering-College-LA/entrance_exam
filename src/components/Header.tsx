@@ -16,7 +16,6 @@ const LANGS: { code: 'ru' | 'ky' | 'en'; label: string; flag: string }[] = [
 
 export function Header({
   page,
-  onLogoClick,
   student,
   onLogout,
   accountPhone,
@@ -25,7 +24,6 @@ export function Header({
   onProfileClick,
 }: {
   page: PageId
-  onLogoClick: () => void
   student?: Record<string, string> | null
   onLogout?: () => void
   accountPhone?: string | null
@@ -65,16 +63,16 @@ export function Header({
         padding: isMobile ? '0 14px' : '0 28px',
       }}
     >
-      <div
+      <a
+        href="https://college.edu.kg/"
+        target="_blank"
+        rel="noreferrer"
         style={{
           display: 'flex',
           alignItems: 'flex-start',
           cursor: 'pointer',
+          textDecoration: 'none',
         }}
-        onClick={onLogoClick}
-        onKeyDown={(e) => e.key === 'Enter' && onLogoClick()}
-        role="button"
-        tabIndex={0}
       >
         <img
           src={LOGO_SRC}
@@ -92,7 +90,7 @@ export function Header({
             Engineering College
           </span>
         )}
-      </div>
+      </a>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
         {page === 'landing' ? (
           <a
