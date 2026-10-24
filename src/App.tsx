@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Footer } from './components/Footer'
 import { Header } from './components/Header'
 import { LanguagePrompt } from './components/LanguagePrompt'
 import { LoginModal } from './components/LoginModal'
@@ -411,7 +412,6 @@ function AppInner() {
       <LanguagePrompt />
       <Header
         page={nav.page}
-        onLogoClick={() => nav.go('landing')}
         student={nav.student}
         onLogout={handleLogout}
         accountPhone={accountPhone}
@@ -503,6 +503,7 @@ function AppInner() {
           onHome={() => nav.go('landing')}
         />
       )}
+      <Footer />
     </div>
   )
 }
