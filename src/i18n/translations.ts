@@ -403,6 +403,7 @@ export const TRANSLATIONS = {
 
     "footer.about.title": "About",
     "footer.about.college": "College website",
+    "footer.about.legalEntity": "ОсОО \"Инженерный Колледж Лайт Академия\"",
     "footer.partners.title": "Partners",
     "footer.contacts.title": "Contacts",
     "footer.contacts.instagram": "Instagram",
@@ -814,6 +815,7 @@ export const TRANSLATIONS = {
 
     "footer.about.title": "О колледже",
     "footer.about.college": "Сайт колледжа",
+    "footer.about.legalEntity": "ОсОО \"Инженерный Колледж Лайт Академия\"",
     "footer.partners.title": "Партнёры",
     "footer.contacts.title": "Контакты",
     "footer.contacts.instagram": "Instagram",
@@ -1224,6 +1226,7 @@ export const TRANSLATIONS = {
 
     "footer.about.title": "Колледж жөнүндө",
     "footer.about.college": "Колледждин сайты",
+    "footer.about.legalEntity": "ОсОО \"Инженерный Колледж Лайт Академия\"",
     "footer.partners.title": "Өнөктөштөр",
     "footer.contacts.title": "Байланыш",
     "footer.contacts.instagram": "Instagram",

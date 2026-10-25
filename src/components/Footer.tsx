@@ -38,9 +38,12 @@ export function Footer() {
       >
         <div>
           <div style={titleStyle}>{t('footer.about.title')}</div>
-          <a href="https://college.edu.kg/" target="_blank" rel="noreferrer" style={linkStyle}>
-            {t('footer.about.college')}
-          </a>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <a href="https://college.edu.kg/" target="_blank" rel="noreferrer" style={linkStyle}>
+              {t('footer.about.college')}
+            </a>
+            <span style={linkStyle}>{t('footer.about.legalEntity')}</span>
+          </div>
         </div>
 
         <div>
