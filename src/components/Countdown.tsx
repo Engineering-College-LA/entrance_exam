@@ -14,7 +14,15 @@ function diffParts(targetMs: number) {
   }
 }
 
-export function Countdown({ targetDate }: { targetDate: string }) {
+export function Countdown({
+  targetDate,
+  titleKey = 'profile.countdown.title',
+  doneKey = 'profile.countdown.done',
+}: {
+  targetDate: string
+  titleKey?: string
+  doneKey?: string
+}) {
   const { t } = useLang()
   const targetMs = new Date(targetDate).getTime()
   const [parts, setParts] = useState(() => diffParts(targetMs))
@@ -63,7 +71,7 @@ export function Countdown({ targetDate }: { targetDate: string }) {
       }}
     >
       <div style={{ fontSize: 13, fontWeight: 700, color: '#c2d2e8', marginBottom: 14 }}>
-        {parts.done ? t('profile.countdown.done') : t('profile.countdown.title')}
+        {parts.done ? t(doneKey) : t(titleKey)}
       </div>
       {!parts.done && (
         <div style={{ display: 'flex', gap: 20, justifyContent: 'center' }}>
