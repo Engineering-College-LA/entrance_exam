@@ -207,7 +207,11 @@ export function OlympiadThanks({
           )}
 
           <div style={{ borderTop: `1px solid ${COLORS.border}`, paddingTop: 20, marginTop: 20 }}>
-            <Countdown targetDate={countdownAt} />
+            <Countdown
+              targetDate={countdownAt}
+              titleKey="olympiad.countdown.title"
+              doneKey="olympiad.countdown.done"
+            />
           </div>
 
           {student.id && (
@@ -260,9 +264,11 @@ export function OlympiadThanks({
                 marginBottom: 10,
               }}
             >
-              {t('profile.examLink.title')}
+              {t('olympiad.profile.examLink.title')}
             </div>
-            <div style={{ fontSize: 13, color: COLORS.muted }}>{t('profile.examLink.body')}</div>
+            <div style={{ fontSize: 13, color: COLORS.muted }}>
+              {t('olympiad.profile.examLink.body')}
+            </div>
           </div>
 
           <div style={{ borderTop: `1px solid ${COLORS.border}`, paddingTop: 20, marginTop: 20 }}>
@@ -276,13 +282,13 @@ export function OlympiadThanks({
                 marginBottom: 10,
               }}
             >
-              {t('profile.report.title')}
+              {t('olympiad.profile.report.title')}
             </div>
             <div style={{ fontSize: 13, color: COLORS.muted, marginBottom: 12 }}>
-              {t('profile.report.sub')}
+              {t('olympiad.profile.report.sub')}
             </div>
             <button type="button" disabled style={{ ...Styles.btnOutline, opacity: 0.5, cursor: 'not-allowed' }}>
-              {t('profile.report.cta')}
+              {t('olympiad.profile.report.cta')}
             </button>
           </div>
 
