@@ -16,6 +16,8 @@ export function SubjectLanding({
   exams = [],
   subject = 'math',
   dbQuestions = null,
+  accountPhone = null,
+  onLoginClick,
 }: {
   onStartExam: (exam: any) => void
   onRegisterOpenDoor: (eventId?: string) => void
@@ -26,6 +28,8 @@ export function SubjectLanding({
   exams?: any[]
   subject?: string
   dbQuestions?: any[] | null
+  accountPhone?: string | null
+  onLoginClick?: () => void
 }) {
   const { t } = useLang()
   const isMobile = useIsMobile()
@@ -122,35 +126,59 @@ export function SubjectLanding({
           gap: 16,
         }}
       >
-        {/* Back to Portal Button */}
-        <button
-          onClick={onBack}
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 6,
-            background: 'none',
-            border: 'none',
-            color: 'var(--t-muted)',
-            fontSize: 13,
-            fontWeight: 600,
-            cursor: 'pointer',
-            padding: '8px 12px',
-            borderRadius: 4,
-            transition: 'background .15s, color .15s',
-            alignSelf: 'flex-start',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = 'color-mix(in srgb, var(--t-text) 8%, transparent)'
-            e.currentTarget.style.color = 'var(--t-text)'
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = 'none'
-            e.currentTarget.style.color = 'var(--t-muted)'
-          }}
-        >
-          {t('dashboard.backToPortal')}
-        </button>
+        {/* Back to Portal / Login row */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+          <button
+            onClick={onBack}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              background: 'none',
+              border: 'none',
+              color: 'var(--t-muted)',
+              fontSize: 13,
+              fontWeight: 600,
+              cursor: 'pointer',
+              padding: '8px 12px',
+              borderRadius: 4,
+              transition: 'background .15s, color .15s',
+              alignSelf: 'flex-start',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'color-mix(in srgb, var(--t-text) 8%, transparent)'
+              e.currentTarget.style.color = 'var(--t-text)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'none'
+              e.currentTarget.style.color = 'var(--t-muted)'
+            }}
+          >
+            {t('dashboard.backToPortal')}
+          </button>
+
+          {!accountPhone && onLoginClick && (
+            <button
+              type="button"
+              onClick={onLoginClick}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+                background: 'none',
+                border: '1px solid color-mix(in srgb, var(--c-accent) 40%, transparent)',
+                color: COLORS.accent,
+                fontSize: 13,
+                fontWeight: 700,
+                cursor: 'pointer',
+                padding: '8px 14px',
+                borderRadius: 6,
+              }}
+            >
+              {t('account.login')}
+            </button>
+          )}
+        </div>
 
         {/* Content Layout */}
         <div

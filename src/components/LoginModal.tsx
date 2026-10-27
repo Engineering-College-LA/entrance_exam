@@ -1,11 +1,18 @@
 import { useState } from 'react'
 import { COLORS } from '../constants'
 import { useLang } from '../context/LangContext'
+import { supabase } from '../lib/supabase'
 import { Styles } from '../styles'
 
-// UI-only stub: no SMS is actually sent, any 6-digit code is accepted.
-// Swap `sendOtp`/`verifyOtp` for real Supabase phone-auth calls to wire this up for real.
-const MOCK_OTP = '123456'
+// Kyrgyzstan numbers are entered without the country code (e.g. "0700 123 456").
+// Normalize to E.164 so Supabase's SMS provider can deliver the OTP.
+function toE164(rawPhone: string): string {
+  const digits = rawPhone.replace(/\D/g, '')
+  if (rawPhone.trim().startsWith('+')) return `+${digits}`
+  if (digits.startsWith('996')) return `+${digits}`
+  if (digits.startsWith('0')) return `+996${digits.slice(1)}`
+  return `+996${digits}`
+}
 
 type Step = 'phone' | 'otp'
 
@@ -22,27 +29,47 @@ export function LoginModal({
   const [code, setCode] = useState('')
   const [error, setError] = useState('')
   const [sending, setSending] = useState(false)
+  const [verifying, setVerifying] = useState(false)
 
   const tr = (ru: string, ky: string, en: string) =>
     lang === 'ru' ? ru : lang === 'ky' ? ky : en
 
-  const handleSendCode = () => {
+  const handleSendCode = async () => {
     const digits = phone.replace(/\D/g, '')
     if (digits.length < 9) {
       setError(tr('Введите корректный номер телефона', 'Телефон номерин туура киргизиңиз', 'Enter a valid phone number'))
       return
     }
+    if (!supabase) {
+      setError(tr('Сервис авторизации не настроен', 'Авторизация кызматы такталган эмес', 'Auth service is not configured'))
+      return
+    }
     setError('')
     setSending(true)
-    window.setTimeout(() => {
-      setSending(false)
-      setStep('otp')
-    }, 400)
+    const { error: sendError } = await supabase.auth.signInWithOtp({ phone: toE164(phone) })
+    setSending(false)
+    if (sendError) {
+      setError(tr('Не удалось отправить код. Попробуйте снова', 'Код жөнөтүлбөй калды. Кайра аракет кылыңыз', 'Could not send the code. Please try again'))
+      return
+    }
+    setStep('otp')
   }
 
-  const handleVerify = () => {
-    if (code.trim() !== MOCK_OTP) {
-      setError(tr(`Неверный код. Для теста введите ${MOCK_OTP}`, `Код туура эмес. Тест үчүн ${MOCK_OTP} киргизиңиз`, `Wrong code. For testing, enter ${MOCK_OTP}`))
+  const handleVerify = async () => {
+    if (!supabase) {
+      setError(tr('Сервис авторизации не настроен', 'Авторизация кызматы такталган эмес', 'Auth service is not configured'))
+      return
+    }
+    setError('')
+    setVerifying(true)
+    const { error: verifyError } = await supabase.auth.verifyOtp({
+      phone: toE164(phone),
+      token: code.trim(),
+      type: 'sms',
+    })
+    setVerifying(false)
+    if (verifyError) {
+      setError(tr('Неверный код', 'Код туура эмес', 'Wrong code'))
       return
     }
     onSuccess(phone)
@@ -127,8 +154,15 @@ export function LoginModal({
             {error && (
               <div style={{ fontSize: 12, color: COLORS.danger, marginBottom: 12 }}>{error}</div>
             )}
-            <button type="button" onClick={handleVerify} style={{ ...Styles.btnPrimary(), width: '100%' }}>
-              {tr('Подтвердить', 'Ырастоо', 'Verify')}
+            <button
+              type="button"
+              onClick={handleVerify}
+              disabled={verifying}
+              style={{ ...Styles.btnPrimary(), width: '100%', opacity: verifying ? 0.7 : 1 }}
+            >
+              {verifying
+                ? tr('Проверка…', 'Текшерилүүдө…', 'Verifying…')
+                : tr('Подтвердить', 'Ырастоо', 'Verify')}
             </button>
             <button
               type="button"

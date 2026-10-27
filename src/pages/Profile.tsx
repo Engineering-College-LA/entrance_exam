@@ -16,9 +16,11 @@ function initials(firstName: string, lastName: string) {
 export function Profile({
   student,
   accountPhone,
+  onLoginClick,
 }: {
   student: Record<string, string>
   accountPhone?: string | null
+  onLoginClick?: () => void
 }) {
   const { t } = useLang()
   const [countdownAt, setCountdownAt] = useState(DEFAULT_COUNTDOWN_AT)
@@ -94,6 +96,27 @@ export function Profile({
               {phone || t('profile.noPhone')}
             </div>
           </div>
+
+          {!phone && onLoginClick && (
+            <button
+              type="button"
+              onClick={onLoginClick}
+              style={{
+                marginLeft: 'auto',
+                flexShrink: 0,
+                background: 'rgba(255,255,255,.12)',
+                border: '1px solid rgba(255,255,255,.25)',
+                color: COLORS.white,
+                fontSize: 13,
+                fontWeight: 700,
+                cursor: 'pointer',
+                padding: '9px 16px',
+                borderRadius: 6,
+              }}
+            >
+              {t('account.login')}
+            </button>
+          )}
         </div>
 
         <div style={{ padding: 28 }}>
