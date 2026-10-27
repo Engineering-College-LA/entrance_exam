@@ -443,6 +443,8 @@ function AppInner() {
           exams={dbExams || []}
           subject={(nav as any).subject || 'math'}
           dbQuestions={dbQuestions}
+          accountPhone={accountPhone}
+          onLoginClick={() => setLoginModalOpen(true)}
         />
       )}
       {nav.page === 'register' && (
@@ -490,7 +492,11 @@ function AppInner() {
         <OlympiadThanks student={nav.student} onHome={() => nav.go('landing')} />
       )}
       {nav.page === 'profile' && (
-        <Profile student={nav.student} accountPhone={accountPhone} />
+        <Profile
+          student={nav.student}
+          accountPhone={accountPhone}
+          onLoginClick={() => setLoginModalOpen(true)}
+        />
       )}
       {nav.page === 'paymentResult' && (
         <PaymentResult

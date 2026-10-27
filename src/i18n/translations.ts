@@ -94,6 +94,7 @@ export const TRANSLATIONS = {
     "olympiad.profile.phoneHint": "This number will be used to log in once student accounts launch",
 
     "page.profile": "My Profile",
+    "account.login": "Log in",
     "profile.guest": "Applicant",
     "profile.noPhone": "No phone on file",
     "profile.countdown.title": "Until the entrance exam",
@@ -506,6 +507,7 @@ export const TRANSLATIONS = {
     "olympiad.thanks.home": "← На главную",
 
     "page.profile": "Личный кабинет",
+    "account.login": "Войти",
     "profile.guest": "Абитуриент",
     "profile.noPhone": "Номер телефона не указан",
     "profile.countdown.title": "До вступительного экзамена",
@@ -917,6 +919,7 @@ export const TRANSLATIONS = {
     "olympiad.thanks.home": "← Башкы бетке",
 
     "page.profile": "Жеке кабинет",
+    "account.login": "Кирүү",
     "profile.guest": "Талапкер",
     "profile.noPhone": "Телефон номери көрсөтүлгөн эмес",
     "profile.countdown.title": "Кабыл алуу экзаменине чейин",
@@ -934,7 +937,7 @@ export const TRANSLATIONS = {
     "profile.whatsapp.cta": "WhatsApp-каналга өтүү",
     "profile.examLink.title": "Кабыл алуу экзамени",
     "profile.examLink.body": "Кабыл алуу экзаменин баштоо шилтемеси экзамен күнүнө жакындаганда бул жерде пайда болот.",
-    "olympiad.profile.examLink.title": "Математика олимпиадасы",
+    "olympiad.profile.examLink.title": "Математика олимпиадасына",
     "olympiad.profile.examLink.body": "Олимпиада үчүн шилтеме олимпиада күнүнө жакындаганда бул жерде пайда болот.",
     "profile.examInfo.title": "Экзамен жөнүндө",
     "profile.examInfo.body":
