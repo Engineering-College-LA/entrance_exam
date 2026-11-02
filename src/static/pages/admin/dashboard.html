@@ -696,6 +696,20 @@
           </button>
         </div>
       </div>
+      <div class="stats-row" style="margin-bottom: 20px; grid-template-columns: repeat(3,1fr);">
+        <div class="stat-card">
+          <div class="stat-card-label" id="lbl-olympiad-stat-registered">Registered</div>
+          <div class="stat-card-val" id="olympiad-stat-registered" style="color:#0b1f3a">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label" id="lbl-olympiad-stat-paid">Paid</div>
+          <div class="stat-card-val" id="olympiad-stat-paid" style="color:#1b8c5e">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label" id="lbl-olympiad-stat-pending">Pending</div>
+          <div class="stat-card-val" id="olympiad-stat-pending" style="color:#e8a020">—</div>
+        </div>
+      </div>
       <div class="section">
         <div class="section-header">
           <div>
@@ -1498,6 +1512,9 @@
       "olympiad.price.title":   "Registration Fee",
       "olympiad.price.label":   "Fee (KGS)",
       "olympiad.price.save":    "Save",
+      "olympiad.stat.registered": "Registered",
+      "olympiad.stat.paid":        "Paid",
+      "olympiad.stat.pending":     "Pending",
       "countdown.title":        "Exam Countdown",
       "countdown.label":        "Exam date & time",
       "countdown.save":         "Save",
@@ -1662,6 +1679,9 @@
       "olympiad.price.title":   "Регистрационный взнос",
       "olympiad.price.label":   "Взнос (сом)",
       "olympiad.price.save":    "Сохранить",
+      "olympiad.stat.registered": "Зарегистрировано",
+      "olympiad.stat.paid":        "Оплачено",
+      "olympiad.stat.pending":     "Ожидают оплаты",
       "countdown.title":        "Обратный отсчёт до экзамена",
       "countdown.label":        "Дата и время экзамена",
       "countdown.save":         "Сохранить",
@@ -1888,6 +1908,9 @@
     document.getElementById("lbl-olympiad-price-title").textContent = tAdmin("olympiad.price.title");
     document.getElementById("lbl-olympiad-price-label").textContent = tAdmin("olympiad.price.label");
     document.getElementById("lbl-olympiad-fee-save-btn").textContent = tAdmin("olympiad.price.save");
+    document.getElementById("lbl-olympiad-stat-registered").textContent = tAdmin("olympiad.stat.registered");
+    document.getElementById("lbl-olympiad-stat-paid").textContent = tAdmin("olympiad.stat.paid");
+    document.getElementById("lbl-olympiad-stat-pending").textContent = tAdmin("olympiad.stat.pending");
     const lblCountdownTitle = document.getElementById("lbl-countdown-title");
     if (lblCountdownTitle) lblCountdownTitle.textContent = tAdmin("countdown.title");
     const lblCountdownLabel = document.getElementById("lbl-countdown-label");
@@ -2776,6 +2799,36 @@
     renderAll();
   }
 
+  // Repeated payment attempts (abandoned pending, retried checkout) can leave
+  // several rows for the same student. Phone is the natural id here — keep
+  // one row per phone, and a paid row is never replaced by a later/other
+  // row, pending or not; a pending row can still be replaced by a paid one.
+  function dedupeOlympiadRegs(rows) {
+    const byPhone = new Map();
+    for (const r of rows) {
+      const key = r.phone || r.id;
+      const existing = byPhone.get(key);
+      if (!existing) {
+        byPhone.set(key, r);
+      } else if (existing.payment_status !== "paid" && r.payment_status === "paid") {
+        byPhone.set(key, r);
+      }
+    }
+    return Array.from(byPhone.values());
+  }
+
+  function renderOlympiadStats() {
+    const registeredEl = document.getElementById("olympiad-stat-registered");
+    const paidEl = document.getElementById("olympiad-stat-paid");
+    const pendingEl = document.getElementById("olympiad-stat-pending");
+    if (!registeredEl || !paidEl || !pendingEl) return;
+    const paid = allOlympiadRegs.filter((r) => (r.payment_status || "paid") === "paid").length;
+    const pending = allOlympiadRegs.filter((r) => r.payment_status === "pending").length;
+    registeredEl.textContent = String(allOlympiadRegs.length);
+    paidEl.textContent = String(paid);
+    pendingEl.textContent = String(pending);
+  }
+
   function renderOlympiadSection() {
     const container = document.getElementById("olympiad-table-container");
     const titleEl = document.getElementById("lbl-olympiad-section-title");
@@ -2783,6 +2836,7 @@
     if (!container || !titleEl || !countEl) return;
     titleEl.textContent = tAdmin("section.olympiadTitle");
     countEl.textContent = allOlympiadRegs.length ? (" — " + tAdminFn("records", allOlympiadRegs.length)) : "";
+    renderOlympiadStats();
 
     if (!allOlympiadRegs.length) {
       container.innerHTML = `
@@ -3463,7 +3517,7 @@
         console.warn("olympiad_registrations fetch error:", oly.error.message);
         allOlympiadRegs = [];
       } else {
-        allOlympiadRegs = oly.data || [];
+        allOlympiadRegs = dedupeOlympiadRegs(oly.data || []);
       }
     } catch (err) {
       // Network/CSP issue

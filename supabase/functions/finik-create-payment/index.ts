@@ -140,7 +140,7 @@ Deno.serve(async (req) => {
       paymentId,
       table: 'paid_exam_registrations',
       amount,
-      itemName: exam.title_ru || exam.title_en || 'Оплата регистрации на экзамен',
+      itemName: `${exam.title_ru || exam.title_en || 'Оплата регистрации на экзамен'} — ${form.firstName} ${form.lastName}, ${form.phone}`,
     }
   } else {
     const { data: settingsRow, error: settingsError } = await admin
@@ -187,7 +187,7 @@ Deno.serve(async (req) => {
       paymentId,
       table: 'olympiad_registrations',
       amount,
-      itemName: 'Регистрация на олимпиаду по математике',
+      itemName: `Регистрация на олимпиаду по математике — ${form.firstName} ${form.lastName}, ${form.phone}`,
     }
   }
 
