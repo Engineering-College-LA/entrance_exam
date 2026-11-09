@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { COLORS } from '../constants'
 import { ExamCard } from '../components/ExamCard'
 import { useLang } from '../context/LangContext'
@@ -28,6 +28,7 @@ export function Landing({
 }) {
   const { t } = useLang()
   const isMobile = useIsMobile()
+  const isWide = useIsWide()
   const isEn = t('landing.title1') === 'Mathematics'
   const [viewMode, setViewMode] = useState<ViewMode>('selection')
 
@@ -424,7 +425,7 @@ export function Landing({
           position: 'relative',
           zIndex: 1,
           width: '100%',
-          maxWidth: 900,
+          maxWidth: isWide ? 1240 : 900,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -433,11 +434,11 @@ export function Landing({
       >
         {heroHeader(t('landing.dashboard.subtitle'))}
 
-        {/* Two category cards */}
+        {/* Category cards: one row on wide screens, 2×2 on tablets */}
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)',
+            gridTemplateColumns: isMobile ? '1fr' : isWide ? 'repeat(4, 1fr)' : 'repeat(2, 1fr)',
             gap: isMobile ? 20 : 28,
             width: '100%',
           }}
@@ -501,6 +502,19 @@ export function Landing({
       </div>
     </div>
   )
+}
+
+/** True when four category cards fit side by side at their usual width. */
+function useIsWide() {
+  const query = '(min-width: 1180px)'
+  const [wide, setWide] = useState(() => typeof window !== 'undefined' && window.matchMedia(query).matches)
+  useEffect(() => {
+    const mq = window.matchMedia(query)
+    const handler = () => setWide(mq.matches)
+    mq.addEventListener('change', handler)
+    return () => mq.removeEventListener('change', handler)
+  }, [])
+  return wide
 }
 
 /* ═══════════════════════════════════════════════════════════
