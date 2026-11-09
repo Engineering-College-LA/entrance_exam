@@ -9,6 +9,7 @@ import { startOlympiadPayment } from './lib/olympiadRegistration'
 import { insertOpenDoorRegistration } from './lib/openDoorRegistration'
 import { startPaidExamPayment } from './lib/paidExamPayment'
 import { supabase } from './lib/supabase'
+import { Courses } from './pages/Courses'
 import { Exam } from './pages/Exam'
 import { Instructions } from './pages/Instructions'
 import { Landing } from './pages/Landing'
@@ -426,6 +427,7 @@ function AppInner() {
           onSelectSubject={(subject) => nav.go('subject', { subject })}
           onRegisterOpenDoor={handleRegisterOpenDoor}
           onRegisterOlympiad={handleRegisterOlympiad}
+          onOpenCourses={() => nav.go('courses', { examType: 'course' })}
           isRegisteredOpenDoor={isRegisteredOpenDoor}
           events={events}
           registeredEventIds={registeredEventIds}
@@ -491,6 +493,7 @@ function AppInner() {
       {nav.page === 'olympiadThanks' && (
         <OlympiadThanks student={nav.student} onHome={() => nav.go('landing')} />
       )}
+      {nav.page === 'courses' && <Courses onBack={() => nav.go('landing')} />}
       {nav.page === 'profile' && (
         <Profile
           student={nav.student}

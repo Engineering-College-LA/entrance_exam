@@ -100,14 +100,19 @@ Deno.serve(async (req) => {
   })
 
   // We control the PaymentId format: "pe_..." for exam payments,
-  // "oly_..." for Olympiad payments. Try the matching table first, then
-  // fall back to checking the other in case the prefix convention changes.
-  const tablesToTry: Array<'paid_exam_registrations' | 'olympiad_registrations'> =
-    paymentId.startsWith('oly_')
-      ? ['olympiad_registrations', 'paid_exam_registrations']
-      : ['paid_exam_registrations', 'olympiad_registrations']
+  // "oly_..." for Olympiad payments, "crs_..." for paid courses. Try the
+  // matching table first, then fall back to the others in case the prefix
+  // convention changes.
+  type PaymentTable = 'paid_exam_registrations' | 'olympiad_registrations' | 'course_registrations'
+  const ALL_TABLES: PaymentTable[] = ['paid_exam_registrations', 'olympiad_registrations', 'course_registrations']
+  const preferred: PaymentTable = paymentId.startsWith('oly_')
+    ? 'olympiad_registrations'
+    : paymentId.startsWith('crs_')
+      ? 'course_registrations'
+      : 'paid_exam_registrations'
+  const tablesToTry: PaymentTable[] = [preferred, ...ALL_TABLES.filter((t) => t !== preferred)]
 
-  let table: 'paid_exam_registrations' | 'olympiad_registrations' | null = null
+  let table: PaymentTable | null = null
   let existingStatus: string | null = null
 
   // A transient read error must NOT be treated the same as "no such row" —

@@ -3,7 +3,7 @@ import { COLORS } from '../constants'
 import { ExamCard } from '../components/ExamCard'
 import { useLang } from '../context/LangContext'
 import { useIsMobile } from '../hooks/examHooks'
-import { MathIcon, EventIcon, TrophyIcon } from '../components/Icons'
+import { MathIcon, EventIcon, TrophyIcon, FileTextIcon } from '../components/Icons'
 
 type ViewMode = 'selection' | 'exams' | 'events'
 
@@ -11,6 +11,7 @@ export function Landing({
   onSelectSubject,
   onRegisterOpenDoor,
   onRegisterOlympiad,
+  onOpenCourses,
   isRegisteredOpenDoor,
   events = [],
   registeredEventIds = [],
@@ -19,6 +20,7 @@ export function Landing({
   onSelectSubject: (subject: string) => void
   onRegisterOpenDoor: (eventId?: string) => void
   onRegisterOlympiad: () => void
+  onOpenCourses: () => void
   isRegisteredOpenDoor: boolean
   events?: any[]
   registeredEventIds?: string[]
@@ -435,7 +437,7 @@ export function Landing({
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)',
+            gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)',
             gap: isMobile ? 20 : 28,
             width: '100%',
           }}
@@ -449,6 +451,17 @@ export function Landing({
             accent="#e8a020"
             countLabel={isEn ? 'Grade 9' : '9 класс'}
             onClick={onRegisterOlympiad}
+          />
+
+          {/* ── Paid Courses Card ── */}
+          <CategoryCard
+            icon={<FileTextIcon size={36} />}
+            title={t('landing.category.courses.title')}
+            desc={t('landing.category.courses.desc')}
+            ctaLabel={t('landing.category.courses.cta')}
+            accent={COLORS.blue}
+            countLabel={t('landing.category.courses.count')}
+            onClick={onOpenCourses}
           />
 
           {/* ── Exams Card ── */}

@@ -13,6 +13,9 @@ export const OLYMPIAD_PATH = '/olympiad'
 
 export const OLYMPIAD_THANKS_PATH = '/olympiad/thanks'
 
+/** Paid courses: course list + registration form, paid via Finik. */
+export const COURSES_PATH = '/courses'
+
 /** Logged-in student's profile page. */
 export const PROFILE_PATH = '/profile'
 
@@ -31,6 +34,7 @@ export function resolveRoute(pathname: string): { page: PageId; examType: ExamTy
   if (p === OLYMPIAD_THANKS_PATH) return { page: 'olympiadThanks', examType: 'olympiad' }
   if (p === OLYMPIAD_PATH) return { page: 'register', examType: 'olympiad' }
   if (p === PROFILE_PATH) return { page: 'profile', examType: '' }
+  if (p === COURSES_PATH) return { page: 'courses', examType: 'course' }
   if (p === '/mathematics' || p === '/subject/math') return { page: 'subject', examType: 'trial', subject: 'math' }
   if (p.startsWith('/subject/')) {
     const s = decodeURIComponent(p.split('/')[2])
@@ -52,5 +56,6 @@ export function pathForPage(page: PageId, examType: ExamType, eventId?: string |
   if (page === 'olympiadThanks' && examType === 'olympiad') return OLYMPIAD_THANKS_PATH
   if (page === 'register' && examType === 'olympiad') return OLYMPIAD_PATH
   if (page === 'profile') return PROFILE_PATH
+  if (page === 'courses') return COURSES_PATH
   return '/'
 }

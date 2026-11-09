@@ -60,6 +60,7 @@ export const PAGES = {
   paymentResult: { labelKey: 'page.paymentResult', step: -1 },
   olympiadThanks: { labelKey: 'page.olympiadThanks', step: -1 },
   profile: { labelKey: 'page.profile', step: -1 },
+  courses: { labelKey: 'page.courses', step: -1 },
 } as const
 
 export const STEP_KEYS = [

@@ -137,6 +137,7 @@ export const ValidationService = {
       examType === 'placement' ||
       examType === 'openDoor' ||
       examType === 'olympiad' ||
+      examType === 'course' ||
       requireParentInfo
     ) {
       const parentPhone = form.parentPhone ?? ''
@@ -159,6 +160,7 @@ export const ValidationService = {
     }
     if ((examType === 'placement' || requireParentInfo) && !form.attended)
       errs.attended = 'error.attended'
+    if (examType === 'course' && !form.courseId) errs.courseId = 'error.course'
     if (examType === 'olympiad') {
       if (!form.school?.trim()) errs.school = 'error.school'
       if (!form.region) errs.region = 'error.region'

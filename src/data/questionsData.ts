@@ -303,6 +303,17 @@ export const OLYMPIAD_EXTRA_FIELDS = [
   { key: "teacherPhone", labelKey: "field.teacherPhone", required: false, type: "phone", initialValue: "+996" },
 ];
 
+// Paid courses accept younger students too, plus graduates/adults.
+export const COURSE_GRADE_FIELD = {
+  key: "grade", labelKey: "field.grade", required: true, type: "select",
+  options: ["5", "6", "7", "8", "9", "10", "11"],
+};
+
+export const COURSE_PARENT_FIELDS = [
+  { key: "parentName", labelKey: "field.parentName", required: true, placeholderKey: "field.parentName.ph", type: "text" },
+  { key: "parentPhone", labelKey: "field.parentPhone", required: true, type: "phone", initialValue: "+996" },
+];
+
 export const EXAM_RULES = [
   { icon: "⏱", color: "#e8f0fb", textColor: "#1565c0", titleKey: "rule.timer.title", descKey: "rule.timer.desc" },
   { icon: "🚫", color: "#fdecea", textColor: "#d32f2f", titleKey: "rule.attempt.title", descKey: "rule.attempt.desc" },

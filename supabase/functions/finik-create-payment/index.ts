@@ -52,7 +52,7 @@ function validateForm(
 
 type PendingPayment = {
   paymentId: string
-  table: 'paid_exam_registrations' | 'olympiad_registrations'
+  table: 'paid_exam_registrations' | 'olympiad_registrations' | 'course_registrations'
   amount: number
   itemName: string
 }
@@ -66,11 +66,13 @@ Deno.serve(async (req) => {
   const lang = typeof body.lang === 'string' ? body.lang : 'ru'
   const product = typeof body.product === 'string' ? body.product : 'exam'
   const examId = typeof body.examId === 'string' ? body.examId : ''
+  const courseId = typeof body.courseId === 'string' ? body.courseId : ''
 
-  if (product !== 'exam' && product !== 'olympiad') {
+  if (product !== 'exam' && product !== 'olympiad' && product !== 'course') {
     return json({ error: 'Unknown product' }, 400)
   }
   if (product === 'exam' && !examId) return json({ error: 'examId is required' }, 400)
+  if (product === 'course' && !courseId) return json({ error: 'courseId is required' }, 400)
 
   const FINIK_PAYMENT_URL = Deno.env.get('FINIK_PAYMENT_URL')
   const FINIK_ACCOUNT_ID = Deno.env.get('FINIK_ACCOUNT_ID')
@@ -141,6 +143,50 @@ Deno.serve(async (req) => {
       table: 'paid_exam_registrations',
       amount,
       itemName: `${exam.title_ru || exam.title_en || 'Оплата регистрации на экзамен'} — ${form.firstName} ${form.lastName}, ${form.phone}`,
+    }
+  } else if (product === 'course') {
+    // Price always comes from the courses table, never from the client.
+    const { data: course, error: courseError } = await admin
+      .from('courses')
+      .select('id, title_ru, title_en, fee_kgs, is_active')
+      .eq('id', courseId)
+      .maybeSingle()
+
+    if (courseError || !course) return json({ error: 'Unknown course' }, 404)
+    if (!course.is_active) return json({ error: 'This course is not currently open' }, 403)
+
+    const amount = Number(course.fee_kgs)
+    if (!Number.isFinite(amount) || amount <= 0) {
+      return json({ error: 'Course price is not configured' }, 500)
+    }
+
+    const validationError = validateForm(form, true, false, false)
+    if (validationError) return json({ error: validationError }, 400)
+
+    const courseTitle = course.title_ru || course.title_en || course.id
+    const paymentId = `crs_${Date.now()}_${crypto.randomUUID().slice(0, 8)}`
+    const { error: insertError } = await admin.from('course_registrations').insert({
+      id: paymentId,
+      course_id: course.id,
+      course_title: courseTitle,
+      first_name: form.firstName,
+      last_name: form.lastName,
+      phone: form.phone,
+      grade: form.grade,
+      parent_name: form.parentName,
+      parent_phone: form.parentPhone,
+      lang,
+      amount,
+      currency: 'KGS',
+      payment_status: 'pending',
+    })
+    if (insertError) return json({ error: 'Could not create registration' }, 500)
+
+    pending = {
+      paymentId,
+      table: 'course_registrations',
+      amount,
+      itemName: `Курс «${courseTitle}» — ${form.firstName} ${form.lastName}, ${form.phone}`,
     }
   } else {
     const { data: settingsRow, error: settingsError } = await admin

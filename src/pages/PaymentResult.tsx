@@ -7,11 +7,12 @@ import { readCachedPaidExamStudent } from '../lib/paidExamPayment'
 import { supabase } from '../lib/supabase'
 import { Styles } from '../styles'
 
-type PaymentType = 'exam' | 'olympiad'
+type PaymentType = 'exam' | 'olympiad' | 'course'
 
 type PaymentRow = {
   id: string
   exam_id?: string | null
+  course_title?: string | null
   first_name: string
   last_name: string
   phone: string
@@ -28,15 +29,20 @@ type PaymentRow = {
   payment_status: 'pending' | 'paid' | 'failed'
 }
 
-const TABLE_BY_TYPE: Record<PaymentType, 'paid_exam_registrations' | 'olympiad_registrations'> = {
+const TABLE_BY_TYPE: Record<
+  PaymentType,
+  'paid_exam_registrations' | 'olympiad_registrations' | 'course_registrations'
+> = {
   exam: 'paid_exam_registrations',
   olympiad: 'olympiad_registrations',
+  course: 'course_registrations',
 }
 
 const SELECT_BY_TYPE: Record<PaymentType, string> = {
   exam: 'id, exam_id, first_name, last_name, phone, grade, parent_phone, parent_name, amount, currency, payment_status',
   olympiad:
     'id, first_name, last_name, phone, grade, school, region, class_type, parent_name, parent_phone, teacher_name, teacher_phone, amount, currency, payment_status',
+  course: 'id, course_title, first_name, last_name, phone, grade, parent_name, parent_phone, amount, currency, payment_status',
 }
 
 type Status =
@@ -105,8 +111,9 @@ export function PaymentResult({
   const [paymentType] = useState<PaymentType>(() => {
     if (paymentId.startsWith('oly_')) return 'olympiad'
     if (paymentId.startsWith('pe_')) return 'exam'
+    if (paymentId.startsWith('crs_')) return 'course'
     const t = new URLSearchParams(window.location.search).get('type')
-    return t === 'olympiad' ? 'olympiad' : 'exam'
+    return t === 'olympiad' || t === 'course' ? t : 'exam'
   })
   const table = TABLE_BY_TYPE[paymentType]
   const [status, setStatus] = useState<Status>(paymentId ? 'loading' : 'invalid')
@@ -116,7 +123,7 @@ export function PaymentResult({
   const celebrated = useRef(false)
 
   useEffect(() => {
-    if (status === 'paid' && paymentType === 'exam' && !celebrated.current) {
+    if (status === 'paid' && paymentType !== 'olympiad' && !celebrated.current) {
       celebrated.current = true
       setShowSuccessOverlay(true)
     }
@@ -202,6 +209,10 @@ export function PaymentResult({
   }, [status, paymentId])
 
   const handleStart = () => {
+    if (paymentType === 'course') {
+      onHome()
+      return
+    }
     if (paymentType === 'olympiad') {
       onOlympiadConfirmed(row ? olympiadRowToStudent(row) : {})
       return
@@ -241,6 +252,12 @@ export function PaymentResult({
           <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.text }}>
             {row.first_name} {row.last_name}
           </div>
+        </div>
+      )}
+      {row?.course_title && (
+        <div style={{ marginBottom: 12 }}>
+          {fieldLabel(t('payment.result.course'))}
+          <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.text }}>{row.course_title}</div>
         </div>
       )}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
@@ -329,7 +346,7 @@ export function PaymentResult({
             {showSuccessOverlay && (
               <SuccessOverlay
                 title={t('payment.result.successTitle')}
-                subtitle={t('payment.result.paid')}
+                subtitle={paymentType === 'course' ? t('payment.result.coursePaid') : t('payment.result.paid')}
                 onDone={() => setShowSuccessOverlay(false)}
               />
             )}
@@ -339,7 +356,9 @@ export function PaymentResult({
               text={
                 paymentType === 'olympiad'
                   ? t('payment.result.olympiadPaid')
-                  : t('payment.result.paid')
+                  : paymentType === 'course'
+                    ? t('payment.result.coursePaid')
+                    : t('payment.result.paid')
               }
               bg="#eafaf1"
               borderColor="#aee3c8"
@@ -348,7 +367,9 @@ export function PaymentResult({
             <button type="button" onClick={handleStart} style={Styles.btnPrimary()}>
               {paymentType === 'olympiad'
                 ? t('payment.result.olympiadContinue')
-                : t('payment.result.start')}
+                : paymentType === 'course'
+                  ? t('payment.result.courseContinue')
+                  : t('payment.result.start')}
             </button>
           </div>
         )}

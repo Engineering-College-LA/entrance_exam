@@ -407,6 +407,10 @@
       <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
       <span id="lbl-nav-olympiad">Math Olympiad</span>
     </button>
+    <button type="button" class="nav-item" id="nav-tab-courses" onclick="setAdminTab('courses')" title="Paid Courses">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82zM12 3L1 9l11 6 9-4.91V17h2V9L12 3z"/></svg>
+      <span id="lbl-nav-courses">Paid Courses</span>
+    </button>
     <button type="button" class="nav-item" id="nav-tab-scanner" onclick="setAdminTab('scanner')" title="Ticket Scanner">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M4 4h6v2H6v4H4V4zm10 0h6v6h-2V6h-4V4zM4 14h2v4h4v2H4v-6zm16 0h2v6h-6v-2h4v-4zM8 8h2v2H8V8zm6 0h2v2h-2V8zM8 14h2v2H8v-2zm6 0h2v2h-2v-2z"/></svg>
       <span id="lbl-nav-scanner">Ticket Scanner</span>
@@ -726,6 +730,57 @@
           </div>
         </div>
         <div id="olympiad-table-container">
+          <div class="spinner-wrap">
+            <div class="spinner"></div>
+            <div style="font-size:13px;color:#6b7a95">Loading…</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Paid courses: catalog + registrations (separate tab) -->
+    <div id="panel-courses" class="content-panel">
+      <div class="section" style="margin-bottom: 20px;">
+        <div class="section-header">
+          <div>
+            <span class="section-title" id="lbl-courses-catalog-title">Courses</span>
+            <span class="section-count" id="courses-catalog-count"></span>
+          </div>
+          <button type="button" class="filter-btn active-all" style="background:#1565c0;color:#fff;border-color:#1565c0;" onclick="openCourseModal()">
+            <span id="lbl-courses-add-btn">+ Add Course</span>
+          </button>
+        </div>
+        <div id="courses-catalog-container"></div>
+      </div>
+      <div class="stats-row" style="margin-bottom: 20px; grid-template-columns: repeat(3,1fr);">
+        <div class="stat-card">
+          <div class="stat-card-label" id="lbl-courses-stat-registered">Registered</div>
+          <div class="stat-card-val" id="courses-stat-registered" style="color:#0b1f3a">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label" id="lbl-courses-stat-paid">Paid</div>
+          <div class="stat-card-val" id="courses-stat-paid" style="color:#1b8c5e">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-label" id="lbl-courses-stat-pending">Pending</div>
+          <div class="stat-card-val" id="courses-stat-pending" style="color:#e8a020">—</div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-header">
+          <div>
+            <span class="section-title" id="lbl-course-regs-title">Course registrations</span>
+            <span class="section-count" id="course-regs-count"></span>
+          </div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <select id="course-regs-filter" class="search-input" style="height:34px; min-width:180px;" onchange="renderCoursesSection()"></select>
+            <select id="course-regs-status-filter" class="search-input" style="height:34px;" onchange="renderCoursesSection()"></select>
+            <button type="button" class="filter-btn" style="color:#1b8c5e;" onclick="exportCourseRegsXlsx()">
+              <span id="lbl-course-regs-export-btn">⬇ Export XLSX</span>
+            </button>
+          </div>
+        </div>
+        <div id="course-regs-table-container">
           <div class="spinner-wrap">
             <div class="spinner"></div>
             <div style="font-size:13px;color:#6b7a95">Loading…</div>
@@ -1112,6 +1167,68 @@
   </div>
 </div>
 
+<!-- Course Add/Edit Modal -->
+<div class="modal-overlay hidden" id="course-modal-overlay" onclick="if (event.target.id === 'course-modal-overlay') closeCourseModal()">
+  <div class="open-door-detail-card" style="max-width: 600px; margin: 0 auto;" role="dialog" aria-modal="true" aria-labelledby="course-modal-title" onclick="event.stopPropagation()">
+    <div class="od-modal-hero">
+      <button type="button" class="od-modal-close" onclick="closeCourseModal()" title="Close">✕</button>
+      <div class="od-modal-title" id="course-modal-title">Add Course</div>
+      <div class="od-modal-sub" id="course-modal-sub">Shown on the public /courses page while active</div>
+    </div>
+    <form id="course-form" onsubmit="saveCourse(event)" style="display:flex; flex-direction:column; gap:12px; padding:20px 22px;">
+      <input type="hidden" id="cf-edit-id" value="" />
+      <div style="display:flex; flex-direction:column; gap:12px; max-height: 60vh; overflow-y: auto; padding-right: 6px;">
+        <div id="course-form-error" style="display:none; color:#c0392b; font-size:12px; background:#fdecea; border:1px solid #f5c6c0; border-radius:6px; padding:8px 10px;"></div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;" id="lbl-cf-title-ru" for="cf-title-ru">Title (RU) *</label>
+            <input type="text" id="cf-title-ru" class="search-input" style="width:100%; height:38px;" required />
+          </div>
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;" id="lbl-cf-fee" for="cf-fee">Price (KGS) *</label>
+            <input type="number" id="cf-fee" class="search-input" style="width:100%; height:38px;" min="1" step="1" required />
+          </div>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;" id="lbl-cf-title-en" for="cf-title-en">Title (EN)</label>
+            <input type="text" id="cf-title-en" class="search-input" style="width:100%; height:38px;" />
+          </div>
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;" id="lbl-cf-title-ky" for="cf-title-ky">Title (KY)</label>
+            <input type="text" id="cf-title-ky" class="search-input" style="width:100%; height:38px;" />
+          </div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:4px;">
+          <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;" id="lbl-cf-desc-ru" for="cf-desc-ru">Description (RU)</label>
+          <textarea id="cf-desc-ru" class="search-input" style="width:100%; height:56px; resize:vertical; font-family:inherit;"></textarea>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:4px;">
+          <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;" id="lbl-cf-desc-en" for="cf-desc-en">Description (EN)</label>
+          <textarea id="cf-desc-en" class="search-input" style="width:100%; height:56px; resize:vertical; font-family:inherit;"></textarea>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:4px;">
+          <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;" id="lbl-cf-desc-ky" for="cf-desc-ky">Description (KY)</label>
+          <textarea id="cf-desc-ky" class="search-input" style="width:100%; height:56px; resize:vertical; font-family:inherit;"></textarea>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; align-items:end;">
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <label style="font-size:10px; font-weight:700; color:#6b7a95; text-transform:uppercase;" id="lbl-cf-sort" for="cf-sort">Sort order</label>
+            <input type="number" id="cf-sort" class="search-input" style="width:100%; height:38px;" step="1" value="0" />
+          </div>
+          <label style="display:flex; align-items:center; gap:8px; font-size:13px; height:38px; cursor:pointer;">
+            <input type="checkbox" id="cf-active" checked /> <span id="lbl-cf-active">Open for registration</span>
+          </label>
+        </div>
+      </div>
+      <div style="margin-top:4px; border-top:1px solid #f0f3f9; padding-top:14px; display:flex; gap:10px; justify-content:flex-end;">
+        <button type="button" class="od-btn-secondary" onclick="closeCourseModal()" id="btn-cf-cancel">Cancel</button>
+        <button type="submit" class="od-btn-secondary" style="background:#1565c0; color:#fff; border-color:#1565c0;" id="btn-cf-submit">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <!-- Ticket Scan Result Modal -->
 <div class="modal-overlay hidden" id="scan-result-modal-overlay" onclick="handleScanResultOverlayClick(event)">
   <div class="open-door-detail-card" role="dialog" aria-modal="true" aria-labelledby="scan-modal-title" onclick="event.stopPropagation()">
@@ -1485,6 +1602,38 @@
       "nav.quizzes":        "Exams",
       "nav.paidExam":       "Entrance Exam Payments",
       "nav.olympiad":       "Math Olympiad",
+      "nav.courses":        "Paid Courses",
+      "courses.catalog.title":   "Courses",
+      "courses.add.btn":         "+ Add Course",
+      "courses.add.title":       "Add Course",
+      "courses.edit.title":      "Edit Course",
+      "courses.modal.sub":       "Shown on the public /courses page while open",
+      "courses.col.title":       "Course",
+      "courses.col.price":       "Price",
+      "courses.col.active":      "Status",
+      "courses.col.regs":        "Paid / total",
+      "courses.col.sort":        "Order",
+      "courses.active":          "Open",
+      "courses.inactive":        "Closed",
+      "courses.catalog.empty":   "No courses yet — add the first one so students can register.",
+      "courses.regs.title":      "Course registrations",
+      "courses.regs.empty.title": "No course registrations yet",
+      "courses.regs.empty.desc": "Sign-ups from the /courses page will appear here.",
+      "courses.filter.all":      "All courses",
+      "courses.filter.allStatus": "All statuses",
+      "courses.col.parent":      "Parent",
+      "courses.col.parentPhone": "Parent Phone",
+      "courses.col.comment":     "Comment",
+      "courses.comment.prompt":  "Admin comment (visible only in this dashboard):",
+      "courses.delete.confirm":  "Delete this course? Existing registrations are kept.",
+      "courses.regs.delete.confirm": "Delete this course registration?",
+      "courses.error.required":  "Title (RU) and a positive price are required.",
+      "courses.error.save":      "Could not save the course: ",
+      "courses.form.cancel":     "Cancel",
+      "courses.form.save":       "Save",
+      "courses.form.active":     "Open for registration",
+      "courses.link.copy":       "Copy link",
+      "courses.link.copied":     "Link copied",
       "nav.scanner":        "Ticket Scanner",
       "paidExam.col.status":     "Payment",
       "paidExam.col.amount":     "Amount",
@@ -1658,6 +1807,38 @@
       "nav.quizzes":        "Экзамены",
       "nav.paidExam":       "Оплата вступительных",
       "nav.olympiad":       "Олимпиада по математике",
+      "nav.courses":        "Платные курсы",
+      "courses.catalog.title":   "Курсы",
+      "courses.add.btn":         "+ Добавить курс",
+      "courses.add.title":       "Новый курс",
+      "courses.edit.title":      "Редактировать курс",
+      "courses.modal.sub":       "Показывается на странице /courses, пока курс открыт",
+      "courses.col.title":       "Курс",
+      "courses.col.price":       "Цена",
+      "courses.col.active":      "Статус",
+      "courses.col.regs":        "Оплачено / всего",
+      "courses.col.sort":        "Порядок",
+      "courses.active":          "Открыт",
+      "courses.inactive":        "Закрыт",
+      "courses.catalog.empty":   "Курсов пока нет — добавьте первый, чтобы ученики могли записаться.",
+      "courses.regs.title":      "Записи на курсы",
+      "courses.regs.empty.title": "Пока нет записей на курсы",
+      "courses.regs.empty.desc": "Здесь появятся заявки со страницы /courses.",
+      "courses.filter.all":      "Все курсы",
+      "courses.filter.allStatus": "Все статусы",
+      "courses.col.parent":      "Родитель",
+      "courses.col.parentPhone": "Телефон родителя",
+      "courses.col.comment":     "Комментарий",
+      "courses.comment.prompt":  "Комментарий администратора (виден только в панели):",
+      "courses.delete.confirm":  "Удалить этот курс? Записи на него сохранятся.",
+      "courses.regs.delete.confirm": "Удалить эту запись на курс?",
+      "courses.error.required":  "Нужны название (RU) и цена больше нуля.",
+      "courses.error.save":      "Не удалось сохранить курс: ",
+      "courses.form.cancel":     "Отмена",
+      "courses.form.save":       "Сохранить",
+      "courses.form.active":     "Открыт для записи",
+      "courses.link.copy":       "Скопировать ссылку",
+      "courses.link.copied":     "Ссылка скопирована",
       "nav.scanner":        "Сканер билетов",
       "paidExam.col.status":     "Оплата",
       "paidExam.col.amount":     "Сумма",
@@ -1837,6 +2018,8 @@
       title = tAdmin("nav.paidExam");
     } else if (activeAdminTab === "olympiad") {
       title = tAdmin("nav.olympiad");
+    } else if (activeAdminTab === "courses") {
+      title = tAdmin("nav.courses");
     } else if (activeAdminTab === "scanner") {
       title = tAdmin("nav.scanner");
     }
@@ -1861,12 +2044,14 @@
     document.getElementById("nav-tab-quizzes").classList.toggle("active", tab === "quizzes");
     document.getElementById("nav-tab-paid-exam").classList.toggle("active", tab === "paidExam");
     document.getElementById("nav-tab-olympiad").classList.toggle("active", tab === "olympiad");
+    document.getElementById("nav-tab-courses").classList.toggle("active", tab === "courses");
     document.getElementById("nav-tab-scanner").classList.toggle("active", tab === "scanner");
     document.getElementById("panel-applicants").classList.toggle("visible", tab === "applicants");
     document.getElementById("panel-open-doors").classList.toggle("visible", tab === "openDoors");
     document.getElementById("panel-quizzes").classList.toggle("visible", tab === "quizzes");
     document.getElementById("panel-paid-exam").classList.toggle("visible", tab === "paidExam");
     document.getElementById("panel-olympiad").classList.toggle("visible", tab === "olympiad");
+    document.getElementById("panel-courses").classList.toggle("visible", tab === "courses");
     document.getElementById("panel-scanner").classList.toggle("visible", tab === "scanner");
     if (tab !== "scanner") stopTicketScanner();
     if (tab === "quizzes") {
@@ -1878,6 +2063,7 @@
     closeOpenDoorModal();
     closeEventModal();
     closeOlympiadAddModal();
+    closeCourseModal();
     closeScanResultModal();
   }
 
@@ -1913,6 +2099,7 @@
     if (lblNavEvents) lblNavEvents.textContent = tAdmin("nav.events");
     document.getElementById("lbl-nav-paid-exam").textContent  = tAdmin("nav.paidExam");
     document.getElementById("lbl-nav-olympiad").textContent   = tAdmin("nav.olympiad");
+    document.getElementById("lbl-nav-courses").textContent    = tAdmin("nav.courses");
     document.getElementById("lbl-nav-scanner").textContent    = tAdmin("nav.scanner");
     document.getElementById("lbl-olympiad-export-btn").textContent = tAdmin("olympiad.export.btn");
     document.getElementById("lbl-olympiad-add-btn").textContent = tAdmin("olympiad.add.btn");
@@ -2241,6 +2428,8 @@
   let allQuestions = [];
   let allPaidExamRegs = [];
   let allOlympiadRegs = [];
+  let allCourses = [];
+  let allCourseRegs = [];
   let scannerActive = false;
   const KG_REGION_CODES = ["batken", "bishkek", "chuy", "issykKul", "jalalAbad", "naryn", "oshCity", "oshRegion", "talas"];
   const CLASS_TYPE_CODES = ["russian", "kyrgyz", "english"];
@@ -2729,6 +2918,7 @@
     renderQuizzes();
     renderPaidExamSection();
     renderOlympiadSection();
+    renderCoursesSection();
   }
 
   function paidExamStatusBadge(status) {
@@ -3247,6 +3437,385 @@
     }
   }
 
+  // ── Paid courses ────────────────────────────────────────────────────────────
+  function courseEsc(v) {
+    return String(v == null ? "" : v)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+  }
+
+  function courseTitle(course) {
+    if (!course) return "";
+    return adminLang === "ru"
+      ? (course.title_ru || course.title_en || course.id)
+      : (course.title_en || course.title_ru || course.id);
+  }
+
+  function courseRegTitle(r) {
+    const c = allCourses.find((x) => x.id === r.course_id);
+    return c ? courseTitle(c) : (r.course_title || r.course_id || "—");
+  }
+
+  // Abandoned/retried checkouts leave extra rows. Keep one row per
+  // phone + course; a paid row always wins over pending/failed ones.
+  function dedupeCourseRegs(rows) {
+    const byKey = new Map();
+    for (const r of rows) {
+      const key = (r.phone || r.id) + "|" + (r.course_id || r.course_title || "");
+      const existing = byKey.get(key);
+      if (!existing) byKey.set(key, r);
+      else if (existing.payment_status !== "paid" && r.payment_status === "paid") byKey.set(key, r);
+    }
+    return Array.from(byKey.values());
+  }
+
+  function filteredCourseRegs() {
+    const courseSel = document.getElementById("course-regs-filter");
+    const statusSel = document.getElementById("course-regs-status-filter");
+    const courseId = courseSel ? courseSel.value : "";
+    const status = statusSel ? statusSel.value : "";
+    return allCourseRegs.filter((r) =>
+      (!courseId || r.course_id === courseId) && (!status || r.payment_status === status));
+  }
+
+  function renderCourseFilters() {
+    const courseSel = document.getElementById("course-regs-filter");
+    const statusSel = document.getElementById("course-regs-status-filter");
+    if (!courseSel || !statusSel) return;
+    const curCourse = courseSel.value;
+    const curStatus = statusSel.value;
+    courseSel.innerHTML = `<option value="">${courseEsc(tAdmin("courses.filter.all"))}</option>` +
+      allCourses.map((c) => `<option value="${courseEsc(c.id)}">${courseEsc(courseTitle(c))}</option>`).join("");
+    courseSel.value = allCourses.some((c) => c.id === curCourse) ? curCourse : "";
+    statusSel.innerHTML = `<option value="">${courseEsc(tAdmin("courses.filter.allStatus"))}</option>` +
+      ["paid", "pending", "failed"].map((st) =>
+        `<option value="${st}">${courseEsc(tAdmin("paidExam.status." + st))}</option>`).join("");
+    statusSel.value = curStatus;
+  }
+
+  function renderCoursesCatalog() {
+    const container = document.getElementById("courses-catalog-container");
+    if (!container) return;
+    document.getElementById("lbl-courses-catalog-title").textContent = tAdmin("courses.catalog.title");
+    document.getElementById("lbl-courses-add-btn").textContent = tAdmin("courses.add.btn");
+    document.getElementById("courses-catalog-count").textContent =
+      allCourses.length ? (" — " + tAdminFn("records", allCourses.length)) : "";
+
+    if (!allCourses.length) {
+      container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🎓</div>
+        <div class="empty-state-desc">${courseEsc(tAdmin("courses.catalog.empty"))}</div></div>`;
+      return;
+    }
+
+    const rows = allCourses.map((c) => {
+      const regs = allCourseRegs.filter((r) => r.course_id === c.id);
+      const paid = regs.filter((r) => r.payment_status === "paid").length;
+      const color = c.is_active ? "#1b8c5e" : "#6b7a95";
+      const idEnc = encodeURIComponent(c.id);
+      return `
+        <tr class="data-row data-row-od">
+          <td><div style="font-weight:600">${courseEsc(courseTitle(c))}</div>
+            <div style="color:#6b7a95;font-size:11px;font-family:monospace">${courseEsc(c.id)}</div></td>
+          <td style="font-weight:600">${courseEsc(c.fee_kgs)} KGS</td>
+          <td><span class="badge" style="background:${color}18;color:${color};border:1px solid ${color}44">${courseEsc(tAdmin(c.is_active ? "courses.active" : "courses.inactive"))}</span></td>
+          <td>${paid} / ${regs.length}</td>
+          <td style="color:#6b7a95">${courseEsc(c.sort_order)}</td>
+          <td style="white-space:nowrap;">
+            <button type="button" class="od-btn-secondary" style="padding:6px 10px;font-size:12px;margin-right:6px;" data-course-link="${idEnc}">🔗 ${courseEsc(tAdmin("courses.link.copy"))}</button>
+            <button type="button" class="od-btn-secondary" style="padding:6px 10px;font-size:12px;margin-right:6px;" data-course-edit="${idEnc}">✎ ${courseEsc(tAdmin("olympiad.edit.btn"))}</button>
+            <button type="button" class="delete-btn" style="opacity:1" data-course-delete="${idEnc}" title="Delete">✕</button>
+          </td>
+        </tr>`;
+    }).join("");
+
+    container.innerHTML = `
+      <table>
+        <thead><tr>
+          <th>${courseEsc(tAdmin("courses.col.title"))}</th>
+          <th>${courseEsc(tAdmin("courses.col.price"))}</th>
+          <th>${courseEsc(tAdmin("courses.col.active"))}</th>
+          <th>${courseEsc(tAdmin("courses.col.regs"))}</th>
+          <th>${courseEsc(tAdmin("courses.col.sort"))}</th>
+          <th></th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+
+    if (container.dataset.delegated !== "1") {
+      container.dataset.delegated = "1";
+      container.addEventListener("click", (ev) => {
+        const link = ev.target.closest("button[data-course-link]");
+        if (link) {
+          const url = location.origin + "/courses?course=" + link.getAttribute("data-course-link");
+          navigator.clipboard?.writeText(url).then(
+            () => alert("✅ " + tAdmin("courses.link.copied") + "\n" + url),
+            () => prompt(tAdmin("courses.link.copy"), url));
+          return;
+        }
+        const edit = ev.target.closest("button[data-course-edit]");
+        if (edit) {
+          openCourseModal(decodeURIComponent(edit.getAttribute("data-course-edit")));
+          return;
+        }
+        const del = ev.target.closest("button[data-course-delete]");
+        if (del) void deleteCourse(decodeURIComponent(del.getAttribute("data-course-delete")));
+      });
+    }
+  }
+
+  function renderCourseStats() {
+    const regs = filteredCourseRegs();
+    const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = String(v); };
+    set("courses-stat-registered", regs.length);
+    set("courses-stat-paid", regs.filter((r) => r.payment_status === "paid").length);
+    set("courses-stat-pending", regs.filter((r) => r.payment_status === "pending").length);
+    set("lbl-courses-stat-registered", tAdmin("olympiad.stat.registered"));
+    set("lbl-courses-stat-paid", tAdmin("olympiad.stat.paid"));
+    set("lbl-courses-stat-pending", tAdmin("olympiad.stat.pending"));
+  }
+
+  function renderCoursesSection() {
+    const container = document.getElementById("course-regs-table-container");
+    if (!container) return;
+    renderCoursesCatalog();
+    renderCourseFilters();
+    renderCourseStats();
+    document.getElementById("lbl-course-regs-title").textContent = tAdmin("courses.regs.title");
+    document.getElementById("lbl-course-regs-export-btn").textContent = tAdmin("olympiad.export.btn");
+
+    const regs = filteredCourseRegs();
+    document.getElementById("course-regs-count").textContent =
+      regs.length ? (" — " + tAdminFn("records", regs.length)) : "";
+
+    if (!regs.length) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon">🎓</div>
+          <div class="empty-state-title">${courseEsc(tAdmin("courses.regs.empty.title"))}</div>
+          <div class="empty-state-desc">${courseEsc(tAdmin("courses.regs.empty.desc"))}</div>
+        </div>`;
+      return;
+    }
+
+    const rows = regs.map((r, i) => {
+      const idEnc = encodeURIComponent(String(r.id));
+      const parentCell = r.parent_name
+        ? `<div style="font-weight:600">${courseEsc(r.parent_name)}</div><div style="color:#6b7a95;font-size:12px">${courseEsc(r.parent_phone || "—")}</div>`
+        : "—";
+      return `
+        <tr class="data-row data-row-od">
+          <td style="color:#6b7a95;font-weight:600">${i + 1}</td>
+          <td><span style="font-weight:600">${courseEsc(r.first_name)} ${courseEsc(r.last_name)}</span></td>
+          <td style="color:#526a8a">${courseEsc(r.phone || "—")}</td>
+          <td style="font-weight:600;color:#0b1f3a">${courseEsc(r.grade || "—")}</td>
+          <td>${courseEsc(courseRegTitle(r))}</td>
+          <td>${parentCell}</td>
+          <td>${paidExamStatusBadge(r.payment_status || "pending")}</td>
+          <td style="color:#526a8a">${r.amount != null ? courseEsc(r.amount + " " + (r.currency || "KGS")) : "—"}</td>
+          <td style="color:#6b7a95;font-size:12px">${formatDate(r.registered_at)}</td>
+          <td style="color:#526a8a;font-size:12px;max-width:200px;white-space:pre-wrap">${courseEsc(r.admin_comment || "")}</td>
+          <td style="white-space:nowrap;">
+            <button type="button" class="od-btn-secondary" style="padding:6px 10px;font-size:12px;margin-right:6px;" data-creg-comment="${idEnc}">💬 ${courseEsc(tAdmin("courses.col.comment"))}</button>
+            <button type="button" class="delete-btn" style="opacity:1" data-creg-delete="${idEnc}" title="Delete">✕</button>
+          </td>
+        </tr>`;
+    }).join("");
+
+    container.innerHTML = `
+      <table>
+        <thead><tr>
+          <th>#</th>
+          <th>${courseEsc(tAdmin("col.name"))}</th>
+          <th>${courseEsc(tAdmin("col.phone"))}</th>
+          <th>${courseEsc(tAdmin("col.grade"))}</th>
+          <th>${courseEsc(tAdmin("courses.col.title"))}</th>
+          <th>${courseEsc(tAdmin("courses.col.parent"))}</th>
+          <th>${courseEsc(tAdmin("paidExam.col.status"))}</th>
+          <th>${courseEsc(tAdmin("paidExam.col.amount"))}</th>
+          <th>${courseEsc(tAdmin("col.date"))}</th>
+          <th>${courseEsc(tAdmin("courses.col.comment"))}</th>
+          <th></th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+
+    if (container.dataset.delegated !== "1") {
+      container.dataset.delegated = "1";
+      container.addEventListener("click", (ev) => {
+        const cm = ev.target.closest("button[data-creg-comment]");
+        if (cm) {
+          void editCourseRegComment(decodeURIComponent(cm.getAttribute("data-creg-comment")));
+          return;
+        }
+        const del = ev.target.closest("button[data-creg-delete]");
+        if (del) void deleteCourseReg(decodeURIComponent(del.getAttribute("data-creg-delete")));
+      });
+    }
+  }
+
+  async function editCourseRegComment(id) {
+    const reg = allCourseRegs.find((r) => String(r.id) === id);
+    if (!reg) return;
+    const next = prompt(tAdmin("courses.comment.prompt"), reg.admin_comment || "");
+    if (next === null) return;
+    const value = next.trim() || null;
+    try {
+      const sb = await getSB();
+      const { error } = await sb.from("course_registrations").update({ admin_comment: value }).eq("id", id);
+      if (error) {
+        alert("❌ " + error.message);
+        return;
+      }
+      reg.admin_comment = value;
+      renderCoursesSection();
+    } catch (e) {
+      alert("❌ " + (e.message || e));
+    }
+  }
+
+  async function deleteCourseReg(id) {
+    if (!checkDeleteAccess()) return;
+    if (!confirm(tAdmin("courses.regs.delete.confirm"))) return;
+    try {
+      const sb = await getSB();
+      const { error } = await sb.from("course_registrations").delete().eq("id", id);
+      if (error) {
+        alert("❌ " + error.message);
+        return;
+      }
+      allCourseRegs = allCourseRegs.filter((r) => String(r.id) !== id);
+    } catch (e) {
+      alert("❌ " + (e.message || e));
+    }
+    renderCoursesSection();
+  }
+
+  async function deleteCourse(id) {
+    if (!checkDeleteAccess()) return;
+    if (!confirm(tAdmin("courses.delete.confirm"))) return;
+    try {
+      const sb = await getSB();
+      const { error } = await sb.from("courses").delete().eq("id", id);
+      if (error) {
+        alert("❌ " + error.message);
+        return;
+      }
+      allCourses = allCourses.filter((c) => c.id !== id);
+    } catch (e) {
+      alert("❌ " + (e.message || e));
+    }
+    renderCoursesSection();
+  }
+
+  function exportCourseRegsXlsx() {
+    if (typeof XLSX === "undefined") {
+      alert("❌ Export library failed to load. Check your connection and try again.");
+      return;
+    }
+    const rows = filteredCourseRegs().map((r, i) => ({
+      "#": i + 1,
+      [tAdmin("col.name")]: `${r.first_name} ${r.last_name}`.trim(),
+      [tAdmin("col.phone")]: r.phone,
+      [tAdmin("col.grade")]: r.grade || "",
+      [tAdmin("courses.col.title")]: courseRegTitle(r),
+      [tAdmin("courses.col.parent")]: r.parent_name || "",
+      [tAdmin("courses.col.parentPhone")]: r.parent_phone || "",
+      [tAdmin("paidExam.col.status")]: tAdmin("paidExam.status." + (r.payment_status || "pending")),
+      [tAdmin("paidExam.col.amount")]: r.amount != null ? `${r.amount} ${r.currency || "KGS"}` : "",
+      [tAdmin("col.date")]: formatDate(r.registered_at),
+      [tAdmin("courses.col.comment")]: r.admin_comment || "",
+    }));
+    const sheet = XLSX.utils.json_to_sheet(rows);
+    const book = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(book, sheet, "Courses");
+    const stamp = new Date().toISOString().slice(0, 10);
+    XLSX.writeFile(book, `course_registrations_${stamp}.xlsx`);
+  }
+
+  function openCourseModal(editId) {
+    const course = editId ? allCourses.find((c) => c.id === editId) : null;
+    if (editId && !course) return;
+    const val = (id, v) => { document.getElementById(id).value = v == null ? "" : v; };
+    val("cf-edit-id", course ? course.id : "");
+    val("cf-title-ru", course?.title_ru);
+    val("cf-title-en", course?.title_en);
+    val("cf-title-ky", course?.title_ky);
+    val("cf-desc-ru", course?.description_ru);
+    val("cf-desc-en", course?.description_en);
+    val("cf-desc-ky", course?.description_ky);
+    val("cf-fee", course?.fee_kgs);
+    val("cf-sort", course ? course.sort_order : 0);
+    document.getElementById("cf-active").checked = course ? !!course.is_active : true;
+    document.getElementById("course-form-error").style.display = "none";
+    document.getElementById("course-modal-title").textContent = tAdmin(course ? "courses.edit.title" : "courses.add.title");
+    document.getElementById("course-modal-sub").textContent = tAdmin("courses.modal.sub");
+    document.getElementById("lbl-cf-active").textContent = tAdmin("courses.form.active");
+    document.getElementById("btn-cf-cancel").textContent = tAdmin("courses.form.cancel");
+    document.getElementById("btn-cf-submit").textContent = tAdmin("courses.form.save");
+    document.getElementById("course-modal-overlay").classList.remove("hidden");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeCourseModal() {
+    const overlay = document.getElementById("course-modal-overlay");
+    if (!overlay || overlay.classList.contains("hidden")) return;
+    overlay.classList.add("hidden");
+    if (!document.querySelector(".modal-overlay:not(.hidden)")) document.body.style.overflow = "";
+  }
+
+  function courseSlug(title) {
+    const map = { а:"a",б:"b",в:"v",г:"g",д:"d",е:"e",ё:"e",ж:"zh",з:"z",и:"i",й:"y",к:"k",л:"l",м:"m",н:"n",ң:"n",о:"o",ө:"o",п:"p",р:"r",с:"s",т:"t",у:"u",ү:"u",ф:"f",х:"h",ц:"ts",ч:"ch",ш:"sh",щ:"sch",ъ:"",ы:"y",ь:"",э:"e",ю:"yu",я:"ya" };
+    const base = String(title).toLowerCase().split("").map((ch) => (ch in map ? map[ch] : ch)).join("")
+      .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40);
+    return (base || "course") + "-" + Math.random().toString(36).slice(2, 6);
+  }
+
+  async function saveCourse(e) {
+    e.preventDefault();
+    const errEl = document.getElementById("course-form-error");
+    errEl.style.display = "none";
+    const get = (id) => document.getElementById(id).value.trim();
+    const editId = get("cf-edit-id");
+    const fee = Number.parseInt(get("cf-fee"), 10);
+    const titleRu = get("cf-title-ru");
+    if (!titleRu || !Number.isFinite(fee) || fee <= 0) {
+      errEl.textContent = tAdmin("courses.error.required");
+      errEl.style.display = "block";
+      return;
+    }
+    const fields = {
+      title_ru: titleRu,
+      title_en: get("cf-title-en") || null,
+      title_ky: get("cf-title-ky") || null,
+      description_ru: get("cf-desc-ru") || null,
+      description_en: get("cf-desc-en") || null,
+      description_ky: get("cf-desc-ky") || null,
+      fee_kgs: fee,
+      sort_order: Number.parseInt(get("cf-sort"), 10) || 0,
+      is_active: document.getElementById("cf-active").checked,
+    };
+    try {
+      const sb = await getSB();
+      const res = editId
+        ? await sb.from("courses").update(fields).eq("id", editId).select().single()
+        : await sb.from("courses").insert({ id: courseSlug(titleRu), ...fields }).select().single();
+      if (res.error) {
+        errEl.textContent = tAdmin("courses.error.save") + res.error.message;
+        errEl.style.display = "block";
+        return;
+      }
+      allCourses = editId
+        ? allCourses.map((c) => (c.id === editId ? res.data : c))
+        : [...allCourses, res.data];
+      allCourses.sort((a, b) => (a.sort_order - b.sort_order) || String(a.created_at).localeCompare(String(b.created_at)));
+      closeCourseModal();
+      renderCoursesSection();
+    } catch (err) {
+      errEl.textContent = tAdmin("courses.error.save") + (err.message || err);
+      errEl.style.display = "block";
+    }
+  }
+
   // ── Delete ──────────────────────────────────────────────────────────────────
   function checkDeleteAccess() {
     if (sessionStorage.getItem("ec_admin_role") !== "superadmin") {
@@ -3434,6 +4003,11 @@
 
   document.addEventListener("keydown", e => {
     if (e.key !== "Escape") return;
+    const cm = document.getElementById("course-modal-overlay");
+    if (cm && !cm.classList.contains("hidden")) {
+      closeCourseModal();
+      return;
+    }
     const od = document.getElementById("open-door-modal-overlay");
     if (od && !od.classList.contains("hidden")) {
       closeOpenDoorModal();
@@ -3584,6 +4158,29 @@
       } else {
         allOlympiadRegs = dedupeOlympiadRegs(oly.data || []);
       }
+
+      const crs = await sb
+        .from("courses")
+        .select("id, title_ru, title_en, title_ky, description_ru, description_en, description_ky, fee_kgs, is_active, sort_order, created_at")
+        .order("sort_order", { ascending: true })
+        .order("created_at", { ascending: true });
+      if (crs.error) {
+        console.warn("courses fetch error:", crs.error.message);
+        allCourses = [];
+      } else {
+        allCourses = crs.data || [];
+      }
+
+      const creg = await sb
+        .from("course_registrations")
+        .select("id, course_id, course_title, first_name, last_name, phone, grade, parent_name, parent_phone, lang, amount, currency, payment_status, finik_transaction_id, paid_at, admin_comment, registered_at")
+        .order("registered_at", { ascending: false });
+      if (creg.error) {
+        console.warn("course_registrations fetch error:", creg.error.message);
+        allCourseRegs = [];
+      } else {
+        allCourseRegs = dedupeCourseRegs(creg.data || []);
+      }
     } catch (err) {
       // Network/CSP issue
       const errEl = document.getElementById("alert-error");
@@ -3599,6 +4196,8 @@
       allQuestions = [];
       allPaidExamRegs = [];
       allOlympiadRegs = [];
+      allCourses = [];
+      allCourseRegs = [];
     }
 
     await loadOlympiadFee();
